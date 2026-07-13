@@ -13,6 +13,7 @@ const { connectRedis } = require('./config/redis');
 const authRoutes = require('./routes/authRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const timetableRoutes = require('./routes/timetableRoutes');
+const busRoutes = require('./routes/busRoutes');
 const errorHandler = require('./middleware/errorMiddleware');
 
 // Initialize app
@@ -81,6 +82,7 @@ io.on('connection', (socket) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/timetable', timetableRoutes);
+app.use('/api/bus', busRoutes);
 
 // API health endpoint
 app.get('/api/health', (req, res) => {
