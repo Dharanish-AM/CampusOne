@@ -2,9 +2,17 @@ require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
+const helmet = require('helmet');
+const compression = require('compression');
+const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
 const { Server } = require('socket.io');
+
 const connectDB = require('./config/db');
 const { connectRedis } = require('./config/redis');
+const authRoutes = require('./routes/authRoutes');
+const attendanceRoutes = require('./routes/attendanceRoutes');
+const errorHandler = require('./middleware/errorMiddleware');
 
 // Initialize app
 const app = express();
@@ -18,10 +26,37 @@ const io = new Server(server, {
   }
 });
 
-// Middleware
+// Bind socket instance to express app
+app.set('io', io);
+
+// Security & Optimization Middlewares
+app.use(helmet());
 app.use(cors());
+app.use(compression());
+
+// Logger
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+} else {
+  app.use(morgan('combined'));
+}
+
+// Request parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Rate Limiter: Max 100 requests per 15 minutes per IP
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: {
+    status: 'error',
+    message: 'Too many requests from this IP, please try again after 15 minutes.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use('/api', apiLimiter);
 
 // Connections
 connectDB();
@@ -31,10 +66,19 @@ connectRedis();
 io.on('connection', (socket) => {
   console.log(`User connected: ${socket.id}`);
   
+  socket.on('join', (roomName) => {
+    socket.join(roomName);
+    console.log(`Socket ${socket.id} joined room ${roomName}`);
+  });
+
   socket.on('disconnect', () => {
     console.log(`User disconnected: ${socket.id}`);
   });
 });
+
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/attendance', attendanceRoutes);
 
 // API health endpoint
 app.get('/api/health', (req, res) => {
@@ -50,8 +94,12 @@ app.get('/', (req, res) => {
   res.send('Welcome to the CampusOne API Server');
 });
 
+// Global Error Handler Middleware
+app.use(errorHandler);
+
 // Start Server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+

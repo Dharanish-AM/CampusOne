@@ -1,0 +1,86 @@
+import React from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { LayoutDashboard, BookOpen, Clock, MapPin, Trophy, MessageSquare } from 'lucide-react-native';
+
+import DashboardScreen from '../screens/app/DashboardScreen';
+import AttendanceScreen from '../screens/app/AttendanceScreen';
+import TimetableScreen from '../screens/app/TimetableScreen';
+import BusTrackingScreen from '../screens/app/BusTrackingScreen';
+import LeaderboardScreen from '../screens/app/LeaderboardScreen';
+import AIChatScreen from '../screens/app/AIChatScreen';
+
+const Tab = createBottomTabNavigator();
+
+export default function AppNavigator() {
+  return (
+    <Tab.Navigator
+      initialRouteName="Dashboard"
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: '#6366F1', // Glowing Indigo
+        tabBarInactiveTintColor: '#6B7280', // Cool Gray
+        tabBarStyle: {
+          backgroundColor: '#111827',
+          borderTopColor: '#1F2937',
+          borderTopWidth: 1,
+          height: 64,
+          paddingBottom: 10,
+          paddingTop: 8,
+        },
+        tabBarLabelStyle: {
+          fontSize: 10,
+          fontWeight: '600',
+        },
+      }}
+    >
+      <Tab.Screen
+        name="Dashboard"
+        component={DashboardScreen}
+        options={{
+          tabBarLabel: 'Dashboard',
+          tabBarIcon: ({ color, size }) => <LayoutDashboard size={size} color={color} />,
+        }}
+      />
+      <Tab.Screen
+        name="Attendance"
+        component={AttendanceScreen}
+        options={{
+          tabBarLabel: 'Attendance',
+          tabBarIcon: ({ color, size }) => <BookOpen size={size} color={color} />,
+        }}
+      />
+      <Tab.Screen
+        name="Timetable"
+        component={TimetableScreen}
+        options={{
+          tabBarLabel: 'Timetable',
+          tabBarIcon: ({ color, size }) => <Clock size={size} color={color} />,
+        }}
+      />
+      <Tab.Screen
+        name="Bus"
+        component={BusTrackingScreen}
+        options={{
+          tabBarLabel: 'Bus',
+          tabBarIcon: ({ color, size }) => <MapPin size={size} color={color} />,
+        }}
+      />
+      <Tab.Screen
+        name="Leaderboard"
+        component={LeaderboardScreen}
+        options={{
+          tabBarLabel: 'Leaderboard',
+          tabBarIcon: ({ color, size }) => <Trophy size={size} color={color} />,
+        }}
+      />
+      <Tab.Screen
+        name="AIChat"
+        component={AIChatScreen}
+        options={{
+          tabBarLabel: 'AI Chat',
+          tabBarIcon: ({ color, size }) => <MessageSquare size={size} color={color} />,
+        }}
+      />
+    </Tab.Navigator>
+  );
+}
