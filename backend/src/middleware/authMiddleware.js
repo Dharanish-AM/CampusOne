@@ -10,6 +10,18 @@ const protect = async (req, res, next) => {
       // Get token from header
       token = req.headers.authorization.split(' ')[1];
 
+      // Check if token is blacklisted in Redis
+      const { getRedisClient } = require('../config/redis');
+      const redis = getRedisClient();
+      if (redis) {
+        const isBlacklisted = await redis.get(`blacklist:${token}`);
+        if (isBlacklisted) {
+          const error = new Error('This token has been revoked. Please log in again.');
+          error.statusCode = 401;
+          return next(error);
+        }
+      }
+
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'supersecretjwtkeyforcampusone');
 

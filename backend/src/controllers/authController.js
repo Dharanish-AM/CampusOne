@@ -276,6 +276,16 @@ const logout = async (req, res, next) => {
     if (req.user) {
       await removeRefreshTokenFromRedis(req.user._id);
     }
+
+    // Blacklist access token if header is present
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      const token = req.headers.authorization.split(' ')[1];
+      const redis = getRedisClient();
+      if (redis) {
+        // Blacklist token for 15 minutes (match access token expiry)
+        await redis.set(`blacklist:${token}`, 'true', 'EX', 15 * 60);
+      }
+    }
     
     res.status(200).json({
       status: 'success',
