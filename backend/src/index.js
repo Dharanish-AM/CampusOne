@@ -15,7 +15,10 @@ const attendanceRoutes = require('./routes/attendanceRoutes');
 const timetableRoutes = require('./routes/timetableRoutes');
 const busRoutes = require('./routes/busRoutes');
 const leaderboardRoutes = require('./routes/leaderboardRoutes');
+const chatRoutes = require('./routes/chatRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 const { initLeaderboardJob } = require('./jobs/leaderboardJob');
+const { initQdrantSeed } = require('./jobs/qdrantSeedJob');
 const errorHandler = require('./middleware/errorMiddleware');
 
 // Initialize app
@@ -86,6 +89,8 @@ app.use('/api/attendance', attendanceRoutes);
 app.use('/api/timetable', timetableRoutes);
 app.use('/api/bus', busRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // API health endpoint
 app.get('/api/health', (req, res) => {
@@ -111,6 +116,8 @@ server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
     // Start background cron jobs
     initLeaderboardJob();
+    // Seed FAQ vectors into Qdrant (idempotent)
+    initQdrantSeed();
   }
 });
 

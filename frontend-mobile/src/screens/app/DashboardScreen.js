@@ -1,326 +1,491 @@
-import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
+import React, { useEffect, useCallback, useRef } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  Animated,
+  ActivityIndicator,
+  RefreshControl,
+  Platform,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
-import { LogOut, User as UserIcon, BookOpen, Clock, MapPin, Trophy, MessageSquare } from 'lucide-react-native';
+import {
+  LayoutDashboard,
+  LogOut,
+  BookOpen,
+  Clock,
+  MapPin,
+  Trophy,
+  MessageSquare,
+  Bell,
+  Briefcase,
+  AlertTriangle,
+  ChevronRight,
+  TrendingUp,
+  Calendar,
+} from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native';
 import { logoutUser } from '../../redux/slices/authSlice';
+import { fetchDashboardData } from '../../redux/slices/dashboardSlice';
 
+// ── Attendance ring (SVG-free lightweight approach) ───────────────────────────
+const AttendanceRing = ({ percentage }) => {
+  const pct = Math.min(100, Math.max(0, percentage ?? 100));
+  const isLow = pct < 75;
+  const color = isLow ? '#EF4444' : '#10B981';
+  const scaleAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      tension: 60,
+      friction: 8,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
+  return (
+    <Animated.View style={[styles.ringContainer, { transform: [{ scale: scaleAnim }] }]}>
+      <View style={[styles.ringOuter, { borderColor: color }]}>
+        <View style={styles.ringInner}>
+          <Text style={[styles.ringPct, { color }]}>{pct}%</Text>
+          <Text style={styles.ringLabel}>Attendance</Text>
+        </View>
+      </View>
+      {isLow && (
+        <View style={styles.lowBadge}>
+          <AlertTriangle size={10} color="#EF4444" />
+          <Text style={styles.lowBadgeText}>Below 75%</Text>
+        </View>
+      )}
+    </Animated.View>
+  );
+};
+
+// ── Stat Pill ────────────────────────────────────────────────────────────────
+const StatPill = ({ label, value, color }) => (
+  <View style={styles.statPill}>
+    <Text style={[styles.statValue, { color }]}>{value}</Text>
+    <Text style={styles.statLabel}>{label}</Text>
+  </View>
+);
+
+// ── Card Wrapper ──────────────────────────────────────────────────────────────
+const Card = ({ children, style, onPress }) => {
+  const Wrapper = onPress ? TouchableOpacity : View;
+  return (
+    <Wrapper
+      style={[styles.card, style]}
+      onPress={onPress}
+      activeOpacity={0.85}
+    >
+      {children}
+    </Wrapper>
+  );
+};
+
+// ── Card Header Row ───────────────────────────────────────────────────────────
+const CardHeader = ({ icon: Icon, iconColor, iconBg, title, onPress }) => (
+  <View style={styles.cardHeader}>
+    <View style={styles.cardHeaderLeft}>
+      <View style={[styles.cardIconWrap, { backgroundColor: iconBg }]}>
+        <Icon size={16} color={iconColor} />
+      </View>
+      <Text style={styles.cardTitle}>{title}</Text>
+    </View>
+    {onPress && <ChevronRight size={16} color="#4B5563" />}
+  </View>
+);
+
+// ── Main Screen ───────────────────────────────────────────────────────────────
 export default function DashboardScreen() {
   const dispatch = useDispatch();
-  const { user, profile } = useSelector((state) => state.auth);
+  const navigation = useNavigation();
+  const { user } = useSelector((s) => s.auth);
+  const { data, status, error } = useSelector((s) => s.dashboard);
 
-  const handleLogout = () => {
-    dispatch(logoutUser());
-  };
+  const isLoading = status === 'loading' || status === 'idle';
+  const isRefreshing = status === 'loading' && data !== null;
 
-  const getInitials = (name) => {
-    if (!name) return 'CO';
-    return name
+  // Fade-in animation for the whole page
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    dispatch(fetchDashboardData());
+  }, []);
+
+  useEffect(() => {
+    if (status === 'succeeded') {
+      Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }).start();
+    }
+  }, [status]);
+
+  const onRefresh = useCallback(() => {
+    dispatch(fetchDashboardData());
+  }, [dispatch]);
+
+  const getInitials = (name) =>
+    (name || 'CO')
       .split(' ')
       .map((n) => n[0])
       .slice(0, 2)
       .join('')
       .toUpperCase();
-  };
+
+  // ── Skeleton loading state ────────────────────────────────────────────────
+  if (isLoading && !data) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#6366F1" />
+          <Text style={styles.loadingText}>Loading your dashboard…</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const profile = data?.profileSummary;
+  const attendance = data?.attendanceSummary;
+  const schedule = data?.todayTimetable ?? [];
+  const bus = data?.busStatus;
+  const lbRank = data?.leaderboardRank;
+  const notifications = data?.notifications ?? [];
+  const placement = data?.placementStatus;
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* Header Area */}
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            tintColor="#6366F1"
+            colors={['#6366F1']}
+          />
+        }
+      >
+        {/* ── Header ── */}
         <View style={styles.header}>
-          <View style={styles.profileSection}>
+          <View style={styles.headerLeft}>
             <View style={styles.avatar}>
               <Text style={styles.avatarText}>{getInitials(user?.name)}</Text>
             </View>
-            <View style={styles.profileInfo}>
-              <Text style={styles.welcome}>Welcome back,</Text>
-              <Text style={styles.name}>{user?.name || 'User'}</Text>
-              <Text style={styles.roleText}>{user?.role?.toUpperCase()}</Text>
+            <View>
+              <Text style={styles.greeting}>Welcome back 👋</Text>
+              <Text style={styles.userName}>{user?.name || 'Student'}</Text>
+              {profile?.rollNumber ? (
+                <Text style={styles.subInfo}>{profile.rollNumber} · {profile.department}</Text>
+              ) : null}
             </View>
           </View>
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout} activeOpacity={0.7}>
-            <LogOut size={20} color="#F87171" />
+          <TouchableOpacity
+            onPress={() => dispatch(logoutUser())}
+            style={styles.logoutBtn}
+            activeOpacity={0.7}
+          >
+            <LogOut size={18} color="#F87171" />
           </TouchableOpacity>
         </View>
 
-        {/* Profile Card */}
-        <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <UserIcon size={18} color="#6366F1" />
-            <Text style={styles.cardTitle}>Profile Summary</Text>
-          </View>
-          
-          <View style={styles.cardBody}>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Email</Text>
-              <Text style={styles.infoValue}>{user?.email}</Text>
+        <Animated.View style={{ opacity: fadeAnim }}>
+          {/* ── Attendance + stats ── */}
+          <Card>
+            <CardHeader
+              icon={BookOpen}
+              iconColor="#10B981"
+              iconBg="rgba(16,185,129,0.12)"
+              title="Attendance Overview"
+              onPress={() => navigation.navigate('Attendance')}
+            />
+            <View style={styles.attendanceRow}>
+              <AttendanceRing percentage={attendance?.overallPercentage} />
+              <View style={styles.attendancePills}>
+                <StatPill label="Present" value={attendance?.present ?? 0} color="#10B981" />
+                <StatPill label="Absent" value={attendance?.absent ?? 0} color="#EF4444" />
+                <StatPill label="Leave" value={attendance?.leave ?? 0} color="#F59E0B" />
+                <StatPill label="Total" value={attendance?.totalClasses ?? 0} color="#6366F1" />
+              </View>
             </View>
+          </Card>
 
-            {user?.role === 'student' && profile && (
-              <>
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Roll Number</Text>
-                  <Text style={styles.infoValue}>{profile.rollNumber}</Text>
+          {/* ── Today's Timetable ── */}
+          <Card>
+            <CardHeader
+              icon={Clock}
+              iconColor="#6366F1"
+              iconBg="rgba(99,102,241,0.12)"
+              title="Today's Schedule"
+              onPress={() => navigation.navigate('Timetable')}
+            />
+            {schedule.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Calendar size={28} color="#374151" />
+                <Text style={styles.emptyStateText}>No classes today</Text>
+              </View>
+            ) : (
+              schedule.slice(0, 4).map((slot, i) => (
+                <View key={slot.id ?? i} style={[styles.slotRow, i < schedule.length - 1 && styles.slotDivider]}>
+                  <View style={styles.slotTime}>
+                    <Text style={styles.slotTimeText}>{slot.startTime}</Text>
+                    <Text style={styles.slotTimeSub}>{slot.endTime}</Text>
+                  </View>
+                  <View style={styles.slotDot} />
+                  <View style={styles.slotInfo}>
+                    <Text style={styles.slotSubject}>{slot.subjectName}</Text>
+                    <Text style={styles.slotMeta}>{slot.subjectCode} · {slot.room || 'TBD'}</Text>
+                  </View>
                 </View>
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Department</Text>
-                  <Text style={styles.infoValue}>{profile.department}</Text>
-                </View>
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Semester</Text>
-                  <Text style={styles.infoValue}>Semester {profile.semester}</Text>
-                </View>
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Batch</Text>
-                  <Text style={styles.infoValue}>{profile.batch}</Text>
-                </View>
-              </>
+              ))
             )}
-
-            {user?.role === 'faculty' && profile && (
-              <>
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Employee ID</Text>
-                  <Text style={styles.infoValue}>{profile.employeeId}</Text>
-                </View>
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Department</Text>
-                  <Text style={styles.infoValue}>{profile.department}</Text>
-                </View>
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Designation</Text>
-                  <Text style={styles.infoValue}>{profile.designation}</Text>
-                </View>
-              </>
+            {schedule.length > 4 && (
+              <TouchableOpacity onPress={() => navigation.navigate('Timetable')}>
+                <Text style={styles.seeMore}>+{schedule.length - 4} more classes →</Text>
+              </TouchableOpacity>
             )}
+          </Card>
+
+          {/* ── Bus + Leaderboard side by side ── */}
+          <View style={styles.twoCol}>
+            <Card style={styles.halfCard} onPress={() => navigation.navigate('Bus')}>
+              <View style={[styles.miniIconWrap, { backgroundColor: 'rgba(239,68,68,0.12)' }]}>
+                <MapPin size={18} color="#EF4444" />
+              </View>
+              <Text style={styles.miniCardTitle}>Bus Status</Text>
+              {bus?.activeRoute === 'No Active Bus' ? (
+                <Text style={styles.miniCardSub}>No active bus</Text>
+              ) : (
+                <>
+                  <Text style={styles.miniCardValue} numberOfLines={1}>{bus?.activeRoute}</Text>
+                  {bus?.speed !== undefined && (
+                    <Text style={styles.miniCardSub}>{bus.speed} km/h</Text>
+                  )}
+                  <View style={styles.liveDot}>
+                    <View style={styles.liveDotPulse} />
+                    <Text style={styles.liveText}>LIVE</Text>
+                  </View>
+                </>
+              )}
+            </Card>
+
+            <Card style={styles.halfCard} onPress={() => navigation.navigate('Leaderboard')}>
+              <View style={[styles.miniIconWrap, { backgroundColor: 'rgba(245,158,11,0.12)' }]}>
+                <Trophy size={18} color="#F59E0B" />
+              </View>
+              <Text style={styles.miniCardTitle}>Leaderboard</Text>
+              {lbRank?.rank ? (
+                <>
+                  <Text style={styles.miniCardRank}>#{lbRank.rank}</Text>
+                  <Text style={styles.miniCardSub}>{lbRank.score.toLocaleString()} pts</Text>
+                </>
+              ) : (
+                <Text style={styles.miniCardSub}>No entry yet</Text>
+              )}
+              <View style={styles.trendRow}>
+                <TrendingUp size={12} color="#F59E0B" />
+                <Text style={styles.trendText}>Global Rank</Text>
+              </View>
+            </Card>
           </View>
-        </View>
 
-        {/* Feature Grid placeholders for Phase 1 */}
-        <Text style={styles.sectionTitle}>Phase 1 Modules Scaffolding</Text>
-
-        <View style={styles.grid}>
-          {/* Module 2: Attendance */}
-          <View style={styles.gridItem}>
-            <View style={[styles.gridIcon, { backgroundColor: 'rgba(16, 185, 129, 0.1)' }]}>
-              <BookOpen size={24} color="#10B981" />
+          {/* ── AI Chat CTA ── */}
+          <Card onPress={() => navigation.navigate('AIChat')}>
+            <View style={styles.aiRow}>
+              <View style={[styles.cardIconWrap, { backgroundColor: 'rgba(139,92,246,0.12)' }]}>
+                <MessageSquare size={16} color="#8B5CF6" />
+              </View>
+              <View style={styles.aiText}>
+                <Text style={styles.aiTitle}>CampusBot AI Assistant</Text>
+                <Text style={styles.aiSub}>Ask about attendance, schedule, bus, or campus policies</Text>
+              </View>
+              <ChevronRight size={16} color="#8B5CF6" />
             </View>
-            <Text style={styles.gridLabel}>Attendance</Text>
-            <Text style={styles.gridSub}>Track daily/subject logs</Text>
-          </View>
+          </Card>
 
-          {/* Module 3: Timetable */}
-          <View style={styles.gridItem}>
-            <View style={[styles.gridIcon, { backgroundColor: 'rgba(99, 102, 241, 0.1)' }]}>
-              <Clock size={24} color="#6366F1" />
-            </View>
-            <Text style={styles.gridLabel}>Timetable</Text>
-            <Text style={styles.gridSub}>View daily schedules</Text>
-          </View>
+          {/* ── Notifications ── */}
+          {notifications.length > 0 && (
+            <Card>
+              <CardHeader
+                icon={Bell}
+                iconColor="#F59E0B"
+                iconBg="rgba(245,158,11,0.12)"
+                title={`Notifications (${notifications.length})`}
+              />
+              {notifications.map((n, i) => (
+                <View key={n.id ?? i} style={[styles.notifRow, i < notifications.length - 1 && styles.notifDivider]}>
+                  <View style={styles.notifDot} />
+                  <View style={styles.notifContent}>
+                    <Text style={styles.notifTitle}>{n.title}</Text>
+                    <Text style={styles.notifMsg}>{n.message}</Text>
+                  </View>
+                </View>
+              ))}
+            </Card>
+          )}
 
-          {/* Module 4: Bus Tracking */}
-          <View style={styles.gridItem}>
-            <View style={[styles.gridIcon, { backgroundColor: 'rgba(239, 68, 68, 0.1)' }]}>
-              <MapPin size={24} color="#EF4444" />
-            </View>
-            <Text style={styles.gridLabel}>Bus Tracking</Text>
-            <Text style={styles.gridSub}>Live coordinates on map</Text>
-          </View>
+          {/* ── Placement ── */}
+          {placement && (
+            <Card>
+              <CardHeader
+                icon={Briefcase}
+                iconColor={placement.isEligible ? '#10B981' : '#6B7280'}
+                iconBg={placement.isEligible ? 'rgba(16,185,129,0.12)' : 'rgba(107,114,128,0.12)'}
+                title="Placement Status"
+              />
+              <View style={[styles.placementBadge, { borderColor: placement.isEligible ? '#10B981' : '#374151' }]}>
+                <Text style={[styles.placementStatus, { color: placement.isEligible ? '#10B981' : '#6B7280' }]}>
+                  {placement.isEligible ? '✓ Eligible' : '⌛ Not Yet Eligible'}
+                </Text>
+              </View>
+              <Text style={styles.placementMsg}>{placement.statusMessage}</Text>
+            </Card>
+          )}
 
-          {/* Module 5: Leaderboard */}
-          <View style={styles.gridItem}>
-            <View style={[styles.gridIcon, { backgroundColor: 'rgba(245, 158, 11, 0.1)' }]}>
-              <Trophy size={24} color="#F59E0B" />
+          {/* Error banner */}
+          {error && (
+            <View style={styles.errorBanner}>
+              <AlertTriangle size={14} color="#F87171" />
+              <Text style={styles.errorText}>{error}</Text>
             </View>
-            <Text style={styles.gridLabel}>Leaderboard</Text>
-            <Text style={styles.gridSub}>Coding ranks & metrics</Text>
-          </View>
+          )}
 
-          {/* Module 6: AI Assistant */}
-          <View style={styles.gridItemFull}>
-            <View style={[styles.gridIcon, { backgroundColor: 'rgba(139, 92, 246, 0.1)' }]}>
-              <MessageSquare size={24} color="#8B5CF6" />
-            </View>
-            <View style={styles.gridItemFullText}>
-              <Text style={styles.gridLabel}>AI Assistant</Text>
-              <Text style={styles.gridSub}>Chat dynamically with LangChain RAG pipeline</Text>
-            </View>
-          </View>
-        </View>
-
+          <View style={{ height: 20 }} />
+        </Animated.View>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
+// ── Styles ────────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#090D1A',
-  },
-  scrollContainer: {
-    paddingHorizontal: 24,
-    paddingTop: 30,
-    paddingBottom: 40,
-  },
+  container: { flex: 1, backgroundColor: '#080C18' },
+  scroll: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 24 },
+
+  loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 16 },
+  loadingText: { color: '#9CA3AF', fontSize: 14 },
+
+  // Header
   header: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 20,
   },
-  profileSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
+  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 },
   avatar: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
+    width: 50, height: 50, borderRadius: 25,
     backgroundColor: '#1F2937',
-    borderWidth: 2,
-    borderColor: '#6366F1',
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderWidth: 2, borderColor: '#6366F1',
+    alignItems: 'center', justifyContent: 'center',
   },
-  avatarText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  profileInfo: {
-    marginLeft: 14,
-  },
-  welcome: {
-    fontSize: 13,
-    color: '#9CA3AF',
-  },
-  name: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    marginTop: 2,
-  },
-  roleText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#6366F1',
-    marginTop: 2,
-    letterSpacing: 1,
-  },
-  logoutButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    backgroundColor: '#111827',
-    borderWidth: 1,
-    borderColor: '#374151',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  avatarText: { fontSize: 18, fontWeight: '700', color: '#FFFFFF' },
+  greeting: { color: '#9CA3AF', fontSize: 12 },
+  userName: { color: '#FFFFFF', fontSize: 17, fontWeight: '700', marginTop: 1 },
+  subInfo: { color: '#6B7280', fontSize: 11, marginTop: 2 },
+  logoutBtn: { padding: 8, borderRadius: 10, backgroundColor: 'rgba(248,113,113,0.1)' },
+
+  // Cards
   card: {
-    backgroundColor: '#111827',
+    backgroundColor: '#0F1629',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
     borderWidth: 1,
     borderColor: '#1F2937',
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 30,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 6,
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#1F2937',
-    paddingBottom: 10,
-  },
-  cardTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    marginLeft: 8,
-  },
-  cardBody: {},
-  infoRow: {
-    flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 12,
+    marginBottom: 14,
   },
-  infoLabel: {
-    fontSize: 13,
-    color: '#9CA3AF',
+  cardHeaderLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  cardIconWrap: { width: 30, height: 30, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
+  cardTitle: { color: '#E5E7EB', fontSize: 14, fontWeight: '600' },
+
+  // Attendance
+  attendanceRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+  ringContainer: { alignItems: 'center', gap: 6 },
+  ringOuter: {
+    width: 90, height: 90, borderRadius: 45,
+    borderWidth: 5,
+    alignItems: 'center', justifyContent: 'center',
   },
-  infoValue: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#F3F4F6',
-  },
-  sectionTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#9CA3AF',
-    textTransform: 'uppercase',
-    letterSpacing: 1.5,
-    marginBottom: 16,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  gridItem: {
-    backgroundColor: '#111827',
-    borderWidth: 1,
-    borderColor: '#1F2937',
-    borderRadius: 16,
-    padding: 16,
-    width: '48%',
-    marginBottom: 16,
-    shadowColor: '#000000',
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-  gridItemFull: {
-    backgroundColor: '#111827',
-    borderWidth: 1,
-    borderColor: '#1F2937',
-    borderRadius: 16,
-    padding: 16,
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-    shadowColor: '#000000',
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-  gridItemFullText: {
-    marginLeft: 14,
+  ringInner: { alignItems: 'center' },
+  ringPct: { fontSize: 20, fontWeight: '800' },
+  ringLabel: { color: '#6B7280', fontSize: 9, marginTop: 1 },
+  lowBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'rgba(239,68,68,0.1)', borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 },
+  lowBadgeText: { color: '#EF4444', fontSize: 9, fontWeight: '600' },
+  attendancePills: { flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  statPill: { backgroundColor: '#111827', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, alignItems: 'center', minWidth: 68 },
+  statValue: { fontSize: 18, fontWeight: '700' },
+  statLabel: { color: '#6B7280', fontSize: 10, marginTop: 2 },
+
+  // Timetable slots
+  emptyState: { alignItems: 'center', gap: 8, paddingVertical: 16 },
+  emptyStateText: { color: '#4B5563', fontSize: 13 },
+  slotRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10 },
+  slotDivider: { borderBottomWidth: 1, borderBottomColor: '#111827' },
+  slotTime: { width: 52, alignItems: 'flex-end' },
+  slotTimeText: { color: '#9CA3AF', fontSize: 12, fontWeight: '600' },
+  slotTimeSub: { color: '#4B5563', fontSize: 10 },
+  slotDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#6366F1' },
+  slotInfo: { flex: 1 },
+  slotSubject: { color: '#E5E7EB', fontSize: 13, fontWeight: '600' },
+  slotMeta: { color: '#6B7280', fontSize: 11, marginTop: 2 },
+  seeMore: { color: '#6366F1', fontSize: 12, marginTop: 8, textAlign: 'center' },
+
+  // Two-column cards
+  twoCol: { flexDirection: 'row', gap: 12, marginBottom: 0 },
+  halfCard: {
     flex: 1,
-  },
-  gridIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: '#0F1629',
+    borderRadius: 16,
+    padding: 14,
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#1F2937',
   },
-  gridLabel: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#FFFFFF',
+  miniIconWrap: { width: 34, height: 34, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
+  miniCardTitle: { color: '#9CA3AF', fontSize: 11, fontWeight: '600', marginBottom: 4 },
+  miniCardValue: { color: '#FFFFFF', fontSize: 14, fontWeight: '700' },
+  miniCardRank: { color: '#F59E0B', fontSize: 24, fontWeight: '800' },
+  miniCardSub: { color: '#6B7280', fontSize: 11, marginTop: 2 },
+  liveDot: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 8 },
+  liveDotPulse: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#10B981' },
+  liveText: { color: '#10B981', fontSize: 10, fontWeight: '700' },
+  trendRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 8 },
+  trendText: { color: '#F59E0B', fontSize: 10, fontWeight: '600' },
+
+  // AI CTA
+  aiRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  aiText: { flex: 1 },
+  aiTitle: { color: '#E5E7EB', fontSize: 14, fontWeight: '600' },
+  aiSub: { color: '#6B7280', fontSize: 12, marginTop: 2 },
+
+  // Notifications
+  notifRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, paddingVertical: 10 },
+  notifDivider: { borderBottomWidth: 1, borderBottomColor: '#111827' },
+  notifDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#F59E0B', marginTop: 5 },
+  notifContent: { flex: 1 },
+  notifTitle: { color: '#E5E7EB', fontSize: 13, fontWeight: '600' },
+  notifMsg: { color: '#9CA3AF', fontSize: 12, marginTop: 2, lineHeight: 18 },
+
+  // Placement
+  placementBadge: { borderWidth: 1, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 6, alignSelf: 'flex-start', marginBottom: 8 },
+  placementStatus: { fontSize: 13, fontWeight: '700' },
+  placementMsg: { color: '#6B7280', fontSize: 12, lineHeight: 18 },
+
+  // Error banner
+  errorBanner: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    backgroundColor: 'rgba(248,113,113,0.08)',
+    borderWidth: 1, borderColor: 'rgba(248,113,113,0.25)',
+    borderRadius: 12, padding: 12, marginBottom: 12,
   },
-  gridSub: {
-    fontSize: 11,
-    color: '#9CA3AF',
-    marginTop: 4,
-  },
+  errorText: { color: '#F87171', fontSize: 13, flex: 1 },
 });

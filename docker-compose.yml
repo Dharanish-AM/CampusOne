@@ -21,9 +21,22 @@ services:
     networks:
       - campusone_network
 
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: campusone_qdrant
+    ports:
+      - "6333:6333"   # REST API
+      - "6334:6334"   # gRPC
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - campusone_network
+    restart: unless-stopped
+
 volumes:
   mongodb_data:
   redis_data:
+  qdrant_data:
 
 networks:
   campusone_network:
