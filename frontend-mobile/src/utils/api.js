@@ -1,7 +1,5 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { store } from '../redux/store';
-import { updateTokens, logoutUser } from '../redux/slices/authSlice';
 
 // API Base URL Configuration
 // - 10.0.2.2:5000 maps to localhost from the Android Emulator
@@ -32,14 +30,16 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
-// Request Interceptor: Attach access token to every outgoing request
+// Request Interceptor: Attach access token from AsyncStorage to every outgoing request
 api.interceptors.request.use(
   async (config) => {
-    const state = store.getState();
-    const token = state.auth.token;
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    try {
+      const token = await AsyncStorage.getItem('accessToken');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (err) {
+      console.warn('Failed to read accessToken from AsyncStorage:', err.message);
     }
     return config;
   },
@@ -81,6 +81,11 @@ api.interceptors.response.use(
 
       originalRequest._retry = true;
       isRefreshing = true;
+
+      // Dynamically import store and actions only when a 401 occurs.
+      // This completely breaks the circular dependency at module initialization time.
+      const { store } = require('../redux/store');
+      const { updateTokens, logoutUser } = require('../redux/slices/authSlice');
 
       try {
         const storedRefreshToken = await AsyncStorage.getItem('refreshToken');
