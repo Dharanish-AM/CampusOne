@@ -5,7 +5,7 @@ import axios from 'axios';
 // Base API URL - pointing to local machine default server port
 // Note: When running on Android Emulator, localhost maps to 10.0.2.2.
 // For iOS Simulator, localhost works. For Expo Go physical devices, use LAN IP.
-const API_URL = 'http://10.0.2.2:5000/api/auth'; 
+const API_URL = 'http://192.168.0.109:5000/api/auth'; 
 
 export const registerUser = createAsyncThunk(
   'auth/register',
