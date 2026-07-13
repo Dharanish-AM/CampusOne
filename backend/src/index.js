@@ -14,6 +14,8 @@ const authRoutes = require('./routes/authRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const timetableRoutes = require('./routes/timetableRoutes');
 const busRoutes = require('./routes/busRoutes');
+const leaderboardRoutes = require('./routes/leaderboardRoutes');
+const { initLeaderboardJob } = require('./jobs/leaderboardJob');
 const errorHandler = require('./middleware/errorMiddleware');
 
 // Initialize app
@@ -83,6 +85,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/timetable', timetableRoutes);
 app.use('/api/bus', busRoutes);
+app.use('/api/leaderboard', leaderboardRoutes);
 
 // API health endpoint
 app.get('/api/health', (req, res) => {
@@ -106,6 +109,8 @@ const PORT = process.env.NODE_ENV === 'test' ? 0 : (process.env.PORT || 5000);
 server.listen(PORT, () => {
   if (process.env.NODE_ENV !== 'test') {
     console.log(`Server running on port ${PORT}`);
+    // Start background cron jobs
+    initLeaderboardJob();
   }
 });
 

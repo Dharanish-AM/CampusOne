@@ -41,6 +41,11 @@ const studentSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    codingHandles: {
+      leetcode: { type: String, trim: true, default: null },
+      codeforces: { type: String, trim: true, default: null },
+      github: { type: String, trim: true, default: null },
+    },
   },
   {
     timestamps: true,
