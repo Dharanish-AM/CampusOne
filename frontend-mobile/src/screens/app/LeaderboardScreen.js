@@ -10,14 +10,14 @@ import {
   ActivityIndicator,
   RefreshControl,
   ScrollView,
-  SafeAreaView,
   Animated,
   Dimensions,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
-import { Trophy, Code, Github, Star, Zap, Edit3, X, ChevronUp, Award } from 'lucide-react-native';
+import { Trophy, Code, GitBranch, Star, Zap, Edit3, X, ChevronUp, Award } from 'lucide-react-native';
 
 import {
   fetchLeaderboard,
@@ -116,7 +116,7 @@ const LeaderboardRow = ({ entry, onPress, filterKey }) => {
         <View style={styles.platformIcons}>
           {handles.leetcode && <Code size={12} color="#FFA116" style={styles.platformIcon} />}
           {handles.codeforces && <Zap size={12} color="#5CC2F2" style={styles.platformIcon} />}
-          {handles.github && <Github size={12} color="#9CA3AF" style={styles.platformIcon} />}
+          {handles.github && <GitBranch size={12} color="#9CA3AF" style={styles.platformIcon} />}
         </View>
       </View>
       <View style={styles.rowScoreBadge}>
@@ -168,7 +168,7 @@ const DetailSheet = ({ entry, visible, onClose }) => {
           {/* GitHub */}
           <View style={styles.sheetPlatform}>
             <View style={styles.sheetPlatformHeader}>
-              <Github size={16} color="#9CA3AF" />
+              <GitBranch size={16} color="#9CA3AF" />
               <Text style={[styles.sheetPlatformTitle, { color: '#9CA3AF' }]}>GitHub</Text>
             </View>
             <Text style={styles.sheetStat}>Repos: <Text style={styles.sheetStatValue}>{gh.publicRepos || 0}</Text></Text>
@@ -236,7 +236,7 @@ const HandlesModal = ({ visible, onClose, myHandles, onSave, saving }) => {
           </View>
 
           <View style={styles.modalField}>
-            <Github size={14} color="#9CA3AF" style={styles.modalFieldIcon} />
+            <GitBranch size={14} color="#9CA3AF" style={styles.modalFieldIcon} />
             <TextInput
               style={styles.modalInput}
               value={form.github}
