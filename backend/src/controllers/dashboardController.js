@@ -74,21 +74,28 @@ const getDashboardData = async (req, res, next) => {
       const todayDay = days[new Date().getDay()];
 
       const todaySlots = await Timetable.find({
-        type: "recurring",
+        isRecurring: true,
         dayOfWeek: todayDay,
         department: student.department,
         semester: student.semester,
         batch: student.batch,
-      }).sort({ startTime: 1 });
+      })
+        .populate("subjectId", "name code")
+        .populate({
+          path: "facultyId",
+          populate: { path: "userId", select: "name" },
+        })
+        .sort({ startTime: 1 });
 
       dashboardData.todayTimetable = todaySlots.map((slot) => ({
         id: slot._id,
-        subjectCode: slot.subjectCode,
-        subjectName: slot.subjectName,
+        subjectCode: slot.subjectId?.code || "N/A",
+        subjectName: slot.subjectId?.name || "Unknown Subject",
         startTime: slot.startTime,
         endTime: slot.endTime,
-        room: slot.room,
-        facultyName: slot.facultyName,
+        room: slot.roomNumber || "TBD",
+        facultyName: slot.facultyId?.userId?.name || "N/A",
+        type: slot.type,
       }));
 
       // 4. Fetch Bus Status
@@ -183,21 +190,24 @@ const getDashboardData = async (req, res, next) => {
       const todayDay = days[new Date().getDay()];
 
       const todaySlots = await Timetable.find({
-        type: "recurring",
+        isRecurring: true,
         dayOfWeek: todayDay,
-        facultyName: req.user.name,
-      }).sort({ startTime: 1 });
+        facultyId: faculty._id,
+      })
+        .populate("subjectId", "name code")
+        .sort({ startTime: 1 });
 
       dashboardData.todayClassesTaught = todaySlots.map((slot) => ({
         id: slot._id,
-        subjectCode: slot.subjectCode,
-        subjectName: slot.subjectName,
+        subjectCode: slot.subjectId?.code || "N/A",
+        subjectName: slot.subjectId?.name || "Unknown Subject",
         startTime: slot.startTime,
         endTime: slot.endTime,
-        room: slot.room,
+        room: slot.roomNumber || "TBD",
         department: slot.department,
         semester: slot.semester,
         batch: slot.batch,
+        type: slot.type,
       }));
 
       dashboardData.notifications = [
