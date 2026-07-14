@@ -476,8 +476,8 @@ const styles = StyleSheet.create({
   },
   avatarText: { fontSize: 18, fontWeight: "700", color: "#FFFFFF" },
   greeting: { color: "#9CA3AF", fontSize: 12 },
-  userName: { color: "#FFFFFF", fontSize: 17, fontWeight: "700", marginTop: 1 },
-  subInfo: { color: "#6B7280", fontSize: 11, marginTop: 2 },
+  userName: { color: "#FFFFFF", fontSize: 17, fontFamily: 'Fraunces_600SemiBold', marginTop: 1 },
+  subInfo: { color: "#6B7280", fontSize: 11, fontFamily: 'SpaceGrotesk_400Regular', marginTop: 2 },
   logoutBtn: {
     padding: 8,
     borderRadius: 10,
@@ -486,12 +486,12 @@ const styles = StyleSheet.create({
 
   // Cards
   card: {
-    backgroundColor: "#161f2d",
-    borderRadius: 16,
+    backgroundColor: "rgba(15, 23, 42, 0.6)",
+    borderRadius: 24,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: "#1e2634",
+    borderColor: "rgba(255, 255, 255, 0.07)",
   },
   cardHeader: {
     flexDirection: "row",
@@ -507,7 +507,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  cardTitle: { color: "#E5E7EB", fontSize: 14, fontWeight: "600" },
+  cardTitle: { color: "#E5E7EB", fontSize: 14, fontFamily: 'SpaceGrotesk_600SemiBold' },
 
   // Attendance
   attendanceRow: { flexDirection: "row", alignItems: "center", gap: 16 },
@@ -573,12 +573,12 @@ const styles = StyleSheet.create({
   twoCol: { flexDirection: "row", gap: 12, marginBottom: 0 },
   halfCard: {
     flex: 1,
-    backgroundColor: "#161f2d",
-    borderRadius: 16,
+    backgroundColor: "rgba(15, 23, 42, 0.6)",
+    borderRadius: 24,
     padding: 14,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: "#1e2634",
+    borderColor: "rgba(255, 255, 255, 0.07)",
   },
   miniIconWrap: {
     width: 34,

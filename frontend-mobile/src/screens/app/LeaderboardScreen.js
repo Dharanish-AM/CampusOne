@@ -161,13 +161,13 @@ const LeaderboardRow = ({ entry, onPress, filterKey }) => {
         </Text>
         <View style={styles.platformIcons}>
           {handles.leetcode && (
-            <Code size={12} color="#FFA116" style={styles.platformIcon} />
+            <Code size={12} color="#fb923c" style={styles.platformIcon} />
           )}
           {handles.codeforces && (
-            <Zap size={12} color="#5CC2F2" style={styles.platformIcon} />
+            <Zap size={12} color="#60a5fa" style={styles.platformIcon} />
           )}
           {handles.github && (
-            <GitBranch size={12} color="#9CA3AF" style={styles.platformIcon} />
+            <GitBranch size={12} color="#a78bfa" style={styles.platformIcon} />
           )}
         </View>
       </View>
@@ -207,10 +207,10 @@ const DetailSheet = ({ entry, visible, onClose }) => {
 
         <View style={styles.sheetStats}>
           {/* LeetCode */}
-          <View style={styles.sheetPlatform}>
+          <View style={[styles.sheetPlatform, { borderColor: 'rgba(249, 115, 22, 0.3)', backgroundColor: 'rgba(249, 115, 22, 0.15)' }]}>
             <View style={styles.sheetPlatformHeader}>
-              <Code size={16} color="#FFA116" />
-              <Text style={[styles.sheetPlatformTitle, { color: "#FFA116" }]}>
+              <Code size={16} color="#fb923c" />
+              <Text style={[styles.sheetPlatformTitle, { color: "#fb923c" }]}>
                 LeetCode
               </Text>
             </View>
@@ -241,10 +241,10 @@ const DetailSheet = ({ entry, visible, onClose }) => {
           </View>
 
           {/* Codeforces */}
-          <View style={styles.sheetPlatform}>
+          <View style={[styles.sheetPlatform, { borderColor: 'rgba(59, 130, 246, 0.3)', backgroundColor: 'rgba(59, 130, 246, 0.15)' }]}>
             <View style={styles.sheetPlatformHeader}>
-              <Zap size={16} color="#5CC2F2" />
-              <Text style={[styles.sheetPlatformTitle, { color: "#5CC2F2" }]}>
+              <Zap size={16} color="#60a5fa" />
+              <Text style={[styles.sheetPlatformTitle, { color: "#60a5fa" }]}>
                 Codeforces
               </Text>
             </View>
@@ -773,7 +773,7 @@ const styles = StyleSheet.create({
   podiumName: {
     color: "#FFFFFF",
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: 'SpaceGrotesk_600SemiBold',
     textAlign: "center",
   },
   podiumDept: {
@@ -803,13 +803,13 @@ const styles = StyleSheet.create({
   rowCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#161f2d",
-    borderRadius: 14,
+    backgroundColor: "rgba(15, 23, 42, 0.6)",
+    borderRadius: 24,
     paddingHorizontal: 14,
     paddingVertical: 12,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: "#1e2634",
+    borderColor: "rgba(255, 255, 255, 0.07)",
     gap: 12,
   },
   rowRank: { color: "#4B5563", fontSize: 14, fontWeight: "700", minWidth: 28 },
@@ -823,7 +823,7 @@ const styles = StyleSheet.create({
   },
   rowAvatarText: { color: "#FFFFFF", fontSize: 14, fontWeight: "700" },
   rowInfo: { flex: 1 },
-  rowName: { color: "#FFFFFF", fontSize: 14, fontWeight: "600" },
+  rowName: { color: "#FFFFFF", fontSize: 14, fontFamily: 'SpaceGrotesk_600SemiBold' },
   rowDept: { color: "#6B7280", fontSize: 12, marginTop: 1 },
   platformIcons: { flexDirection: "row", gap: 4, marginTop: 4 },
   platformIcon: { opacity: 0.9 },
@@ -834,14 +834,14 @@ const styles = StyleSheet.create({
   // Detail Sheet
   sheetOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.6)" },
   sheetContainer: {
-    backgroundColor: "#161f2d",
+    backgroundColor: "rgba(15, 23, 42, 0.95)",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 24,
     paddingTop: 12,
     paddingBottom: 40,
     borderTopWidth: 1,
-    borderColor: "#1e2634",
+    borderColor: "rgba(255, 255, 255, 0.07)",
     position: "relative",
   },
   sheetHandle: {
@@ -852,7 +852,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     marginBottom: 16,
   },
-  sheetName: { color: "#FFFFFF", fontSize: 20, fontWeight: "700" },
+  sheetName: { color: "#FFFFFF", fontSize: 20, fontFamily: 'Fraunces_600SemiBold' },
   sheetDept: { color: "#6B7280", fontSize: 13, marginBottom: 20 },
   sheetStats: { gap: 16 },
   sheetPlatform: {
@@ -886,6 +886,11 @@ const styles = StyleSheet.create({
     padding: 24,
     borderWidth: 1,
     borderColor: "#1e2634",
+  },
+  headerTitle: {
+    color: "#FFFFFF",
+    fontSize: 20,
+    fontFamily: 'Fraunces_600SemiBold',
   },
   modalTitle: {
     color: "#FFFFFF",
