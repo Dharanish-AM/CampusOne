@@ -1,0 +1,55 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: campusone_mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - campusone_network
+
+  redis:
+    image: redis:alpine
+    container_name: campusone_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - campusone_network
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: campusone_qdrant
+    ports:
+      - "6333:6333" # REST API
+      - "6334:6334" # gRPC
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - campusone_network
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: campusone_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - campusone_network
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+  redis_data:
+  qdrant_data:
+  ollama_data:
+
+networks:
+  campusone_network:
+    driver: bridge

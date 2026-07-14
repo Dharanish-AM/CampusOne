@@ -1,0 +1,204 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #c084fc;
+  --color-secondary: #0f172a;
+  --color-background: #161f2d;
+  --color-surface: #1e2634;
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #94a3b8;
+
+  --font-sans: "Space Grotesk", system-ui, sans-serif;
+  --font-serif: "Fraunces", Georgia, serif;
+  --font-mono: ui-monospace, monospace;
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Dark Mode Defaults */
+  --brand-accent: #c084fc;
+  --brand-accent-strong: #d8b4fe;
+  --brand-accent-dark: #a855f7;
+  --brand-accent-glow: rgba(192, 132, 252, 0.4);
+  --brand-accent-subtle: rgba(192, 132, 252, 0.08);
+
+  --brand-bg: #0f172a;
+  --page-bg: #161f2d;
+  
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  --surface: rgba(30, 41, 59, 0.45);
+  --surface-solid: #1e2634;
+  --surface-soft: rgba(30, 41, 59, 0.3);
+  --surface-strong: rgba(15, 23, 42, 0.8);
+  
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --glass-background: rgba(15, 23, 42, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.07);
+
+  --shadow-glow: 0 0 20px rgba(192, 132, 252, 0.3);
+  --shadow-glow-lg: 0 0 40px rgba(192, 132, 252, 0.4);
+
+  --bg-gradient:
+    radial-gradient(
+      circle at top right,
+      rgba(192, 132, 252, 0.08),
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at bottom left,
+      rgba(192, 132, 252, 0.05),
+      transparent 40%
+    ),
+    var(--page-bg);
+
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  /* Light Mode Defaults */
+  --brand-accent: #7c3aed;
+  --brand-accent-strong: #6d28d9;
+  --brand-accent-dark: #5b21b6;
+  --brand-accent-glow: rgba(124, 58, 237, 0.2);
+  --brand-accent-subtle: rgba(124, 58, 237, 0.05);
+
+  --brand-bg: #f8fafc;
+  --page-bg: #ffffff;
+  
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+
+  --surface: #f8fafc;
+  --surface-solid: #ffffff;
+  --surface-soft: #f1f5f9;
+  --surface-strong: #ffffff;
+  
+  --border-subtle: #cbd5e1;
+  --glass-background: rgba(255, 255, 255, 0.8);
+  --glass-border: #cbd5e1;
+
+  --shadow-glow: 0 0 20px rgba(124, 58, 237, 0.15);
+  --shadow-glow-lg: 0 0 40px rgba(124, 58, 237, 0.2);
+
+  --bg-gradient: var(--page-bg);
+
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  background: var(--bg-gradient);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  transition: color 0.3s ease, background 0.3s ease;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Typography styles */
+.brand-text {
+  font-family: var(--font-serif);
+}
+
+.auth-hero h1 {
+  font-family: var(--font-serif);
+}
+
+/* Glass & Glow utilities */
+.glass-panel {
+  background: var(--glass-background);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+/* Floating Navigation Shell for Student Portal aesthetic */
+.nav-shell {
+  background: var(--glass-background);
+  border: 1px solid var(--border-subtle);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-radius: 24px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  transition: background 0.3s ease, border-color 0.3s ease;
+  margin: 1rem;
+  animation: nav-float-in 0.6s ease-out forwards;
+}
+
+.hover-lift {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow);
+}
+
+/* Animations */
+@keyframes nav-float-in {
+  from {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out forwards;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 1000px 100%;
+}
+
