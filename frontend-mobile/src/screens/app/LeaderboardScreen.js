@@ -33,7 +33,9 @@ import {
   fetchLeaderboard,
   updateCodingHandles,
   clearLeaderboardError,
+  setMyHandles,
 } from "../../redux/slices/leaderboardSlice";
+import { updateAuthProfile } from "../../redux/slices/authSlice";
 
 const { width } = Dimensions.get("window");
 
@@ -398,11 +400,18 @@ export default function LeaderboardScreen() {
   const dispatch = useDispatch();
   const { entries, status, error, myHandles, handlesStatus, totalCount } =
     useSelector((s) => s.leaderboard);
+  const { profile } = useSelector((s) => s.auth);
 
   const [activeFilter, setActiveFilter] = useState("totalScore");
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [showHandlesModal, setShowHandlesModal] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    if (profile?.codingHandles) {
+      dispatch(setMyHandles(profile.codingHandles));
+    }
+  }, [profile, dispatch]);
 
   // Sort entries by the active filter key
   const sortedEntries = useMemo(() => {
@@ -434,7 +443,11 @@ export default function LeaderboardScreen() {
       if (form.codeforces !== undefined)
         payload.codeforces = form.codeforces || null;
       if (form.github !== undefined) payload.github = form.github || null;
-      await dispatch(updateCodingHandles(payload));
+      
+      const resultAction = await dispatch(updateCodingHandles(payload));
+      if (updateCodingHandles.fulfilled.match(resultAction)) {
+        dispatch(updateAuthProfile({ codingHandles: resultAction.payload.codingHandles }));
+      }
       setShowHandlesModal(false);
     },
     [dispatch],
@@ -453,11 +466,13 @@ export default function LeaderboardScreen() {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <Trophy size={24} color="#c084fc" />
-          <Text style={styles.headerTitle}>Coding Leaderboard</Text>
+          <View>
+            <Text style={styles.headerTitle}>Coding Leaderboard</Text>
+            {lastSynced && (
+              <Text style={styles.headerSync}>Synced {lastSynced}</Text>
+            )}
+          </View>
         </View>
-        {lastSynced && (
-          <Text style={styles.headerSync}>Synced {lastSynced}</Text>
-        )}
       </View>
 
       {/* Filter Chips */}
@@ -649,19 +664,18 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 10,
   },
-  headerLeft: { flexDirection: "row", alignItems: "center", gap: 8 },
+  headerLeft: { flexDirection: "row", alignItems: "center", gap: 10 },
   headerTitle: {
     fontSize: 20,
     fontWeight: "700",
     color: "#FFFFFF",
     letterSpacing: 0.2,
   },
-  headerSync: { fontSize: 10, color: "#4B5563" },
+  headerSync: { fontSize: 11, color: "#64748B", marginTop: 2 },
 
   // Filter Chips
   filterRow: { maxHeight: 48 },

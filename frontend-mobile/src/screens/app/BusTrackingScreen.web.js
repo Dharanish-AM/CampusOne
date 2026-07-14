@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -8,11 +8,9 @@ import {
   ActivityIndicator,
   Dimensions,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
-import MapView, { Marker, Polyline, PROVIDER_DEFAULT } from "react-native-maps";
 import io from "socket.io-client";
-import { MapPin, Navigation, Users, Shield, Clock } from "lucide-react-native";
+import { MapPin, Navigation, Users, Shield, Clock, Compass } from "lucide-react-native";
 import {
   fetchRoutes,
   fetchBusLocation,
@@ -22,58 +20,8 @@ import { SOCKET_URL } from "../../utils/api";
 
 const { width, height } = Dimensions.get("window");
 
-// Premium Dark Theme styling for Google Maps / Apple Maps
-const darkMapStyle = [
-  { elementType: "geometry", stylers: [{ color: "#0F172A" }] },
-  { elementType: "labels.text.fill", stylers: [{ color: "#64748B" }] },
-  { elementType: "labels.text.stroke", stylers: [{ color: "#0F172A" }] },
-  {
-    featureType: "administrative",
-    elementType: "geometry",
-    stylers: [{ color: "#334155" }],
-  },
-  {
-    featureType: "poi",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#64748B" }],
-  },
-  {
-    featureType: "road",
-    elementType: "geometry.fill",
-    stylers: [{ color: "#1E293B" }],
-  },
-  {
-    featureType: "road",
-    elementType: "geometry.stroke",
-    stylers: [{ color: "#0F172A" }],
-  },
-  {
-    featureType: "road",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#475569" }],
-  },
-  {
-    featureType: "transit",
-    elementType: "geometry",
-    stylers: [{ color: "#1E293B" }],
-  },
-  {
-    featureType: "transit.station",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#64748B" }],
-  },
-  {
-    featureType: "water",
-    elementType: "geometry",
-    stylers: [{ color: "#020617" }],
-  },
-];
-
 export default function BusTrackingScreen() {
   const dispatch = useDispatch();
-  const mapRef = useRef(null);
-  const insets = useSafeAreaInsets();
-
   const { routes, activeLocations, isLoading, error } = useSelector(
     (state) => state.bus,
   );
@@ -100,7 +48,7 @@ export default function BusTrackingScreen() {
     });
 
     socket.on("bus:update", (data) => {
-      console.log("Received live bus coordinate ping:", data);
+      console.log("Received live bus coordinate ping (Web):", data);
       dispatch(updateLiveLocation(data));
     });
 
@@ -109,33 +57,8 @@ export default function BusTrackingScreen() {
     };
   }, [dispatch]);
 
-  // 4. Center map view when active route changes or bus location updates
   const activeRoute = routes.find((r) => r._id === selectedRouteId);
   const busLocation = selectedRouteId ? activeLocations[selectedRouteId] : null;
-
-  useEffect(() => {
-    if (!activeRoute || activeRoute.stops.length === 0) return;
-
-    const coordinates = activeRoute.stops.map((s) => ({
-      latitude: s.latitude,
-      longitude: s.longitude,
-    }));
-
-    if (busLocation) {
-      coordinates.push({
-        latitude: busLocation.latitude,
-        longitude: busLocation.longitude,
-      });
-    }
-
-    // Adjust camera to fit all coordinates nicely
-    if (mapRef.current) {
-      mapRef.current.fitToCoordinates(coordinates, {
-        edgePadding: { top: 80, right: 80, bottom: 200, left: 80 },
-        animated: true,
-      });
-    }
-  }, [selectedRouteId, busLocation, activeRoute]);
 
   const handleRouteChange = (routeId) => {
     setSelectedRouteId(routeId);
@@ -150,87 +73,65 @@ export default function BusTrackingScreen() {
     );
   }
 
-  // Fallback default region (Campus coordinates placeholder)
-  const defaultRegion = {
-    latitude: 12.9716,
-    longitude: 77.5946,
-    latitudeDelta: 0.05,
-    longitudeDelta: 0.05,
-  };
-
   return (
     <View style={styles.container}>
-      {/* Map Layout */}
-      <MapView
-        ref={mapRef}
-        style={styles.map}
-        provider={PROVIDER_DEFAULT}
-        initialRegion={defaultRegion}
-        customMapStyle={darkMapStyle}
-        showsUserLocation
-        showsMyLocationButton={false}
-      >
+      {/* Mock Map Container for Web */}
+      <View style={styles.mapMock}>
+        <Compass size={48} color="#1e2634" style={styles.compassBg} />
+        <View style={styles.mapGridLineH} />
+        <View style={styles.mapGridLineV} />
+        
+        <View style={styles.mockMapLabelContainer}>
+          <MapPin size={18} color="#c084fc" />
+          <Text style={styles.mockMapTitle}>Interactive Web Map Sandbox</Text>
+          <Text style={styles.mockMapSubtitle}>
+            Native map views are mocked on web. Route chips, socket updates, and telemetry remain fully functional.
+          </Text>
+        </View>
+
         {activeRoute && (
-          <>
-            {/* Draw Path Polyline linking all stops */}
-            <Polyline
-              coordinates={activeRoute.stops.map((stop) => ({
-                latitude: stop.latitude,
-                longitude: stop.longitude,
-              }))}
-              strokeColor="#c084fc"
-              strokeWidth={4}
-              lineDashPattern={[0]}
-            />
-
-            {/* Render Stops markers */}
-            {activeRoute.stops.map((stop, idx) => (
-              <Marker
-                key={stop._id || idx}
-                coordinate={{
-                  latitude: stop.latitude,
-                  longitude: stop.longitude,
-                }}
-                title={stop.name}
-                description="Bus Stop"
-              >
-                <View style={styles.stopMarker}>
-                  <View style={styles.stopCore} />
-                </View>
-              </Marker>
-            ))}
-
-            {/* Render Live Bus marker */}
-            {busLocation && (
-              <Marker
-                coordinate={{
-                  latitude: busLocation.latitude,
-                  longitude: busLocation.longitude,
-                }}
-                title={`${activeRoute.routeCode} Bus`}
-                description={`Occupancy: ${busLocation.occupancy} seats`}
-              >
-                <View style={styles.busMarkerWrapper}>
-                  <View style={styles.busMarkerGlow} />
-                  <View style={styles.busMarker}>
-                    <Navigation
-                      size={18}
-                      color="#FFFFFF"
-                      style={styles.busIcon}
-                    />
+          <View style={styles.timelineContainer}>
+            <Text style={styles.timelineTitle}>Route Timeline: {activeRoute.routeName}</Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.timelineScroll}
+            >
+              <View style={styles.timelineTrackContainer}>
+                {/* Horizontal progress line */}
+                <View style={styles.timelineLine} />
+                
+                {/* Stops along the track */}
+                {activeRoute.stops.map((stop, idx) => (
+                  <View key={stop._id || idx} style={styles.timelineNode}>
+                    <View style={styles.stopBullet} />
+                    <Text style={styles.timelineStopName} numberOfLines={1}>{stop.name}</Text>
+                    <Text style={styles.timelineStopCoords}>
+                      {stop.latitude.toFixed(3)}, {stop.longitude.toFixed(3)}
+                    </Text>
                   </View>
-                </View>
-              </Marker>
-            )}
-          </>
+                ))}
+
+                {/* Live Bus marker icon overlay on the line */}
+                {busLocation && (
+                  <View style={[styles.timelineBusMarker, { left: `${Math.min(85, Math.max(15, activeRoute.stops.length * 10))}%` }]}>
+                    <View style={styles.timelineBusGlow} />
+                    <View style={styles.timelineBusCore}>
+                      <Navigation size={12} color="#FFFFFF" style={styles.busIcon} />
+                    </View>
+                  </View>
+                )}
+              </View>
+            </ScrollView>
+          </View>
         )}
-      </MapView>
+      </View>
 
       {/* Floating Header */}
-      <View style={[styles.floatingHeader, { top: insets.top > 0 ? insets.top + 10 : 20 }]}>
+      <View style={styles.floatingHeader}>
         <Text style={styles.headerTitle}>Live Bus Tracking</Text>
         <Text style={styles.headerSubtitle}>
-          Real-time GPS coordinate feeds
+          Real-time GPS coordinate feeds (Web Sandbox)
         </Text>
       </View>
 
@@ -292,6 +193,11 @@ export default function BusTrackingScreen() {
                     </Text>
                   </View>
                 </View>
+                <View style={styles.coordsRow}>
+                  <Text style={styles.coordsText}>
+                    Active Coordinates: Lat {busLocation.latitude.toFixed(5)} · Lon {busLocation.longitude.toFixed(5)}
+                  </Text>
+                </View>
                 <Text style={styles.driverText}>
                   Driver: {activeRoute.driverId?.name || "Staff Driver"}
                 </Text>
@@ -329,13 +235,154 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  map: {
-    width: width,
-    height: height,
+  mapMock: {
+    flex: 1,
+    backgroundColor: "#0b0f19",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    position: "relative",
+    overflow: "hidden",
+    paddingTop: 120,
+  },
+  compassBg: {
+    position: "absolute",
+    opacity: 0.05,
+    transform: [{ scale: 4 }],
+    top: "30%",
+  },
+  mapGridLineH: {
+    position: "absolute",
+    height: 1,
+    left: 0,
+    right: 0,
+    backgroundColor: "#1e2634",
+    opacity: 0.4,
+    top: "40%",
+  },
+  mapGridLineV: {
+    position: "absolute",
+    width: 1,
+    top: 0,
+    bottom: 0,
+    backgroundColor: "#1e2634",
+    opacity: 0.4,
+  },
+  mockMapLabelContainer: {
+    alignItems: "center",
+    paddingHorizontal: 40,
+    zIndex: 1,
+    marginBottom: 20,
+  },
+  mockMapTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#FFFFFF",
+    marginTop: 10,
+    textAlign: "center",
+  },
+  mockMapSubtitle: {
+    fontSize: 12,
+    color: "#4B5563",
+    marginTop: 8,
+    textAlign: "center",
+    lineHeight: 18,
+  },
+  timelineContainer: {
+    width: "100%",
+    paddingHorizontal: 20,
+    marginTop: 20,
+    zIndex: 2,
+  },
+  timelineTitle: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#c084fc",
+    textTransform: "uppercase",
+    marginBottom: 10,
+    letterSpacing: 0.5,
+    textAlign: "center",
+  },
+  timelineScroll: {
+    alignItems: "center",
+    paddingVertical: 10,
+  },
+  timelineTrackContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    position: "relative",
+    height: 80,
+  },
+  timelineLine: {
+    position: "absolute",
+    height: 4,
+    left: 30,
+    right: 30,
+    backgroundColor: "#c084fc",
+    opacity: 0.4,
+    borderRadius: 2,
+    top: 15,
+  },
+  timelineNode: {
+    alignItems: "center",
+    width: 120,
+    marginHorizontal: 5,
+  },
+  stopBullet: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 2,
+    borderColor: "#c084fc",
+    marginBottom: 8,
+    zIndex: 2,
+  },
+  timelineStopName: {
+    color: "#E5E7EB",
+    fontSize: 11,
+    fontWeight: "700",
+    textAlign: "center",
+    width: 110,
+  },
+  timelineStopCoords: {
+    color: "#6B7280",
+    fontSize: 9,
+    marginTop: 2,
+  },
+  timelineBusMarker: {
+    position: "absolute",
+    width: 24,
+    height: 24,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 3,
+    top: 9, // Center vertically on the line (which is at top 15, height 12 bullet/line)
+    transform: [{ translateX: -12 }], // Center marker relative to left position
+  },
+  timelineBusGlow: {
+    position: "absolute",
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#10B981",
+    opacity: 0.3,
+  },
+  timelineBusCore: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: "#10B981",
+    borderWidth: 1.5,
+    borderColor: "#FFFFFF",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  busIcon: {
+    transform: [{ rotate: "45deg" }],
   },
   floatingHeader: {
     position: "absolute",
-    top: 50,
+    top: 40,
     left: 20,
     right: 20,
     backgroundColor: "rgba(22, 31, 45, 0.85)",
@@ -347,6 +394,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 10,
     elevation: 5,
+    zIndex: 3,
   },
   headerTitle: {
     fontSize: 20,
@@ -372,6 +420,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowRadius: 15,
     elevation: 8,
+    zIndex: 3,
   },
   routesScroll: {
     borderBottomWidth: 1,
@@ -425,7 +474,14 @@ const styles = StyleSheet.create({
   detailsRow: {
     flexDirection: "row",
     justifyContent: "space-between",
+    marginBottom: 6,
+  },
+  coordsRow: {
     marginBottom: 10,
+  },
+  coordsText: {
+    fontSize: 11,
+    color: "#6B7280",
   },
   statBox: {
     flexDirection: "row",
@@ -478,52 +534,5 @@ const styles = StyleSheet.create({
     color: "#9CA3AF",
     fontSize: 11,
     marginTop: 4,
-  },
-  stopMarker: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: "#FFFFFF",
-    borderWidth: 2,
-    borderColor: "#c084fc",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  stopCore: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "#c084fc",
-  },
-  busMarkerWrapper: {
-    width: 44,
-    height: 44,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  busMarkerGlow: {
-    position: "absolute",
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: "#10B981",
-    opacity: 0.3,
-  },
-  busMarker: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: "#10B981",
-    borderWidth: 2,
-    borderColor: "#FFFFFF",
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000000",
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 3,
-  },
-  busIcon: {
-    transform: [{ rotate: "45deg" }],
   },
 });

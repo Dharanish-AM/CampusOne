@@ -109,6 +109,21 @@ export const loadStoredAuth = createAsyncThunk(
   },
 );
 
+export const updateAuthProfile = createAsyncThunk(
+  "auth/updateAuthProfile",
+  async (profileUpdates, { getState, rejectWithValue }) => {
+    try {
+      const state = getState();
+      const currentProfile = state.auth.profile;
+      const updatedProfile = { ...currentProfile, ...profileUpdates };
+      await AsyncStorage.setItem("profile", JSON.stringify(updatedProfile));
+      return updatedProfile;
+    } catch (error) {
+      return rejectWithValue(error.message || "Failed to update profile locally");
+    }
+  }
+);
+
 const initialState = {
   user: null,
   profile: null,
@@ -205,6 +220,9 @@ const authSlice = createSlice({
       .addCase(loadStoredAuth.rejected, (state) => {
         state.isLoading = false;
         state.isAuthenticated = false;
+      })
+      .addCase(updateAuthProfile.fulfilled, (state, action) => {
+        state.profile = action.payload;
       });
   },
 });

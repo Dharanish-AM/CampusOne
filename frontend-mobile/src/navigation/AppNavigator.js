@@ -1,4 +1,5 @@
 import React from "react";
+import { Platform } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import {
   LayoutDashboard,
@@ -30,13 +31,17 @@ export default function AppNavigator() {
           backgroundColor: "#161f2d", // Slate Surface
           borderTopColor: "#1e2634", // Subtle Border
           borderTopWidth: 1,
-          height: 64,
-          paddingBottom: 10,
-          paddingTop: 8,
+          height: Platform.OS === "ios" ? 85 : 62,
+          paddingBottom: Platform.OS === "ios" ? 24 : 6,
+          paddingTop: 6,
         },
         tabBarLabelStyle: {
-          fontSize: 10,
+          fontSize: 8.5,
           fontWeight: "600",
+          marginBottom: Platform.OS === "web" ? 4 : 2,
+        },
+        tabBarItemStyle: {
+          paddingHorizontal: 0,
         },
       }}
     >

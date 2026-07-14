@@ -4319,11 +4319,31 @@ const seedDatabase = async () => {
           markedBy: facultyUser1._id,
         });
       }
+
+      // Generate attendance logs for all other students (Excel data)
+      for (const studentItem of createdStudentProfiles) {
+        for (const item of subjectsList) {
+          const isPresent = Math.random() < item.presentRate;
+          const status = isPresent
+            ? "present"
+            : Math.random() < 0.3
+              ? "leave"
+              : "absent";
+
+          attendanceRecords.push({
+            studentId: studentItem.profile._id,
+            subjectId: item.subject._id,
+            date: new Date(attendanceDay),
+            status: status,
+            markedBy: facultyUser1._id,
+          });
+        }
+      }
     }
 
     await Attendance.create(attendanceRecords);
     console.log(
-      `Successfully generated ${attendanceRecords.length} attendance logs for Alex.`,
+      `Successfully generated ${attendanceRecords.length} attendance logs for all students.`,
     );
 
     // 6. Create Timetable (Weekly Lecture and Lab Slots)
