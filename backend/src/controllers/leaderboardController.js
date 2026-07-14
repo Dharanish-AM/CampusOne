@@ -1,6 +1,6 @@
-const Student = require('../models/Student');
-const LeaderboardEntry = require('../models/LeaderboardEntry');
-const { syncStudent } = require('../jobs/leaderboardJob');
+const Student = require("../models/Student");
+const LeaderboardEntry = require("../models/LeaderboardEntry");
+const { syncStudent } = require("../jobs/leaderboardJob");
 
 /**
  * GET /api/leaderboard
@@ -18,8 +18,8 @@ const getLeaderboard = async (req, res, next) => {
         .sort({ totalScore: -1 })
         .skip(skip)
         .limit(limit)
-        .populate('userId', 'name')
-        .populate('studentId', 'rollNumber department semester codingHandles')
+        .populate("userId", "name")
+        .populate("studentId", "rollNumber department semester codingHandles")
         .lean(),
       LeaderboardEntry.countDocuments(),
     ]);
@@ -31,7 +31,7 @@ const getLeaderboard = async (req, res, next) => {
     }));
 
     res.status(200).json({
-      status: 'success',
+      status: "success",
       data: {
         entries: ranked,
         totalCount,
@@ -56,7 +56,9 @@ const updateHandles = async (req, res, next) => {
     // Find student record linked to this user
     const student = await Student.findOne({ userId: req.user._id });
     if (!student) {
-      return res.status(404).json({ status: 'error', message: 'Student profile not found.' });
+      return res
+        .status(404)
+        .json({ status: "error", message: "Student profile not found." });
     }
 
     // Update only the fields that were provided
@@ -68,12 +70,12 @@ const updateHandles = async (req, res, next) => {
 
     // Trigger an immediate re-sync for this student only (non-blocking)
     syncStudent(student).catch((err) =>
-      console.error('[updateHandles] Re-sync error:', err.message)
+      console.error("[updateHandles] Re-sync error:", err.message),
     );
 
     res.status(200).json({
-      status: 'success',
-      message: 'Coding handles updated. Leaderboard sync triggered.',
+      status: "success",
+      message: "Coding handles updated. Leaderboard sync triggered.",
       data: { codingHandles: student.codingHandles },
     });
   } catch (err) {
@@ -87,16 +89,16 @@ const updateHandles = async (req, res, next) => {
  */
 const triggerSync = async (req, res, next) => {
   try {
-    const { runLeaderboardSync } = require('../jobs/leaderboardJob');
+    const { runLeaderboardSync } = require("../jobs/leaderboardJob");
 
     // Run sync non-blocking — return immediately
     runLeaderboardSync().catch((err) =>
-      console.error('[triggerSync] Full sync error:', err.message)
+      console.error("[triggerSync] Full sync error:", err.message),
     );
 
     res.status(202).json({
-      status: 'success',
-      message: 'Full leaderboard sync triggered. This runs in the background.',
+      status: "success",
+      message: "Full leaderboard sync triggered. This runs in the background.",
     });
   } catch (err) {
     next(err);

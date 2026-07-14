@@ -1,30 +1,36 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import api from '../../utils/api';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import api from "../../utils/api";
 
 export const fetchRoutes = createAsyncThunk(
-  'bus/fetchRoutes',
+  "bus/fetchRoutes",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get('/bus/routes');
+      const response = await api.get("/bus/routes");
       return response.data.data;
     } catch (error) {
-      const message = error.response?.data?.message || error.message || 'Failed to fetch routes';
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to fetch routes";
       return rejectWithValue(message);
     }
-  }
+  },
 );
 
 export const fetchBusLocation = createAsyncThunk(
-  'bus/fetchBusLocation',
+  "bus/fetchBusLocation",
   async (routeId, { rejectWithValue }) => {
     try {
       const response = await api.get(`/bus/location/${routeId}`);
       return { routeId, data: response.data.data };
     } catch (error) {
-      const message = error.response?.data?.message || error.message || 'Failed to fetch bus location';
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to fetch bus location";
       return rejectWithValue(message);
     }
-  }
+  },
 );
 
 const initialState = {
@@ -35,7 +41,7 @@ const initialState = {
 };
 
 const busSlice = createSlice({
-  name: 'bus',
+  name: "bus",
   initialState,
   reducers: {
     clearBusError: (state) => {
@@ -43,7 +49,8 @@ const busSlice = createSlice({
     },
     // Handler to process real-time socket coordinate streams
     updateLiveLocation: (state, action) => {
-      const { routeId, latitude, longitude, occupancy, speed, updatedAt } = action.payload;
+      const { routeId, latitude, longitude, occupancy, speed, updatedAt } =
+        action.payload;
       state.activeLocations[routeId] = {
         latitude,
         longitude,

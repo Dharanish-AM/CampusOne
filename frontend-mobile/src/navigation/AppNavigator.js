@@ -1,13 +1,20 @@
-import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { LayoutDashboard, BookOpen, Clock, MapPin, Trophy, MessageSquare } from 'lucide-react-native';
+import React from "react";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import {
+  LayoutDashboard,
+  BookOpen,
+  Clock,
+  MapPin,
+  Trophy,
+  MessageSquare,
+} from "lucide-react-native";
 
-import DashboardScreen from '../screens/app/DashboardScreen';
-import AttendanceScreen from '../screens/app/AttendanceScreen';
-import TimetableScreen from '../screens/app/TimetableScreen';
-import BusTrackingScreen from '../screens/app/BusTrackingScreen';
-import LeaderboardScreen from '../screens/app/LeaderboardScreen';
-import AIChatScreen from '../screens/app/AIChatScreen';
+import DashboardScreen from "../screens/app/DashboardScreen";
+import AttendanceScreen from "../screens/app/AttendanceScreen";
+import TimetableScreen from "../screens/app/TimetableScreen";
+import BusTrackingScreen from "../screens/app/BusTrackingScreen";
+import LeaderboardScreen from "../screens/app/LeaderboardScreen";
+import AIChatScreen from "../screens/app/AIChatScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -17,11 +24,11 @@ export default function AppNavigator() {
       initialRouteName="Dashboard"
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#6366F1', // Glowing Indigo
-        tabBarInactiveTintColor: '#6B7280', // Cool Gray
+        tabBarActiveTintColor: "#c084fc", // Glowing Lavender Accent
+        tabBarInactiveTintColor: "#94a3b8", // Cool Slate Gray
         tabBarStyle: {
-          backgroundColor: '#111827',
-          borderTopColor: '#1F2937',
+          backgroundColor: "#161f2d", // Slate Surface
+          borderTopColor: "#1e2634", // Subtle Border
           borderTopWidth: 1,
           height: 64,
           paddingBottom: 10,
@@ -29,7 +36,7 @@ export default function AppNavigator() {
         },
         tabBarLabelStyle: {
           fontSize: 10,
-          fontWeight: '600',
+          fontWeight: "600",
         },
       }}
     >
@@ -37,23 +44,27 @@ export default function AppNavigator() {
         name="Dashboard"
         component={DashboardScreen}
         options={{
-          tabBarLabel: 'Dashboard',
-          tabBarIcon: ({ color, size }) => <LayoutDashboard size={size} color={color} />,
+          tabBarLabel: "Dashboard",
+          tabBarIcon: ({ color, size }) => (
+            <LayoutDashboard size={size} color={color} />
+          ),
         }}
       />
       <Tab.Screen
         name="Attendance"
         component={AttendanceScreen}
         options={{
-          tabBarLabel: 'Attendance',
-          tabBarIcon: ({ color, size }) => <BookOpen size={size} color={color} />,
+          tabBarLabel: "Attendance",
+          tabBarIcon: ({ color, size }) => (
+            <BookOpen size={size} color={color} />
+          ),
         }}
       />
       <Tab.Screen
         name="Timetable"
         component={TimetableScreen}
         options={{
-          tabBarLabel: 'Timetable',
+          tabBarLabel: "Timetable",
           tabBarIcon: ({ color, size }) => <Clock size={size} color={color} />,
         }}
       />
@@ -61,7 +72,7 @@ export default function AppNavigator() {
         name="Bus"
         component={BusTrackingScreen}
         options={{
-          tabBarLabel: 'Bus',
+          tabBarLabel: "Bus",
           tabBarIcon: ({ color, size }) => <MapPin size={size} color={color} />,
         }}
       />
@@ -69,7 +80,7 @@ export default function AppNavigator() {
         name="Leaderboard"
         component={LeaderboardScreen}
         options={{
-          tabBarLabel: 'Leaderboard',
+          tabBarLabel: "Leaderboard",
           tabBarIcon: ({ color, size }) => <Trophy size={size} color={color} />,
         }}
       />
@@ -77,8 +88,10 @@ export default function AppNavigator() {
         name="AIChat"
         component={AIChatScreen}
         options={{
-          tabBarLabel: 'AI Chat',
-          tabBarIcon: ({ color, size }) => <MessageSquare size={size} color={color} />,
+          tabBarLabel: "AI Chat",
+          tabBarIcon: ({ color, size }) => (
+            <MessageSquare size={size} color={color} />
+          ),
         }}
       />
     </Tab.Navigator>

@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
-    "test": "jest --runInBand --detectOpenHandles --forceExit"
+    "test": "jest --runInBand --detectOpenHandles --forceExit",
+    "seed": "node src/data/seeder.js"
   },
   "dependencies": {
     "@qdrant/js-client-rest": "^1.18.0",

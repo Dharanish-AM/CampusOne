@@ -1,60 +1,60 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
 // Base API URL - pointing to local machine default server port
 // Note: When running on Android Emulator, localhost maps to 10.0.2.2.
 // For iOS Simulator, localhost works. For Expo Go physical devices, use LAN IP.
-const API_URL = 'http://192.168.0.109:5000/api/auth'; 
+const API_URL = "http://192.168.0.109:5000/api/auth";
 
 export const registerUser = createAsyncThunk(
-  'auth/register',
+  "auth/register",
   async (userData, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${API_URL}/register`, userData);
       const { user, profile, accessToken, refreshToken } = response.data.data;
 
       // Persist in AsyncStorage
-      await AsyncStorage.setItem('accessToken', accessToken);
-      await AsyncStorage.setItem('refreshToken', refreshToken);
-      await AsyncStorage.setItem('user', JSON.stringify(user));
+      await AsyncStorage.setItem("accessToken", accessToken);
+      await AsyncStorage.setItem("refreshToken", refreshToken);
+      await AsyncStorage.setItem("user", JSON.stringify(user));
       if (profile) {
-        await AsyncStorage.setItem('profile', JSON.stringify(profile));
+        await AsyncStorage.setItem("profile", JSON.stringify(profile));
       }
 
       return { user, profile, accessToken, refreshToken };
     } catch (error) {
-      const message = error.response?.data?.message || 'Registration failed';
+      const message = error.response?.data?.message || "Registration failed";
       return rejectWithValue(message);
     }
-  }
+  },
 );
 
 export const loginUser = createAsyncThunk(
-  'auth/login',
+  "auth/login",
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${API_URL}/login`, credentials);
       const { user, profile, accessToken, refreshToken } = response.data.data;
 
       // Persist in AsyncStorage
-      await AsyncStorage.setItem('accessToken', accessToken);
-      await AsyncStorage.setItem('refreshToken', refreshToken);
-      await AsyncStorage.setItem('user', JSON.stringify(user));
+      await AsyncStorage.setItem("accessToken", accessToken);
+      await AsyncStorage.setItem("refreshToken", refreshToken);
+      await AsyncStorage.setItem("user", JSON.stringify(user));
       if (profile) {
-        await AsyncStorage.setItem('profile', JSON.stringify(profile));
+        await AsyncStorage.setItem("profile", JSON.stringify(profile));
       }
 
       return { user, profile, accessToken, refreshToken };
     } catch (error) {
-      const message = error.response?.data?.message || 'Login failed';
+      const message = error.response?.data?.message || "Login failed";
       return rejectWithValue(message);
     }
-  }
+  },
 );
 
 export const logoutUser = createAsyncThunk(
-  'auth/logout',
+  "auth/logout",
   async (_, { getState, rejectWithValue }) => {
     try {
       const state = getState();
@@ -67,27 +67,32 @@ export const logoutUser = createAsyncThunk(
           {},
           {
             headers: { Authorization: `Bearer ${token}` },
-          }
+          },
         );
       }
     } catch (error) {
       // Even if network request fails, clear local credentials
-      console.warn('Logout server request failed:', error.message);
+      console.warn("Logout server request failed:", error.message);
     } finally {
       // Clear AsyncStorage
-      await AsyncStorage.multiRemove(['accessToken', 'refreshToken', 'user', 'profile']);
+      await AsyncStorage.multiRemove([
+        "accessToken",
+        "refreshToken",
+        "user",
+        "profile",
+      ]);
     }
-  }
+  },
 );
 
 export const loadStoredAuth = createAsyncThunk(
-  'auth/loadStoredAuth',
+  "auth/loadStoredAuth",
   async (_, { rejectWithValue }) => {
     try {
-      const accessToken = await AsyncStorage.getItem('accessToken');
-      const refreshToken = await AsyncStorage.getItem('refreshToken');
-      const userStr = await AsyncStorage.getItem('user');
-      const profileStr = await AsyncStorage.getItem('profile');
+      const accessToken = await AsyncStorage.getItem("accessToken");
+      const refreshToken = await AsyncStorage.getItem("refreshToken");
+      const userStr = await AsyncStorage.getItem("user");
+      const profileStr = await AsyncStorage.getItem("profile");
 
       if (accessToken && refreshToken && userStr) {
         return {
@@ -99,9 +104,9 @@ export const loadStoredAuth = createAsyncThunk(
       }
       return null;
     } catch (error) {
-      return rejectWithValue('Failed to load local auth credentials');
+      return rejectWithValue("Failed to load local auth credentials");
     }
-  }
+  },
 );
 
 const initialState = {
@@ -115,7 +120,7 @@ const initialState = {
 };
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
     clearError: (state) => {

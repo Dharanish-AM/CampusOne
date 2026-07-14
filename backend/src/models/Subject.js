@@ -1,15 +1,15 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const subjectSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, 'Subject name is required'],
+      required: [true, "Subject name is required"],
       trim: true,
     },
     code: {
       type: String,
-      required: [true, 'Subject code is required'],
+      required: [true, "Subject code is required"],
       unique: true,
       trim: true,
       uppercase: true,
@@ -17,7 +17,7 @@ const subjectSchema = new mongoose.Schema(
     },
     department: {
       type: String,
-      required: [true, 'Department is required'],
+      required: [true, "Department is required"],
       trim: true,
     },
     credits: {
@@ -27,9 +27,9 @@ const subjectSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-const Subject = mongoose.model('Subject', subjectSchema);
+const Subject = mongoose.model("Subject", subjectSchema);
 
 module.exports = Subject;

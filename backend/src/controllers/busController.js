@@ -1,6 +1,6 @@
-const BusRoute = require('../models/BusRoute');
-const BusLocation = require('../models/BusLocation');
-const User = require('../models/User');
+const BusRoute = require("../models/BusRoute");
+const BusLocation = require("../models/BusLocation");
+const User = require("../models/User");
 
 // @desc    Create a new bus route
 // @route   POST /api/bus/routes
@@ -11,8 +11,13 @@ const createRoute = async (req, res, next) => {
   try {
     // 1. Verify if driver exists and is transport staff
     const driver = await User.findById(driverId);
-    if (!driver || (driver.role !== 'transport_staff' && driver.role !== 'admin')) {
-      const error = new Error('Driver must have role "transport_staff" or "admin"');
+    if (
+      !driver ||
+      (driver.role !== "transport_staff" && driver.role !== "admin")
+    ) {
+      const error = new Error(
+        'Driver must have role "transport_staff" or "admin"',
+      );
       error.statusCode = 400;
       return next(error);
     }
@@ -26,7 +31,7 @@ const createRoute = async (req, res, next) => {
     });
 
     res.status(201).json({
-      status: 'success',
+      status: "success",
       data: route,
     });
   } catch (error) {
@@ -39,9 +44,9 @@ const createRoute = async (req, res, next) => {
 // @access  Private
 const getRoutes = async (req, res, next) => {
   try {
-    const routes = await BusRoute.find({}).populate('driverId', 'name email');
+    const routes = await BusRoute.find({}).populate("driverId", "name email");
     res.status(200).json({
-      status: 'success',
+      status: "success",
       data: routes,
     });
   } catch (error) {
@@ -60,7 +65,7 @@ const updateBusLocation = async (req, res, next) => {
     // 1. Validate route exists
     const routeExists = await BusRoute.findById(routeId);
     if (!routeExists) {
-      const error = new Error('Bus route not found');
+      const error = new Error("Bus route not found");
       error.statusCode = 404;
       return next(error);
     }
@@ -69,13 +74,13 @@ const updateBusLocation = async (req, res, next) => {
     const location = await BusLocation.findOneAndUpdate(
       { routeId },
       { latitude, longitude, occupancy, speed },
-      { upsert: true, new: true, runValidators: true }
+      { upsert: true, new: true, runValidators: true },
     );
 
     // 3. Emit real-time Socket.IO coordinates update to all connected students
-    const io = req.app.get('io');
+    const io = req.app.get("io");
     if (io) {
-      io.emit('bus:update', {
+      io.emit("bus:update", {
         routeId,
         latitude,
         longitude,
@@ -86,7 +91,7 @@ const updateBusLocation = async (req, res, next) => {
     }
 
     res.status(200).json({
-      status: 'success',
+      status: "success",
       data: location,
     });
   } catch (error) {
@@ -105,14 +110,14 @@ const getBusLocation = async (req, res, next) => {
 
     if (!location) {
       return res.status(200).json({
-        status: 'success',
+        status: "success",
         data: null,
-        message: 'Bus is currently offline / no coordinates found.',
+        message: "Bus is currently offline / no coordinates found.",
       });
     }
 
     res.status(200).json({
-      status: 'success',
+      status: "success",
       data: location,
     });
   } catch (error) {

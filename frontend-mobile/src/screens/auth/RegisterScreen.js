@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -10,33 +10,33 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-} from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { ArrowLeft } from 'lucide-react-native';
-import { registerUser, clearError } from '../../redux/slices/authSlice';
+} from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { ArrowLeft } from "lucide-react-native";
+import { registerUser, clearError } from "../../redux/slices/authSlice";
 
 export default function RegisterScreen({ route, navigation }) {
-  const selectedRole = route.params?.selectedRole || 'student';
+  const selectedRole = route.params?.selectedRole || "student";
   const dispatch = useDispatch();
   const { isLoading, error } = useSelector((state) => state.auth);
 
   // Common Fields
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   // Student Fields
-  const [rollNumber, setRollNumber] = useState('');
-  const [department, setDepartment] = useState('');
-  const [semester, setSemester] = useState('');
-  const [batch, setBatch] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [parentPhoneNumber, setParentPhoneNumber] = useState('');
-  const [address, setAddress] = useState('');
+  const [rollNumber, setRollNumber] = useState("");
+  const [department, setDepartment] = useState("");
+  const [semester, setSemester] = useState("");
+  const [batch, setBatch] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [parentPhoneNumber, setParentPhoneNumber] = useState("");
+  const [address, setAddress] = useState("");
 
   // Faculty Fields
-  const [employeeId, setEmployeeId] = useState('');
-  const [designation, setDesignation] = useState('');
+  const [employeeId, setEmployeeId] = useState("");
+  const [designation, setDesignation] = useState("");
 
   useEffect(() => {
     dispatch(clearError());
@@ -55,7 +55,7 @@ export default function RegisterScreen({ route, navigation }) {
       role: selectedRole,
     };
 
-    if (selectedRole === 'student') {
+    if (selectedRole === "student") {
       payload.rollNumber = rollNumber;
       payload.department = department;
       payload.semester = semester;
@@ -63,7 +63,7 @@ export default function RegisterScreen({ route, navigation }) {
       payload.phoneNumber = phoneNumber;
       payload.parentPhoneNumber = parentPhoneNumber;
       payload.address = address;
-    } else if (selectedRole === 'faculty') {
+    } else if (selectedRole === "faculty") {
       payload.employeeId = employeeId;
       payload.department = department;
       payload.designation = designation;
@@ -75,10 +75,10 @@ export default function RegisterScreen({ route, navigation }) {
 
   const getRoleHeaderColor = () => {
     switch (selectedRole) {
-      case 'faculty':
-        return '#10B981'; // Emerald
+      case "faculty":
+        return "#10B981"; // Emerald
       default:
-        return '#6366F1'; // Indigo (Student)
+        return "#c084fc"; // Lavender (Student)
     }
   };
 
@@ -87,11 +87,13 @@ export default function RegisterScreen({ route, navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       >
-        <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
-          
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          keyboardShouldPersistTaps="handled"
+        >
           {/* Back button */}
           <TouchableOpacity
             style={styles.backButton}
@@ -104,7 +106,9 @@ export default function RegisterScreen({ route, navigation }) {
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.appTitle}>Create Account</Text>
-            <Text style={styles.subtitle}>Register as a CampusOne {selectedRole}</Text>
+            <Text style={styles.subtitle}>
+              Register as a CampusOne {selectedRole}
+            </Text>
           </View>
 
           {/* Form Card */}
@@ -117,7 +121,7 @@ export default function RegisterScreen({ route, navigation }) {
 
             {/* Common Inputs */}
             <Text style={styles.sectionHeader}>Credentials</Text>
-            
+
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Full Name</Text>
               <TextInput
@@ -155,10 +159,10 @@ export default function RegisterScreen({ route, navigation }) {
             </View>
 
             {/* Conditional Student Inputs */}
-            {selectedRole === 'student' && (
+            {selectedRole === "student" && (
               <>
                 <Text style={styles.sectionHeader}>Academic Details</Text>
-                
+
                 <View style={styles.inputGroup}>
                   <Text style={styles.label}>Roll Number</Text>
                   <TextInput
@@ -183,7 +187,9 @@ export default function RegisterScreen({ route, navigation }) {
                 </View>
 
                 <View style={styles.row}>
-                  <View style={[styles.inputGroup, { flex: 1, marginRight: 12 }]}>
+                  <View
+                    style={[styles.inputGroup, { flex: 1, marginRight: 12 }]}
+                  >
                     <Text style={styles.label}>Semester</Text>
                     <TextInput
                       style={styles.input}
@@ -249,7 +255,7 @@ export default function RegisterScreen({ route, navigation }) {
             )}
 
             {/* Conditional Faculty Inputs */}
-            {selectedRole === 'faculty' && (
+            {selectedRole === "faculty" && (
               <>
                 <Text style={styles.sectionHeader}>Academic Details</Text>
 
@@ -319,11 +325,15 @@ export default function RegisterScreen({ route, navigation }) {
 
             <View style={styles.signInRedirect}>
               <Text style={styles.signInLabel}>Already have an account? </Text>
-              <TouchableOpacity onPress={() => navigation.navigate('Login', { selectedRole })} activeOpacity={0.7}>
-                <Text style={[styles.signInLink, { color: themeColor }]}>Log In</Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("Login", { selectedRole })}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.signInLink, { color: themeColor }]}>
+                  Log In
+                </Text>
               </TouchableOpacity>
             </View>
-
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -334,7 +344,7 @@ export default function RegisterScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#090D1A',
+    backgroundColor: "#0f172a",
   },
   scrollContainer: {
     flexGrow: 1,
@@ -346,11 +356,11 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#111827',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#161f2d",
+    justifyContent: "center",
+    alignItems: "center",
     borderWidth: 1,
-    borderColor: '#374151',
+    borderColor: "#1e2634",
   },
   header: {
     marginTop: 20,
@@ -358,108 +368,108 @@ const styles = StyleSheet.create({
   },
   appTitle: {
     fontSize: 28,
-    fontWeight: '800',
-    color: '#FFFFFF',
+    fontWeight: "800",
+    color: "#FFFFFF",
   },
   subtitle: {
     fontSize: 14,
-    color: '#8A99AD',
+    color: "#8A99AD",
     marginTop: 6,
   },
   form: {
-    backgroundColor: '#111827',
+    backgroundColor: "#161f2d",
     borderWidth: 1,
-    borderColor: '#1F2937',
+    borderColor: "#1e2634",
     borderRadius: 24,
     padding: 24,
-    shadowColor: '#000000',
+    shadowColor: "#000000",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.4,
     shadowRadius: 16,
     elevation: 8,
   },
   errorContainer: {
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-    borderColor: 'rgba(239, 68, 68, 0.3)',
+    backgroundColor: "rgba(239, 68, 68, 0.1)",
+    borderColor: "rgba(239, 68, 68, 0.3)",
     borderWidth: 1,
     borderRadius: 12,
     padding: 12,
     marginBottom: 20,
   },
   errorText: {
-    color: '#F87171',
+    color: "#F87171",
     fontSize: 13,
-    textAlign: 'center',
-    fontWeight: '500',
+    textAlign: "center",
+    fontWeight: "500",
   },
   sectionHeader: {
-    color: '#9CA3AF',
+    color: "#9CA3AF",
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: 1.5,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     marginTop: 10,
     marginBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#1F2937',
+    borderBottomColor: "#1e2634",
     paddingBottom: 6,
   },
   inputGroup: {
     marginBottom: 16,
   },
   row: {
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   label: {
-    color: '#D1D5DB',
+    color: "#D1D5DB",
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 8,
     marginLeft: 4,
   },
   input: {
-    backgroundColor: '#090D1A',
+    backgroundColor: "#0f172a",
     borderWidth: 1,
-    borderColor: '#374151',
+    borderColor: "#1e2634",
     borderRadius: 14,
     height: 50,
     paddingHorizontal: 16,
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 14,
   },
   multilineInput: {
     height: 80,
     paddingTop: 12,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
   },
   submitButton: {
     height: 52,
     borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginTop: 20,
-    shadowColor: '#000000',
+    shadowColor: "#000000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 4,
   },
   submitButtonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   signInRedirect: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     marginTop: 20,
   },
   signInLabel: {
-    color: '#9CA3AF',
+    color: "#9CA3AF",
     fontSize: 13,
   },
   signInLink: {
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: "700",
   },
 });

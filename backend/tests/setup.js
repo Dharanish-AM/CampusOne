@@ -1,12 +1,25 @@
-process.env.MONGO_URI = 'mongodb://localhost:27017/campusone_test';
-process.env.REDIS_URL = 'redis://localhost:6379/1';
-process.env.NODE_ENV = 'test';
-process.env.JWT_SECRET = 'testsecretkey12345';
-process.env.JWT_REFRESH_SECRET = 'testrefreshsecretkey12345';
+process.env.MONGO_URI = "mongodb://localhost:27017/campusone_test";
+process.env.REDIS_URL = "redis://localhost:6379/1";
+process.env.NODE_ENV = "test";
+process.env.JWT_SECRET = "testsecretkey12345";
+process.env.JWT_REFRESH_SECRET = "testrefreshsecretkey12345";
 
-const mongoose = require('mongoose');
-const { connectRedis } = require('../src/config/redis');
-const server = require('../src/index');
+const mongoose = require("mongoose");
+
+// Register all models to ensure collections are cleared in beforeEach
+require("../src/models/User");
+require("../src/models/Student");
+require("../src/models/Faculty");
+require("../src/models/Subject");
+require("../src/models/Attendance");
+require("../src/models/Timetable");
+require("../src/models/BusRoute");
+require("../src/models/BusLocation");
+require("../src/models/LeaderboardEntry");
+require("../src/models/ChatHistory");
+
+const { connectRedis } = require("../src/config/redis");
+const server = require("../src/index");
 
 let redisClient;
 

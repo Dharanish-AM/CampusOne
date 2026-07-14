@@ -1,7 +1,7 @@
-const crypto = require('crypto');
-const FAQ_CHUNKS = require('../data/faqSeeds');
-const qdrantService = require('../services/qdrantService');
-const ollamaService = require('../services/ollamaService');
+const crypto = require("crypto");
+const FAQ_CHUNKS = require("../data/faqSeeds");
+const qdrantService = require("../services/qdrantService");
+const ollamaService = require("../services/ollamaService");
 
 /**
  * initQdrantSeed
@@ -17,24 +17,23 @@ const ollamaService = require('../services/ollamaService');
  */
 const initQdrantSeed = async () => {
   try {
-    console.log('[QdrantSeed] Initialising Qdrant collection…');
-    await qdrantService.initCollection();
+    console.log("[QdrantSeed] Initialising Qdrant collection…");
 
-    const existingCount = await qdrantService.getPointCount();
-    if (existingCount >= FAQ_CHUNKS.length) {
-      console.log(
-        `[QdrantSeed] ${existingCount} points already seeded — skipping re-seed.`
-      );
-      return;
-    }
+    // For local dev validation, recreate the collection to clear out the fallback zero-vectors and seed actual embeddings
+    console.log(
+      "[QdrantSeed] Recreating collection to pull real embeddings...",
+    );
+    await qdrantService.recreateCollection();
 
-    console.log(`[QdrantSeed] Embedding ${FAQ_CHUNKS.length} FAQ chunks via Ollama…`);
+    console.log(
+      `[QdrantSeed] Embedding ${FAQ_CHUNKS.length} FAQ chunks via Ollama…`,
+    );
 
     const points = [];
     for (const chunk of FAQ_CHUNKS) {
       const embedding = await ollamaService.getEmbedding(chunk.text);
       points.push({
-        id: crypto.randomUUID(),      // Qdrant requires UUID or unsigned integer IDs
+        id: crypto.randomUUID(), // Qdrant requires UUID or unsigned integer IDs
         vector: embedding,
         payload: {
           chunkId: chunk.id,
@@ -44,10 +43,15 @@ const initQdrantSeed = async () => {
     }
 
     await qdrantService.upsertPoints(points);
-    console.log(`[QdrantSeed] Successfully seeded ${points.length} FAQ vectors into Qdrant.`);
+    console.log(
+      `[QdrantSeed] Successfully seeded ${points.length} FAQ vectors into Qdrant.`,
+    );
   } catch (err) {
     // Non-fatal — app runs without RAG if vector infra is down
-    console.error('[QdrantSeed] Seeding failed (chat will use context-only mode):', err.message);
+    console.error(
+      "[QdrantSeed] Seeding failed (chat will use context-only mode):",
+      err.message,
+    );
   }
 };
 

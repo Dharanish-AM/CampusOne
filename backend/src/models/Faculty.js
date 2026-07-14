@@ -1,10 +1,10 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const facultySchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
       index: true,
     },
@@ -32,9 +32,9 @@ const facultySchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-const Faculty = mongoose.model('Faculty', facultySchema);
+const Faculty = mongoose.model("Faculty", facultySchema);
 
 module.exports = Faculty;

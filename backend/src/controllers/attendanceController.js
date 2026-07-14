@@ -1,7 +1,7 @@
-const Subject = require('../models/Subject');
-const Attendance = require('../models/Attendance');
-const Student = require('../models/Student');
-const User = require('../models/User');
+const Subject = require("../models/Subject");
+const Attendance = require("../models/Attendance");
+const Student = require("../models/Student");
+const User = require("../models/User");
 
 // @desc    Create a new subject
 // @route   POST /api/attendance/subjects
@@ -18,7 +18,7 @@ const createSubject = async (req, res, next) => {
     });
 
     res.status(201).json({
-      status: 'success',
+      status: "success",
       data: subject,
     });
   } catch (error) {
@@ -33,7 +33,7 @@ const getSubjects = async (req, res, next) => {
   try {
     const subjects = await Subject.find({});
     res.status(200).json({
-      status: 'success',
+      status: "success",
       data: subjects,
     });
   } catch (error) {
@@ -49,9 +49,9 @@ const markAttendance = async (req, res, next) => {
 
   try {
     // 1. Validate if student exists
-    const studentExists = await Student.findById(studentId).populate('userId');
+    const studentExists = await Student.findById(studentId).populate("userId");
     if (!studentExists) {
-      const error = new Error('Student profile not found');
+      const error = new Error("Student profile not found");
       error.statusCode = 404;
       return next(error);
     }
@@ -59,7 +59,7 @@ const markAttendance = async (req, res, next) => {
     // 2. Validate if subject exists
     const subjectExists = await Subject.findById(subjectId);
     if (!subjectExists) {
-      const error = new Error('Subject not found');
+      const error = new Error("Subject not found");
       error.statusCode = 404;
       return next(error);
     }
@@ -72,13 +72,13 @@ const markAttendance = async (req, res, next) => {
     const log = await Attendance.findOneAndUpdate(
       { studentId, subjectId, date: normalizedDate },
       { status, markedBy: req.user._id },
-      { upsert: true, new: true, runValidators: true }
+      { upsert: true, new: true, runValidators: true },
     );
 
     // 5. Emit real-time Socket.IO notification to student's unique room
-    const io = req.app.get('io');
+    const io = req.app.get("io");
     if (io) {
-      io.to(`student_${studentId}`).emit('attendance:update', {
+      io.to(`student_${studentId}`).emit("attendance:update", {
         status: log.status,
         date: log.date,
         subject: {
@@ -90,7 +90,7 @@ const markAttendance = async (req, res, next) => {
     }
 
     res.status(200).json({
-      status: 'success',
+      status: "success",
       data: log,
     });
   } catch (error) {
@@ -106,23 +106,25 @@ const getStudentAttendance = async (req, res, next) => {
 
   try {
     // 1. Resolve studentId if requester is a student
-    if (req.user.role === 'student') {
+    if (req.user.role === "student") {
       const student = await Student.findOne({ userId: req.user._id });
       if (!student) {
-        const error = new Error('Student profile associated with this account not found');
+        const error = new Error(
+          "Student profile associated with this account not found",
+        );
         error.statusCode = 404;
         return next(error);
       }
       studentId = student._id;
     } else if (!studentId) {
-      const error = new Error('Student ID is required for this query');
+      const error = new Error("Student ID is required for this query");
       error.statusCode = 400;
       return next(error);
     }
 
     // 2. Fetch all logs for the student populated with Subject details
     const logs = await Attendance.find({ studentId })
-      .populate('subjectId')
+      .populate("subjectId")
       .sort({ date: -1 });
 
     // 3. Aggregate logs subject-wise
@@ -130,9 +132,9 @@ const getStudentAttendance = async (req, res, next) => {
 
     logs.forEach((log) => {
       if (!log.subjectId) return; // Skip logs with orphan subject IDs
-      
+
       const subId = log.subjectId._id.toString();
-      
+
       if (!subjectsMap[subId]) {
         subjectsMap[subId] = {
           subject: {
@@ -149,13 +151,13 @@ const getStudentAttendance = async (req, res, next) => {
         };
       }
 
-      if (log.status === 'present') {
+      if (log.status === "present") {
         subjectsMap[subId].present += 1;
         subjectsMap[subId].total += 1;
-      } else if (log.status === 'absent') {
+      } else if (log.status === "absent") {
         subjectsMap[subId].absent += 1;
         subjectsMap[subId].total += 1;
-      } else if (log.status === 'leave') {
+      } else if (log.status === "leave") {
         subjectsMap[subId].leave += 1; // Leave doesn't count towards calculated total classes
       }
 
@@ -176,18 +178,22 @@ const getStudentAttendance = async (req, res, next) => {
         // Must attend Z consecutive classes to recover to 75%
         const classesNeeded = Math.ceil(3 * total - 4 * present);
         prediction = {
-          status: 'danger',
-          message: `Must attend next ${classesNeeded} consecutive class${classesNeeded > 1 ? 'es' : ''} to reach 75%`,
+          status: "danger",
+          message: `Must attend next ${classesNeeded} consecutive class${classesNeeded > 1 ? "es" : ""} to reach 75%`,
           value: classesNeeded,
         };
       } else {
         // Can afford to miss Y consecutive classes safely
-        const classesCanMiss = Math.max(0, Math.floor((4 * present - 3 * total) / 3));
+        const classesCanMiss = Math.max(
+          0,
+          Math.floor((4 * present - 3 * total) / 3),
+        );
         prediction = {
-          status: 'safe',
-          message: classesCanMiss > 0 
-            ? `Can afford to miss next ${classesCanMiss} class${classesCanMiss > 1 ? 'es' : ''} safely`
-            : `Borderline attendance: Can't afford to miss the next class`,
+          status: "safe",
+          message:
+            classesCanMiss > 0
+              ? `Can afford to miss next ${classesCanMiss} class${classesCanMiss > 1 ? "es" : ""} safely`
+              : `Borderline attendance: Can't afford to miss the next class`,
           value: classesCanMiss,
         };
       }
@@ -207,16 +213,17 @@ const getStudentAttendance = async (req, res, next) => {
       totalClasses += sub.total;
     });
 
-    const overallPercentage = totalClasses > 0 ? (totalPresent / totalClasses) * 100 : 100;
+    const overallPercentage =
+      totalClasses > 0 ? (totalPresent / totalClasses) * 100 : 100;
 
     res.status(200).json({
-      status: 'success',
+      status: "success",
       data: {
         overallPercentage: Number(overallPercentage.toFixed(1)),
         totalClasses,
         totalPresent,
         subjects: subjectList,
-        logs: logs.map(l => ({
+        logs: logs.map((l) => ({
           id: l._id,
           date: l.date,
           status: l.status,

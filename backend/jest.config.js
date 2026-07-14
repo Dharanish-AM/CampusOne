@@ -1,5 +1,5 @@
 module.exports = {
-  testEnvironment: 'node',
+  testEnvironment: "node",
   testTimeout: 20000,
-  setupFilesAfterEnv: ['./tests/setup.js'],
+  setupFilesAfterEnv: ["./tests/setup.js"],
 };

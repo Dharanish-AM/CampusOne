@@ -1,17 +1,17 @@
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // API Base URL Configuration
 // - 10.0.2.2:5000 maps to localhost from the Android Emulator
 // - 127.0.0.1:5000 / localhost works for the iOS Simulator
-// - To use a physical device, replace with your local machine's IP (e.g., 192.168.x.x)
-const API_BASE_URL = 'http://192.168.0.109:5000/api';
+export const SOCKET_URL = "http://192.168.0.109:5000";
+const API_BASE_URL = `${SOCKET_URL}/api`;
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -34,18 +34,21 @@ const processQueue = (error, token = null) => {
 api.interceptors.request.use(
   async (config) => {
     try {
-      const token = await AsyncStorage.getItem('accessToken');
+      const token = await AsyncStorage.getItem("accessToken");
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
     } catch (err) {
-      console.warn('Failed to read accessToken from AsyncStorage:', err.message);
+      console.warn(
+        "Failed to read accessToken from AsyncStorage:",
+        err.message,
+      );
     }
     return config;
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response Interceptor: Handle auth token renewals and connection errors
@@ -56,10 +59,12 @@ api.interceptors.response.use(
 
     // Check if error is due to a network connection failure
     if (!error.response) {
-      console.warn('Network Error / Offline:', error.message);
+      console.warn("Network Error / Offline:", error.message);
       // Construct a unified error object for connection timeouts
       return Promise.reject(
-        new Error('Network connection issues detected. Please check your connectivity.')
+        new Error(
+          "Network connection issues detected. Please check your connectivity.",
+        ),
       );
     }
 
@@ -84,13 +89,13 @@ api.interceptors.response.use(
 
       // Dynamically import store and actions only when a 401 occurs.
       // This completely breaks the circular dependency at module initialization time.
-      const { store } = require('../redux/store');
-      const { updateTokens, logoutUser } = require('../redux/slices/authSlice');
+      const { store } = require("../redux/store");
+      const { updateTokens, logoutUser } = require("../redux/slices/authSlice");
 
       try {
-        const storedRefreshToken = await AsyncStorage.getItem('refreshToken');
+        const storedRefreshToken = await AsyncStorage.getItem("refreshToken");
         if (!storedRefreshToken) {
-          throw new Error('No refresh token found locally.');
+          throw new Error("No refresh token found locally.");
         }
 
         // Call the refresh endpoint using a fresh axios instance to avoid loops
@@ -98,14 +103,17 @@ api.interceptors.response.use(
           refreshToken: storedRefreshToken,
         });
 
-        const { accessToken, refreshToken: newRefreshToken } = response.data.data;
+        const { accessToken, refreshToken: newRefreshToken } =
+          response.data.data;
 
         // Persist new credentials
-        await AsyncStorage.setItem('accessToken', accessToken);
-        await AsyncStorage.setItem('refreshToken', newRefreshToken);
+        await AsyncStorage.setItem("accessToken", accessToken);
+        await AsyncStorage.setItem("refreshToken", newRefreshToken);
 
         // Update Redux state
-        store.dispatch(updateTokens({ accessToken, refreshToken: newRefreshToken }));
+        store.dispatch(
+          updateTokens({ accessToken, refreshToken: newRefreshToken }),
+        );
 
         // Process queue
         processQueue(null, accessToken);
@@ -118,7 +126,9 @@ api.interceptors.response.use(
         // Force logout if refresh fails
         store.dispatch(logoutUser());
         return Promise.reject(
-          new Error('Session expired. Please log in again to access the application.')
+          new Error(
+            "Session expired. Please log in again to access the application.",
+          ),
         );
       } finally {
         isRefreshing = false;
@@ -126,7 +136,7 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;

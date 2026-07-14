@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const platformStatsSchema = new mongoose.Schema(
   {
@@ -12,8 +12,8 @@ const platformStatsSchema = new mongoose.Schema(
     codeforces: {
       rating: { type: Number, default: 0 },
       maxRating: { type: Number, default: 0 },
-      rank: { type: String, default: 'unrated' },
-      maxRank: { type: String, default: 'unrated' },
+      rank: { type: String, default: "unrated" },
+      maxRank: { type: String, default: "unrated" },
     },
     github: {
       publicRepos: { type: Number, default: 0 },
@@ -21,21 +21,21 @@ const platformStatsSchema = new mongoose.Schema(
       followers: { type: Number, default: 0 },
     },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const leaderboardEntrySchema = new mongoose.Schema(
   {
     studentId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Student',
+      ref: "Student",
       required: true,
       unique: true,
       index: true,
     },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
       index: true,
     },
@@ -55,9 +55,12 @@ const leaderboardEntrySchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-const LeaderboardEntry = mongoose.model('LeaderboardEntry', leaderboardEntrySchema);
+const LeaderboardEntry = mongoose.model(
+  "LeaderboardEntry",
+  leaderboardEntrySchema,
+);
 
 module.exports = LeaderboardEntry;

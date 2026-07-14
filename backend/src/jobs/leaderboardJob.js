@@ -1,7 +1,7 @@
-const cron = require('node-cron');
-const Student = require('../models/Student');
-const LeaderboardEntry = require('../models/LeaderboardEntry');
-const { syncStudentStats } = require('../services/leaderboardService');
+const cron = require("node-cron");
+const Student = require("../models/Student");
+const LeaderboardEntry = require("../models/LeaderboardEntry");
+const { syncStudentStats } = require("../services/leaderboardService");
 
 /**
  * Syncs a single student's leaderboard entry.
@@ -23,12 +23,17 @@ const syncStudent = async (student) => {
           lastSyncedAt: new Date(),
         },
       },
-      { upsert: true, new: true }
+      { upsert: true, new: true },
     );
 
-    console.log(`[LeaderboardJob] Synced student ${student._id} — score: ${totalScore}`);
+    console.log(
+      `[LeaderboardJob] Synced student ${student._id} — score: ${totalScore}`,
+    );
   } catch (err) {
-    console.error(`[LeaderboardJob] Failed to sync student ${student._id}:`, err.message);
+    console.error(
+      `[LeaderboardJob] Failed to sync student ${student._id}:`,
+      err.message,
+    );
   }
 };
 
@@ -37,18 +42,20 @@ const syncStudent = async (student) => {
  * Processes students in batches of 5 to respect Codeforces' 5 req/s rate limit.
  */
 const runLeaderboardSync = async () => {
-  console.log('[LeaderboardJob] Starting leaderboard sync...');
+  console.log("[LeaderboardJob] Starting leaderboard sync...");
 
   try {
     const students = await Student.find({
       $or: [
-        { 'codingHandles.leetcode': { $ne: null } },
-        { 'codingHandles.codeforces': { $ne: null } },
-        { 'codingHandles.github': { $ne: null } },
+        { "codingHandles.leetcode": { $ne: null } },
+        { "codingHandles.codeforces": { $ne: null } },
+        { "codingHandles.github": { $ne: null } },
       ],
     }).lean();
 
-    console.log(`[LeaderboardJob] Found ${students.length} students with handles to sync.`);
+    console.log(
+      `[LeaderboardJob] Found ${students.length} students with handles to sync.`,
+    );
 
     // Process in batches of 5 (respects Codeforces 5 req/s limit)
     const BATCH_SIZE = 5;
@@ -62,9 +69,9 @@ const runLeaderboardSync = async () => {
       }
     }
 
-    console.log('[LeaderboardJob] Sync complete.');
+    console.log("[LeaderboardJob] Sync complete.");
   } catch (err) {
-    console.error('[LeaderboardJob] Sync error:', err.message);
+    console.error("[LeaderboardJob] Sync error:", err.message);
   }
 };
 
@@ -73,13 +80,13 @@ const runLeaderboardSync = async () => {
  * Schedule: every 6 hours (00:00, 06:00, 12:00, 18:00)
  */
 const initLeaderboardJob = () => {
-  if (process.env.NODE_ENV === 'test') return;
+  if (process.env.NODE_ENV === "test") return;
 
-  cron.schedule('0 */6 * * *', runLeaderboardSync, {
-    timezone: 'Asia/Kolkata',
+  cron.schedule("0 */6 * * *", runLeaderboardSync, {
+    timezone: "Asia/Kolkata",
   });
 
-  console.log('[LeaderboardJob] Cron job scheduled: every 6 hours (IST).');
+  console.log("[LeaderboardJob] Cron job scheduled: every 6 hours (IST).");
 };
 
 module.exports = { initLeaderboardJob, runLeaderboardSync, syncStudent };

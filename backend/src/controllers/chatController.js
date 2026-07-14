@@ -1,12 +1,12 @@
-const crypto = require('crypto');
-const Student = require('../models/Student');
-const Attendance = require('../models/Attendance');
-const Timetable = require('../models/Timetable');
-const BusLocation = require('../models/BusLocation');
-const ChatHistory = require('../models/ChatHistory');
-const ollamaService = require('../services/ollamaService');
-const qdrantService = require('../services/qdrantService');
-const { chatMessageSchema } = require('../utils/chatSchemas');
+const crypto = require("crypto");
+const Student = require("../models/Student");
+const Attendance = require("../models/Attendance");
+const Timetable = require("../models/Timetable");
+const BusLocation = require("../models/BusLocation");
+const ChatHistory = require("../models/ChatHistory");
+const ollamaService = require("../services/ollamaService");
+const qdrantService = require("../services/qdrantService");
+const { chatMessageSchema } = require("../utils/chatSchemas");
 
 // Maximum number of past turns to include in the LLM context window
 const HISTORY_WINDOW = 6;
@@ -23,12 +23,12 @@ const buildSystemPrompt = ({ studentContext, faqChunks }) => {
 - Today's Classes: ${studentContext.todayClasses}
 - Active Bus Route ETA: ${studentContext.busETA}
 `
-    : '';
+    : "";
 
   const faqBlock =
     faqChunks.length > 0
-      ? `\n## Relevant Campus Policies / FAQs\n${faqChunks.map((c, i) => `${i + 1}. ${c}`).join('\n\n')}`
-      : '';
+      ? `\n## Relevant Campus Policies / FAQs\n${faqChunks.map((c, i) => `${i + 1}. ${c}`).join("\n\n")}`
+      : "";
 
   return `You are CampusBot, a helpful and friendly AI assistant for a smart campus management system called CampusOne. You help students with questions about their attendance, timetable, bus tracking, coding leaderboard, campus policies, and general academic queries.
 
@@ -37,27 +37,42 @@ Always respond in a concise, friendly, and professional tone. Use bullet points 
 When answering questions about the student's personal data (attendance, schedule, etc.), use the live data provided below — do NOT make up values.
 ${contextBlock}${faqBlock}
 
-Current date and time: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}`;
+Current date and time: ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}`;
 };
 
 // ── Helper: build student context object ──────────────────────────────────────
 const fetchStudentContext = async (userId) => {
   try {
-    const student = await Student.findOne({ userId }).populate('userId', 'name');
+    const student = await Student.findOne({ userId }).populate(
+      "userId",
+      "name",
+    );
     if (!student) return null;
 
     // Overall attendance % (lightweight — count presents vs total)
     const attendanceLogs = await Attendance.find({ studentId: student._id });
-    const presentCount = attendanceLogs.filter((l) => l.status === 'present').length;
-    const totalCount = attendanceLogs.filter((l) => l.status !== 'leave').length;
+    const presentCount = attendanceLogs.filter(
+      (l) => l.status === "present",
+    ).length;
+    const totalCount = attendanceLogs.filter(
+      (l) => l.status !== "leave",
+    ).length;
     const overallAttendance =
-      totalCount > 0 ? ((presentCount / totalCount) * 100).toFixed(1) : '100.0';
+      totalCount > 0 ? ((presentCount / totalCount) * 100).toFixed(1) : "100.0";
 
     // Today's timetable classes
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const days = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
     const todayDay = days[new Date().getDay()];
     const todaySlots = await Timetable.find({
-      type: 'recurring',
+      type: "recurring",
       dayOfWeek: todayDay,
       department: student.department,
       semester: student.semester,
@@ -67,18 +82,23 @@ const fetchStudentContext = async (userId) => {
     const todayClasses =
       todaySlots.length > 0
         ? todaySlots
-            .map((s) => `${s.startTime}–${s.endTime} ${s.subjectName} (${s.room || 'TBD'})`)
-            .join(', ')
-        : 'No classes scheduled today';
+            .map(
+              (s) =>
+                `${s.startTime}–${s.endTime} ${s.subjectName} (${s.room || "TBD"})`,
+            )
+            .join(", ")
+        : "No classes scheduled today";
 
     // Latest bus location ETA (most recent entry)
-    const latestBus = await BusLocation.findOne().sort({ createdAt: -1 }).populate('routeId', 'name');
+    const latestBus = await BusLocation.findOne()
+      .sort({ createdAt: -1 })
+      .populate("routeId", "name");
     const busETA = latestBus
-      ? `Route ${latestBus.routeId?.name || 'Unknown'} last updated ${new Date(latestBus.createdAt).toLocaleTimeString('en-IN')}`
-      : 'Bus location not available';
+      ? `Route ${latestBus.routeId?.name || "Unknown"} last updated ${new Date(latestBus.createdAt).toLocaleTimeString("en-IN")}`
+      : "Bus location not available";
 
     return {
-      name: student.userId?.name || 'Student',
+      name: student.userId?.name || "Student",
       rollNumber: student.rollNumber,
       department: student.department,
       semester: student.semester,
@@ -97,7 +117,9 @@ const sendMessage = async (req, res, next) => {
     // 1. Validate request body
     const result = chatMessageSchema.safeParse(req.body);
     if (!result.success) {
-      const error = new Error(result.error.issues?.[0]?.message || 'Validation failed');
+      const error = new Error(
+        result.error.issues?.[0]?.message || "Validation failed",
+      );
       error.statusCode = 400;
       return next(error);
     }
@@ -137,7 +159,7 @@ const sendMessage = async (req, res, next) => {
       .map((h) => ({ role: h.role, content: h.content }));
 
     // Add the current user message
-    messages.push({ role: 'user', content: message });
+    messages.push({ role: "user", content: message });
 
     // 6. Call Ollama for the reply
     const reply = await ollamaService.chat(systemPrompt, messages);
@@ -147,20 +169,20 @@ const sendMessage = async (req, res, next) => {
       {
         userId: req.user._id,
         conversationId,
-        role: 'user',
+        role: "user",
         content: message,
       },
       {
         userId: req.user._id,
         conversationId,
-        role: 'assistant',
+        role: "assistant",
         content: reply,
       },
     ]);
 
     // 8. Return response
     res.status(200).json({
-      status: 'success',
+      status: "success",
       data: {
         reply,
         conversationId,
@@ -185,7 +207,7 @@ const getHistory = async (req, res, next) => {
       .lean();
 
     res.status(200).json({
-      status: 'success',
+      status: "success",
       data: history.reverse(), // Return in chronological order
     });
   } catch (error) {

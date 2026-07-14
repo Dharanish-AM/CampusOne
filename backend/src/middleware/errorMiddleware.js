@@ -1,5 +1,5 @@
 const errorHandler = (err, req, res, next) => {
-  console.error('Error occurred:', err);
+  console.error("Error occurred:", err);
 
   // Check if headers have already been sent to client
   if (res.headersSent) {
@@ -7,15 +7,15 @@ const errorHandler = (err, req, res, next) => {
   }
 
   let statusCode = err.statusCode || 500;
-  let message = err.message || 'Internal Server Error';
+  let message = err.message || "Internal Server Error";
   let errors = null;
 
   // Handle Zod Schema validation errors
-  if (err.name === 'ZodError' || (err.issues && Array.isArray(err.issues))) {
+  if (err.name === "ZodError" || (err.issues && Array.isArray(err.issues))) {
     statusCode = 400;
-    message = 'Validation Error';
+    message = "Validation Error";
     errors = err.issues.map((issue) => ({
-      field: issue.path.join('.'),
+      field: issue.path.join("."),
       message: issue.message,
     }));
   }
@@ -28,20 +28,20 @@ const errorHandler = (err, req, res, next) => {
   }
 
   // Handle JWT expired/invalid errors
-  if (err.name === 'JsonWebTokenError') {
+  if (err.name === "JsonWebTokenError") {
     statusCode = 401;
-    message = 'Invalid authentication token. Please log in again.';
+    message = "Invalid authentication token. Please log in again.";
   }
-  if (err.name === 'TokenExpiredError') {
+  if (err.name === "TokenExpiredError") {
     statusCode = 401;
-    message = 'Authentication token expired. Please refresh or log in again.';
+    message = "Authentication token expired. Please refresh or log in again.";
   }
 
   res.status(statusCode).json({
-    status: 'error',
+    status: "error",
     message,
     ...(errors && { errors }),
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
   });
 };
 

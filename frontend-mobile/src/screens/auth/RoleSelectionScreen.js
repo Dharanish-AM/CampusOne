@@ -1,36 +1,51 @@
-import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, Dimensions } from 'react-native';
-import { GraduationCap, User, ShieldAlert, ArrowRight } from 'lucide-react-native';
+import React from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  SafeAreaView,
+  Dimensions,
+} from "react-native";
+import {
+  GraduationCap,
+  User,
+  ShieldAlert,
+  ArrowRight,
+} from "lucide-react-native";
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 
 export default function RoleSelectionScreen({ navigation }) {
   const roles = [
     {
-      id: 'student',
-      title: 'Student Portal',
-      description: 'Check attendance, timetable, bus coordinates, leaderboard, and chat with AI.',
+      id: "student",
+      title: "Student Portal",
+      description:
+        "Check attendance, timetable, bus coordinates, leaderboard, and chat with AI.",
       icon: GraduationCap,
-      color: '#6366F1', // Indigo glow
+      color: "#c084fc", // Lavender glow
     },
     {
-      id: 'faculty',
-      title: 'Faculty Portal',
-      description: 'Manage attendance, update class schedules, and review student rosters.',
+      id: "faculty",
+      title: "Faculty Portal",
+      description:
+        "Manage attendance, update class schedules, and review student rosters.",
       icon: User,
-      color: '#10B981', // Emerald glow
+      color: "#10B981", // Emerald glow
     },
     {
-      id: 'admin',
-      title: 'Administration',
-      description: 'Campus configurations, role assignments, notifications, and security logs.',
+      id: "admin",
+      title: "Administration",
+      description:
+        "Campus configurations, role assignments, notifications, and security logs.",
       icon: ShieldAlert,
-      color: '#F59E0B', // Amber glow
+      color: "#F59E0B", // Amber glow
     },
   ];
 
   const handleSelectRole = (roleId) => {
-    navigation.navigate('Login', { selectedRole: roleId });
+    navigation.navigate("Login", { selectedRole: roleId });
   };
 
   return (
@@ -50,7 +65,12 @@ export default function RoleSelectionScreen({ navigation }) {
               style={[styles.card, { borderColor: `${item.color}30` }]}
               onPress={() => handleSelectRole(item.id)}
             >
-              <View style={[styles.iconWrapper, { backgroundColor: `${item.color}15` }]}>
+              <View
+                style={[
+                  styles.iconWrapper,
+                  { backgroundColor: `${item.color}15` },
+                ]}
+              >
                 <IconComponent size={28} color={item.color} />
               </View>
 
@@ -68,7 +88,9 @@ export default function RoleSelectionScreen({ navigation }) {
       </View>
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Powered by CampusOne Smart Systems</Text>
+        <Text style={styles.footerText}>
+          Powered by CampusOne Smart Systems
+        </Text>
       </View>
     </SafeAreaView>
   );
@@ -77,43 +99,43 @@ export default function RoleSelectionScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#090D1A', // Dark slate blue background
-    justifyContent: 'space-between',
+    backgroundColor: "#0f172a", // Dark slate background
+    justifyContent: "space-between",
     paddingHorizontal: 24,
   },
   header: {
     marginTop: 60,
-    alignItems: 'center',
+    alignItems: "center",
   },
   title: {
     fontSize: 36,
-    fontWeight: '800',
-    color: '#FFFFFF',
+    fontWeight: "800",
+    color: "#FFFFFF",
     letterSpacing: 1.5,
-    textShadowColor: 'rgba(99, 102, 241, 0.4)',
+    textShadowColor: "rgba(192, 132, 252, 0.4)",
     textShadowOffset: { width: 0, height: 4 },
     textShadowRadius: 10,
   },
   subtitle: {
     fontSize: 15,
-    color: '#8A99AD',
+    color: "#8A99AD",
     marginTop: 8,
-    textAlign: 'center',
+    textAlign: "center",
   },
   list: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     marginVertical: 40,
   },
   card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#111827',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#161f2d",
     borderWidth: 1,
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
-    shadowColor: '#000000',
+    shadowColor: "#000000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -122,8 +144,8 @@ const styles = StyleSheet.create({
   iconWrapper: {
     padding: 12,
     borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   textWrapper: {
     flex: 1,
@@ -132,26 +154,26 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 18,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    fontWeight: "700",
+    color: "#FFFFFF",
   },
   cardDescription: {
     fontSize: 13,
-    color: '#9CA3AF',
+    color: "#9CA3AF",
     marginTop: 4,
     lineHeight: 18,
   },
   arrowWrapper: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   footer: {
     marginBottom: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
   footerText: {
     fontSize: 12,
-    color: '#4B5563',
+    color: "#4B5563",
     letterSpacing: 0.5,
   },
 });

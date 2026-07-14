@@ -1,8 +1,8 @@
-const axios = require('axios');
+const axios = require("axios");
 
-const BASE_URL = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
-const CHAT_MODEL = process.env.OLLAMA_MODEL || 'llama3.2';
-const EMBED_MODEL = process.env.OLLAMA_EMBED_MODEL || 'nomic-embed-text';
+const BASE_URL = process.env.OLLAMA_BASE_URL || "http://localhost:11434";
+const CHAT_MODEL = process.env.OLLAMA_MODEL || "llama3.2";
+const EMBED_MODEL = process.env.OLLAMA_EMBED_MODEL || "nomic-embed-text";
 
 // Shared axios instance pointing at the local Ollama server
 const ollamaAxios = axios.create({
@@ -20,14 +20,17 @@ const ollamaAxios = axios.create({
  */
 const getEmbedding = async (text) => {
   try {
-    const { data } = await ollamaAxios.post('/api/embeddings', {
+    const { data } = await ollamaAxios.post("/api/embeddings", {
       model: EMBED_MODEL,
       prompt: text,
     });
     return data.embedding;
   } catch (err) {
-    console.warn('[Ollama] Embedding failed — returning zero-vector fallback:', err.message);
-    const dim = parseInt(process.env.QDRANT_VECTOR_SIZE || '768', 10);
+    console.warn(
+      "[Ollama] Embedding failed — returning zero-vector fallback:",
+      err.message,
+    );
+    const dim = parseInt(process.env.QDRANT_VECTOR_SIZE || "768", 10);
     return new Array(dim).fill(0);
   }
 };
@@ -42,20 +45,22 @@ const getEmbedding = async (text) => {
  */
 const chat = async (systemPrompt, messages) => {
   try {
-    const { data } = await ollamaAxios.post('/api/chat', {
+    const { data } = await ollamaAxios.post("/api/chat", {
       model: CHAT_MODEL,
       stream: false,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        ...messages,
-      ],
+      messages: [{ role: "system", content: systemPrompt }, ...messages],
     });
 
     // Ollama returns: { message: { role, content }, done: true, ... }
-    return data.message?.content?.trim() ?? 'I could not generate a response. Please try again.';
+    return (
+      data.message?.content?.trim() ??
+      "I could not generate a response. Please try again."
+    );
   } catch (err) {
-    console.error('[Ollama] Chat inference failed:', err.message);
-    throw new Error('AI service is currently unavailable. Please try again later.');
+    console.error("[Ollama] Chat inference failed:", err.message);
+    throw new Error(
+      "AI service is currently unavailable. Please try again later.",
+    );
   }
 };
 

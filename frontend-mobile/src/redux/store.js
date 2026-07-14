@@ -1,11 +1,11 @@
-import { configureStore } from '@reduxjs/toolkit';
-import authReducer from './slices/authSlice';
-import attendanceReducer from './slices/attendanceSlice';
-import timetableReducer from './slices/timetableSlice';
-import busReducer from './slices/busSlice';
-import leaderboardReducer from './slices/leaderboardSlice';
-import chatReducer from './slices/chatSlice';
-import dashboardReducer from './slices/dashboardSlice';
+import { configureStore } from "@reduxjs/toolkit";
+import authReducer from "./slices/authSlice";
+import attendanceReducer from "./slices/attendanceSlice";
+import timetableReducer from "./slices/timetableSlice";
+import busReducer from "./slices/busSlice";
+import leaderboardReducer from "./slices/leaderboardSlice";
+import chatReducer from "./slices/chatSlice";
+import dashboardReducer from "./slices/dashboardSlice";
 
 export const store = configureStore({
   reducer: {

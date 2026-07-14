@@ -1,24 +1,28 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-const { protect, authorizeRoles } = require('../middleware/authMiddleware');
-const validate = require('../middleware/validationMiddleware');
-const { updateHandlesSchema } = require('../utils/leaderboardSchemas');
-const { getLeaderboard, updateHandles, triggerSync } = require('../controllers/leaderboardController');
+const { protect, authorizeRoles } = require("../middleware/authMiddleware");
+const validate = require("../middleware/validationMiddleware");
+const { updateHandlesSchema } = require("../utils/leaderboardSchemas");
+const {
+  getLeaderboard,
+  updateHandles,
+  triggerSync,
+} = require("../controllers/leaderboardController");
 
 // GET /api/leaderboard — all authenticated users can view the ranked list
-router.get('/', protect, getLeaderboard);
+router.get("/", protect, getLeaderboard);
 
 // PATCH /api/leaderboard/handles — student updates their own coding platform usernames
 router.patch(
-  '/handles',
+  "/handles",
   protect,
-  authorizeRoles('student'),
+  authorizeRoles("student"),
   validate(updateHandlesSchema),
-  updateHandles
+  updateHandles,
 );
 
 // POST /api/leaderboard/sync — admin manually triggers a full background sync
-router.post('/sync', protect, authorizeRoles('admin'), triggerSync);
+router.post("/sync", protect, authorizeRoles("admin"), triggerSync);
 
 module.exports = router;

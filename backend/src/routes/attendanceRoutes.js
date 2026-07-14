@@ -1,13 +1,16 @@
-const express = require('express');
-const { protect, authorizeRoles } = require('../middleware/authMiddleware');
-const validate = require('../middleware/validationMiddleware');
+const express = require("express");
+const { protect, authorizeRoles } = require("../middleware/authMiddleware");
+const validate = require("../middleware/validationMiddleware");
 const {
   createSubject,
   getSubjects,
   markAttendance,
   getStudentAttendance,
-} = require('../controllers/attendanceController');
-const { createSubjectSchema, markAttendanceSchema } = require('../utils/attendanceSchemas');
+} = require("../controllers/attendanceController");
+const {
+  createSubjectSchema,
+  markAttendanceSchema,
+} = require("../utils/attendanceSchemas");
 
 const router = express.Router();
 
@@ -16,20 +19,20 @@ router.use(protect);
 
 // Subjects endpoints
 router.post(
-  '/subjects',
-  authorizeRoles('faculty', 'admin'),
+  "/subjects",
+  authorizeRoles("faculty", "admin"),
   validate(createSubjectSchema),
-  createSubject
+  createSubject,
 );
-router.get('/subjects', getSubjects);
+router.get("/subjects", getSubjects);
 
 // Attendance endpoints
 router.post(
-  '/',
-  authorizeRoles('faculty', 'admin'),
+  "/",
+  authorizeRoles("faculty", "admin"),
   validate(markAttendanceSchema),
-  markAttendance
+  markAttendance,
 );
-router.get('/student', getStudentAttendance);
+router.get("/student", getStudentAttendance);
 
 module.exports = router;

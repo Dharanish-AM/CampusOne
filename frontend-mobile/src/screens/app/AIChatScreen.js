@@ -4,7 +4,7 @@ import React, {
   useState,
   useCallback,
   useMemo,
-} from 'react';
+} from "react";
 import {
   View,
   Text,
@@ -18,23 +18,17 @@ import {
   ActivityIndicator,
   Keyboard,
   ScrollView,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useDispatch, useSelector } from 'react-redux';
-import {
-  Bot,
-  Send,
-  Trash2,
-  Sparkles,
-  RefreshCw,
-} from 'lucide-react-native';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useDispatch, useSelector } from "react-redux";
+import { Bot, Send, Trash2, Sparkles, RefreshCw } from "lucide-react-native";
 import {
   sendMessage,
   loadHistory,
   clearChat,
   clearChatError,
   addOptimisticMessage,
-} from '../../redux/slices/chatSlice';
+} from "../../redux/slices/chatSlice";
 
 // ── Suggested prompts shown on a fresh conversation ──────────────────────────
 const SUGGESTED_PROMPTS = [
@@ -48,20 +42,30 @@ const SUGGESTED_PROMPTS = [
 
 // ── Typing indicator (three animated dots) ────────────────────────────────────
 const TypingIndicator = () => {
-  const dots = [useRef(new Animated.Value(0)).current,
-                useRef(new Animated.Value(0)).current,
-                useRef(new Animated.Value(0)).current];
+  const dots = [
+    useRef(new Animated.Value(0)).current,
+    useRef(new Animated.Value(0)).current,
+    useRef(new Animated.Value(0)).current,
+  ];
 
   useEffect(() => {
     const animations = dots.map((dot, i) =>
       Animated.loop(
         Animated.sequence([
           Animated.delay(i * 180),
-          Animated.timing(dot, { toValue: 1, duration: 350, useNativeDriver: true }),
-          Animated.timing(dot, { toValue: 0, duration: 350, useNativeDriver: true }),
+          Animated.timing(dot, {
+            toValue: 1,
+            duration: 350,
+            useNativeDriver: true,
+          }),
+          Animated.timing(dot, {
+            toValue: 0,
+            duration: 350,
+            useNativeDriver: true,
+          }),
           Animated.delay((2 - i) * 180),
-        ])
-      )
+        ]),
+      ),
     );
     animations.forEach((a) => a.start());
     return () => animations.forEach((a) => a.stop());
@@ -70,13 +74,26 @@ const TypingIndicator = () => {
   return (
     <View style={styles.typingBubble}>
       <View style={styles.botAvatarSmall}>
-        <Bot size={12} color="#6366F1" />
+        <Bot size={12} color="#c084fc" />
       </View>
       <View style={styles.typingDots}>
         {dots.map((dot, i) => (
           <Animated.View
             key={i}
-            style={[styles.dot, { opacity: dot, transform: [{ translateY: dot.interpolate({ inputRange: [0, 1], outputRange: [0, -4] }) }] }]}
+            style={[
+              styles.dot,
+              {
+                opacity: dot,
+                transform: [
+                  {
+                    translateY: dot.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, -4],
+                    }),
+                  },
+                ],
+              },
+            ]}
           />
         ))}
       </View>
@@ -89,7 +106,7 @@ const renderContent = (text) => {
   // Split on code blocks first
   const parts = text.split(/(`[^`]+`)/g);
   return parts.map((part, i) => {
-    if (part.startsWith('`') && part.endsWith('`')) {
+    if (part.startsWith("`") && part.endsWith("`")) {
       return (
         <Text key={i} style={styles.inlineCode}>
           {part.slice(1, -1)}
@@ -99,7 +116,7 @@ const renderContent = (text) => {
     // Bold **text**
     const boldParts = part.split(/(\*\*[^*]+\*\*)/g);
     return boldParts.map((bp, j) => {
-      if (bp.startsWith('**') && bp.endsWith('**')) {
+      if (bp.startsWith("**") && bp.endsWith("**")) {
         return (
           <Text key={`${i}_${j}`} style={styles.boldText}>
             {bp.slice(2, -2)}
@@ -117,14 +134,23 @@ const renderContent = (text) => {
 
 // ── Message Bubble ────────────────────────────────────────────────────────────
 const MessageBubble = ({ message }) => {
-  const isUser = message.role === 'user';
+  const isUser = message.role === "user";
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(isUser ? 20 : -20)).current;
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(fadeAnim, { toValue: 1, duration: 280, useNativeDriver: true }),
-      Animated.spring(slideAnim, { toValue: 0, tension: 80, friction: 10, useNativeDriver: true }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 280,
+        useNativeDriver: true,
+      }),
+      Animated.spring(slideAnim, {
+        toValue: 0,
+        tension: 80,
+        friction: 10,
+        useNativeDriver: true,
+      }),
     ]).start();
   }, []);
 
@@ -138,20 +164,25 @@ const MessageBubble = ({ message }) => {
     >
       {!isUser && (
         <View style={styles.botAvatar}>
-          <Bot size={14} color="#6366F1" />
+          <Bot size={14} color="#c084fc" />
         </View>
       )}
-      <View style={[styles.bubble, isUser ? styles.bubbleUser : styles.bubbleAssistant]}>
+      <View
+        style={[
+          styles.bubble,
+          isUser ? styles.bubbleUser : styles.bubbleAssistant,
+        ]}
+      >
         <Text style={[styles.messageText, isUser && styles.messageTextUser]}>
           {renderContent(message.content)}
         </Text>
         <Text style={[styles.timestamp, isUser && styles.timestampUser]}>
           {message.timestamp
-            ? new Date(message.timestamp).toLocaleTimeString('en-IN', {
-                hour: '2-digit',
-                minute: '2-digit',
+            ? new Date(message.timestamp).toLocaleTimeString("en-IN", {
+                hour: "2-digit",
+                minute: "2-digit",
               })
-            : ''}
+            : ""}
         </Text>
       </View>
     </Animated.View>
@@ -161,36 +192,51 @@ const MessageBubble = ({ message }) => {
 // ── Main Screen ───────────────────────────────────────────────────────────────
 export default function AIChatScreen() {
   const dispatch = useDispatch();
-  const { messages, status, conversationId, error } = useSelector((s) => s.chat);
+  const { messages, status, conversationId, error } = useSelector(
+    (s) => s.chat,
+  );
 
-  const [inputText, setInputText] = useState('');
+  const [inputText, setInputText] = useState("");
   const flatListRef = useRef(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const inputRef = useRef(null);
 
-  const isLoading = status === 'loading';
+  const isLoading = status === "loading";
   const isEmpty = messages.length === 0;
 
   // Pulsing avatar glow animation
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
-        Animated.timing(pulseAnim, { toValue: 1.15, duration: 1800, useNativeDriver: true }),
-        Animated.timing(pulseAnim, { toValue: 1, duration: 1800, useNativeDriver: true }),
-      ])
+        Animated.timing(pulseAnim, {
+          toValue: 1.15,
+          duration: 1800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1800,
+          useNativeDriver: true,
+        }),
+      ]),
     ).start();
   }, []);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
     if (messages.length > 0) {
-      setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+      setTimeout(
+        () => flatListRef.current?.scrollToEnd({ animated: true }),
+        100,
+      );
     }
   }, [messages, isLoading]);
 
   // Clear error on unmount
   useEffect(() => {
-    return () => { dispatch(clearChatError()); };
+    return () => {
+      dispatch(clearChatError());
+    };
   }, []);
 
   const handleSend = useCallback(
@@ -198,13 +244,13 @@ export default function AIChatScreen() {
       const trimmed = (text || inputText).trim();
       if (!trimmed || isLoading) return;
 
-      setInputText('');
+      setInputText("");
       Keyboard.dismiss();
 
       // Optimistic user bubble
       const optimisticMsg = {
         id: `${Date.now()}_user`,
-        role: 'user',
+        role: "user",
         content: trimmed,
         timestamp: new Date().toISOString(),
         optimistic: true,
@@ -213,7 +259,7 @@ export default function AIChatScreen() {
 
       dispatch(sendMessage({ message: trimmed, conversationId }));
     },
-    [inputText, isLoading, conversationId, dispatch]
+    [inputText, isLoading, conversationId, dispatch],
   );
 
   const handleClear = useCallback(() => {
@@ -224,18 +270,18 @@ export default function AIChatScreen() {
     (prompt) => {
       handleSend(prompt);
     },
-    [handleSend]
+    [handleSend],
   );
 
   // Memoised data array — append typing indicator as a sentinel item
   const listData = useMemo(() => {
     const items = [...messages];
-    if (isLoading) items.push({ id: '__typing__', role: '__typing__' });
+    if (isLoading) items.push({ id: "__typing__", role: "__typing__" });
     return items;
   }, [messages, isLoading]);
 
   const renderItem = useCallback(({ item }) => {
-    if (item.role === '__typing__') return <TypingIndicator />;
+    if (item.role === "__typing__") return <TypingIndicator />;
     return <MessageBubble message={item} />;
   }, []);
 
@@ -244,7 +290,9 @@ export default function AIChatScreen() {
       {/* ── Header ── */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Animated.View style={[styles.avatarRing, { transform: [{ scale: pulseAnim }] }]}>
+          <Animated.View
+            style={[styles.avatarRing, { transform: [{ scale: pulseAnim }] }]}
+          >
             <View style={styles.avatar}>
               <Bot size={20} color="#6366F1" />
             </View>
@@ -252,8 +300,12 @@ export default function AIChatScreen() {
           <View>
             <Text style={styles.headerTitle}>CampusBot</Text>
             <View style={styles.statusRow}>
-              <View style={[styles.statusDot, { backgroundColor: '#4ADE80' }]} />
-              <Text style={styles.statusText}>AI Assistant · Powered by Ollama</Text>
+              <View
+                style={[styles.statusDot, { backgroundColor: "#4ADE80" }]}
+              />
+              <Text style={styles.statusText}>
+                AI Assistant · Powered by Ollama
+              </Text>
             </View>
           </View>
         </View>
@@ -271,8 +323,8 @@ export default function AIChatScreen() {
       {/* ── Messages or Empty State ── */}
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
       >
         {isEmpty ? (
           <ScrollView
@@ -281,11 +333,15 @@ export default function AIChatScreen() {
           >
             {/* Welcome */}
             <View style={styles.welcomeCard}>
-              <Sparkles size={28} color="#6366F1" style={{ marginBottom: 12 }} />
+              <Sparkles
+                size={28}
+                color="#6366F1"
+                style={{ marginBottom: 12 }}
+              />
               <Text style={styles.welcomeTitle}>How can I help you?</Text>
               <Text style={styles.welcomeSubtitle}>
-                Ask me anything about your attendance, timetable, bus schedule, campus
-                policies, or coding leaderboard.
+                Ask me anything about your attendance, timetable, bus schedule,
+                campus policies, or coding leaderboard.
               </Text>
             </View>
 
@@ -368,44 +424,49 @@ export default function AIChatScreen() {
 // ── Styles ────────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  container: { flex: 1, backgroundColor: '#080C18' },
+  container: { flex: 1, backgroundColor: "#080C18" },
 
   // Header
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#111827',
+    borderBottomColor: "#111827",
   },
-  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  headerLeft: { flexDirection: "row", alignItems: "center", gap: 12 },
   avatarRing: {
     width: 48,
     height: 48,
     borderRadius: 24,
     borderWidth: 2,
-    borderColor: 'rgba(99,102,241,0.4)',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderColor: "rgba(99,102,241,0.4)",
+    alignItems: "center",
+    justifyContent: "center",
   },
   avatar: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: 'rgba(99,102,241,0.15)',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "rgba(99,102,241,0.15)",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  headerTitle: { color: '#FFFFFF', fontSize: 17, fontWeight: '700' },
-  statusRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 2 },
+  headerTitle: { color: "#FFFFFF", fontSize: 17, fontWeight: "700" },
+  statusRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    marginTop: 2,
+  },
   statusDot: { width: 6, height: 6, borderRadius: 3 },
-  statusText: { color: '#6B7280', fontSize: 11 },
+  statusText: { color: "#6B7280", fontSize: 11 },
   clearBtn: {
     padding: 8,
     borderRadius: 8,
-    backgroundColor: '#111827',
+    backgroundColor: "#161f2d",
   },
 
   // Empty state
@@ -416,108 +477,108 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   welcomeCard: {
-    backgroundColor: '#0F1629',
+    backgroundColor: "#161f2d",
     borderRadius: 20,
     padding: 24,
-    alignItems: 'center',
+    alignItems: "center",
     borderWidth: 1,
-    borderColor: 'rgba(99,102,241,0.2)',
+    borderColor: "rgba(192, 132, 252, 0.2)",
     marginBottom: 28,
   },
   welcomeTitle: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 22,
-    fontWeight: '700',
+    fontWeight: "700",
     marginBottom: 10,
-    textAlign: 'center',
+    textAlign: "center",
   },
   welcomeSubtitle: {
-    color: '#9CA3AF',
+    color: "#9CA3AF",
     fontSize: 14,
     lineHeight: 22,
-    textAlign: 'center',
+    textAlign: "center",
   },
   suggestedLabel: {
-    color: '#4B5563',
+    color: "#4B5563",
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: "600",
     letterSpacing: 0.8,
     marginBottom: 12,
   },
   suggestedGrid: { gap: 8 },
   suggestedChip: {
-    backgroundColor: '#111827',
+    backgroundColor: "#161f2d",
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderWidth: 1,
-    borderColor: '#1F2937',
+    borderColor: "#1e2634",
   },
-  suggestedText: { color: '#D1D5DB', fontSize: 14, lineHeight: 20 },
+  suggestedText: { color: "#D1D5DB", fontSize: 14, lineHeight: 20 },
 
   // Messages
   listContent: { paddingHorizontal: 16, paddingVertical: 16, paddingBottom: 8 },
   messageRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 12,
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
     gap: 8,
   },
-  messageRowUser: { justifyContent: 'flex-end' },
-  messageRowAssistant: { justifyContent: 'flex-start' },
+  messageRowUser: { justifyContent: "flex-end" },
+  messageRowAssistant: { justifyContent: "flex-start" },
   botAvatar: {
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: 'rgba(99,102,241,0.15)',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "rgba(192, 132, 252, 0.15)",
+    alignItems: "center",
+    justifyContent: "center",
     borderWidth: 1,
-    borderColor: 'rgba(99,102,241,0.3)',
+    borderColor: "rgba(192, 132, 252, 0.3)",
   },
   bubble: {
-    maxWidth: '80%',
+    maxWidth: "80%",
     borderRadius: 18,
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
   bubbleUser: {
-    backgroundColor: '#4F46E5',
+    backgroundColor: "#c084fc",
     borderBottomRightRadius: 4,
   },
   bubbleAssistant: {
-    backgroundColor: '#111827',
+    backgroundColor: "#161f2d",
     borderBottomLeftRadius: 4,
     borderWidth: 1,
-    borderColor: '#1F2937',
+    borderColor: "#1e2634",
   },
   messageText: {
-    color: '#E5E7EB',
+    color: "#E5E7EB",
     fontSize: 14,
     lineHeight: 22,
   },
-  messageTextUser: { color: '#FFFFFF' },
-  boldText: { fontWeight: '700', color: '#FFFFFF' },
+  messageTextUser: { color: "#0f172a" },
+  boldText: { fontWeight: "700", color: "#FFFFFF" },
   inlineCode: {
-    backgroundColor: 'rgba(99,102,241,0.15)',
-    color: '#A5B4FC',
-    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+    backgroundColor: "rgba(192, 132, 252, 0.15)",
+    color: "#d8b4fe",
+    fontFamily: Platform.OS === "ios" ? "Menlo" : "monospace",
     fontSize: 12,
     paddingHorizontal: 4,
     borderRadius: 4,
   },
   timestamp: {
-    color: 'rgba(156,163,175,0.6)',
+    color: "rgba(156,163,175,0.6)",
     fontSize: 10,
     marginTop: 4,
-    alignSelf: 'flex-end',
+    alignSelf: "flex-end",
   },
-  timestampUser: { color: 'rgba(255,255,255,0.5)' },
+  timestampUser: { color: "rgba(15, 23, 42, 0.5)" },
 
   // Typing indicator
   typingBubble: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
     marginBottom: 12,
     paddingHorizontal: 16,
@@ -526,66 +587,66 @@ const styles = StyleSheet.create({
     width: 26,
     height: 26,
     borderRadius: 13,
-    backgroundColor: 'rgba(99,102,241,0.15)',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "rgba(192, 132, 252, 0.15)",
+    alignItems: "center",
+    justifyContent: "center",
   },
   typingDots: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 5,
-    backgroundColor: '#111827',
+    backgroundColor: "#161f2d",
     borderRadius: 16,
     paddingHorizontal: 14,
     paddingVertical: 12,
     borderWidth: 1,
-    borderColor: '#1F2937',
+    borderColor: "#1e2634",
   },
   dot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#6366F1',
+    backgroundColor: "#c084fc",
   },
 
   // Error banner
   errorBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: 'rgba(248,113,113,0.1)',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "rgba(248,113,113,0.1)",
     borderWidth: 1,
-    borderColor: 'rgba(248,113,113,0.3)',
+    borderColor: "rgba(248,113,113,0.3)",
     marginHorizontal: 16,
     marginBottom: 8,
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 12,
   },
-  errorText: { color: '#F87171', fontSize: 13, flex: 1, marginRight: 8 },
+  errorText: { color: "#F87171", fontSize: 13, flex: 1, marginRight: 8 },
 
   // Input bar
   inputBar: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
+    flexDirection: "row",
+    alignItems: "flex-end",
     paddingHorizontal: 16,
     paddingVertical: 12,
-    paddingBottom: Platform.OS === 'ios' ? 20 : 12,
+    paddingBottom: Platform.OS === "ios" ? 20 : 12,
     gap: 10,
     borderTopWidth: 1,
-    borderTopColor: '#111827',
-    backgroundColor: '#080C18',
+    borderTopColor: "#1e2634",
+    backgroundColor: "#0f172a",
   },
   input: {
     flex: 1,
-    backgroundColor: '#111827',
+    backgroundColor: "#161f2d",
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 10,
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 14,
     borderWidth: 1,
-    borderColor: '#1F2937',
+    borderColor: "#1e2634",
     maxHeight: 120,
     lineHeight: 20,
   },
@@ -593,12 +654,12 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#4F46E5',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#c084fc",
+    alignItems: "center",
+    justifyContent: "center",
   },
   sendBtnDisabled: {
-    backgroundColor: '#1F2937',
+    backgroundColor: "#1e2634",
     opacity: 0.5,
   },
 });

@@ -1,4 +1,4 @@
-const { z } = require('zod');
+const { z } = require("zod");
 
 /**
  * Schema for POST /api/chat request body.
@@ -7,14 +7,14 @@ const { z } = require('zod');
  */
 const chatMessageSchema = z.object({
   message: z
-    .string({ required_error: 'Message is required' })
+    .string({ required_error: "Message is required" })
     .trim()
-    .min(1, 'Message cannot be empty')
-    .max(1000, 'Message must be 1000 characters or fewer'),
+    .min(1, "Message cannot be empty")
+    .max(1000, "Message must be 1000 characters or fewer"),
 
   conversationId: z
     .string()
-    .uuid('conversationId must be a valid UUID')
+    .uuid("conversationId must be a valid UUID")
     .optional(),
 });
 

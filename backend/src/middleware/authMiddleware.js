@@ -1,41 +1,51 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 
 const protect = async (req, res, next) => {
   let token;
 
   // Check if header contains Authorization Bearer token
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
     try {
       // Get token from header
-      token = req.headers.authorization.split(' ')[1];
+      token = req.headers.authorization.split(" ")[1];
 
       // Check if token is blacklisted in Redis
-      const { getRedisClient } = require('../config/redis');
+      const { getRedisClient } = require("../config/redis");
       const redis = getRedisClient();
       if (redis) {
         const isBlacklisted = await redis.get(`blacklist:${token}`);
         if (isBlacklisted) {
-          const error = new Error('This token has been revoked. Please log in again.');
+          const error = new Error(
+            "This token has been revoked. Please log in again.",
+          );
           error.statusCode = 401;
           return next(error);
         }
       }
 
       // Verify token
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'supersecretjwtkeyforcampusone');
+      const decoded = jwt.verify(
+        token,
+        process.env.JWT_SECRET || "supersecretjwtkeyforcampusone",
+      );
 
       // Get user from database, exclude password
-      req.user = await User.findById(decoded.id).select('-password');
+      req.user = await User.findById(decoded.id).select("-password");
 
       if (!req.user) {
-        const error = new Error('The user belonging to this token no longer exists.');
+        const error = new Error(
+          "The user belonging to this token no longer exists.",
+        );
         error.statusCode = 401;
         return next(error);
       }
 
       if (!req.user.isActive) {
-        const error = new Error('This user account has been deactivated.');
+        const error = new Error("This user account has been deactivated.");
         error.statusCode = 401;
         return next(error);
       }
@@ -49,7 +59,9 @@ const protect = async (req, res, next) => {
   }
 
   if (!token) {
-    const error = new Error('You are not logged in. Please provide a valid token.');
+    const error = new Error(
+      "You are not logged in. Please provide a valid token.",
+    );
     error.statusCode = 401;
     return next(error);
   }
@@ -59,13 +71,15 @@ const protect = async (req, res, next) => {
 const authorizeRoles = (...roles) => {
   return (req, res, next) => {
     if (!req.user) {
-      const error = new Error('Authentication required for this operation.');
+      const error = new Error("Authentication required for this operation.");
       error.statusCode = 401;
       return next(error);
     }
 
     if (!roles.includes(req.user.role)) {
-      const error = new Error(`Role '${req.user.role}' is not authorized to access this resource.`);
+      const error = new Error(
+        `Role '${req.user.role}' is not authorized to access this resource.`,
+      );
       error.statusCode = 403;
       return next(error);
     }

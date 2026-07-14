@@ -1,10 +1,10 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const chatHistorySchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
       index: true,
     },
@@ -15,7 +15,7 @@ const chatHistorySchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['user', 'assistant'],
+      enum: ["user", "assistant"],
       required: true,
     },
     content: {
@@ -26,12 +26,12 @@ const chatHistorySchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Compound index for fast per-user conversation retrieval
 chatHistorySchema.index({ userId: 1, conversationId: 1 });
 
-const ChatHistory = mongoose.model('ChatHistory', chatHistorySchema);
+const ChatHistory = mongoose.model("ChatHistory", chatHistorySchema);
 
 module.exports = ChatHistory;

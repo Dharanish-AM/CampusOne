@@ -1,13 +1,16 @@
-const express = require('express');
-const { protect, authorizeRoles } = require('../middleware/authMiddleware');
-const validate = require('../middleware/validationMiddleware');
+const express = require("express");
+const { protect, authorizeRoles } = require("../middleware/authMiddleware");
+const validate = require("../middleware/validationMiddleware");
 const {
   createRoute,
   getRoutes,
   updateBusLocation,
   getBusLocation,
-} = require('../controllers/busController');
-const { createRouteSchema, updateLocationSchema } = require('../utils/busSchemas');
+} = require("../controllers/busController");
+const {
+  createRouteSchema,
+  updateLocationSchema,
+} = require("../utils/busSchemas");
 
 const router = express.Router();
 
@@ -15,9 +18,19 @@ const router = express.Router();
 router.use(protect);
 
 // Routes
-router.post('/routes', authorizeRoles('admin'), validate(createRouteSchema), createRoute);
-router.get('/routes', getRoutes);
-router.post('/location/:routeId', authorizeRoles('transport_staff', 'admin'), validate(updateLocationSchema), updateBusLocation);
-router.get('/location/:routeId', getBusLocation);
+router.post(
+  "/routes",
+  authorizeRoles("admin"),
+  validate(createRouteSchema),
+  createRoute,
+);
+router.get("/routes", getRoutes);
+router.post(
+  "/location/:routeId",
+  authorizeRoles("transport_staff", "admin"),
+  validate(updateLocationSchema),
+  updateBusLocation,
+);
+router.get("/location/:routeId", getBusLocation);
 
 module.exports = router;

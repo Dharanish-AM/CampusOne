@@ -1,10 +1,10 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const busRouteSchema = new mongoose.Schema(
   {
     routeName: {
       type: String,
-      required: [true, 'Route name is required'],
+      required: [true, "Route name is required"],
       unique: true,
       trim: true,
     },
@@ -19,30 +19,30 @@ const busRouteSchema = new mongoose.Schema(
       {
         name: {
           type: String,
-          required: [true, 'Stop name is required'],
+          required: [true, "Stop name is required"],
           trim: true,
         },
         latitude: {
           type: Number,
-          required: [true, 'Stop latitude is required'],
+          required: [true, "Stop latitude is required"],
         },
         longitude: {
           type: Number,
-          required: [true, 'Stop longitude is required'],
+          required: [true, "Stop longitude is required"],
         },
       },
     ],
     driverId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: [true, 'Driver User ID is required'],
+      ref: "User",
+      required: [true, "Driver User ID is required"],
     },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-const BusRoute = mongoose.model('BusRoute', busRouteSchema);
+const BusRoute = mongoose.model("BusRoute", busRouteSchema);
 
 module.exports = BusRoute;

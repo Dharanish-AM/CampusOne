@@ -1,8 +1,8 @@
-const { QdrantClient } = require('@qdrant/js-client-rest');
+const { QdrantClient } = require("@qdrant/js-client-rest");
 
-const QDRANT_URL = process.env.QDRANT_URL || 'http://localhost:6333';
-const COLLECTION = process.env.QDRANT_COLLECTION || 'campusone_faq';
-const VECTOR_SIZE = parseInt(process.env.QDRANT_VECTOR_SIZE || '768', 10);
+const QDRANT_URL = process.env.QDRANT_URL || "http://localhost:6333";
+const COLLECTION = process.env.QDRANT_COLLECTION || "campusone_faq";
+const VECTOR_SIZE = parseInt(process.env.QDRANT_VECTOR_SIZE || "768", 10);
 
 let client = null;
 
@@ -30,13 +30,37 @@ const initCollection = async () => {
     await qdrant.createCollection(COLLECTION, {
       vectors: {
         size: VECTOR_SIZE,
-        distance: 'Cosine',
+        distance: "Cosine",
       },
     });
-    console.log(`[Qdrant] Collection '${COLLECTION}' created (dim=${VECTOR_SIZE}).`);
+    console.log(
+      `[Qdrant] Collection '${COLLECTION}' created (dim=${VECTOR_SIZE}).`,
+    );
   } else {
-    console.log(`[Qdrant] Collection '${COLLECTION}' already exists — skipping creation.`);
+    console.log(
+      `[Qdrant] Collection '${COLLECTION}' already exists — skipping creation.`,
+    );
   }
+};
+
+/**
+ * Deletes and recreates the collection.
+ */
+const recreateCollection = async () => {
+  const qdrant = getClient();
+  try {
+    await qdrant.deleteCollection(COLLECTION);
+    console.log(`[Qdrant] Collection '${COLLECTION}' deleted.`);
+  } catch (err) {
+    // Ignore error if it doesn't exist
+  }
+  await qdrant.createCollection(COLLECTION, {
+    vectors: {
+      size: VECTOR_SIZE,
+      distance: "Cosine",
+    },
+  });
+  console.log(`[Qdrant] Collection '${COLLECTION}' recreated.`);
 };
 
 /**
@@ -72,11 +96,12 @@ const search = async (queryVector, topK = 3) => {
     with_payload: true,
   });
 
-  return results.map((r) => r.payload?.text ?? '');
+  return results.map((r) => r.payload?.text ?? "");
 };
 
 module.exports = {
   initCollection,
+  recreateCollection,
   upsertPoints,
   getPointCount,
   search,

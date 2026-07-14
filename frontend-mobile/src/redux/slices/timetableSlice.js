@@ -1,30 +1,36 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import api from '../../utils/api';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import api from "../../utils/api";
 
 export const fetchTimetable = createAsyncThunk(
-  'timetable/fetchTimetable',
+  "timetable/fetchTimetable",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get('/timetable');
+      const response = await api.get("/timetable");
       return response.data.data;
     } catch (error) {
-      const message = error.response?.data?.message || error.message || 'Failed to fetch timetable';
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to fetch timetable";
       return rejectWithValue(message);
     }
-  }
+  },
 );
 
 export const addTimetableItem = createAsyncThunk(
-  'timetable/addTimetableItem',
+  "timetable/addTimetableItem",
   async (timetablePayload, { rejectWithValue }) => {
     try {
-      const response = await api.post('/timetable', timetablePayload);
+      const response = await api.post("/timetable", timetablePayload);
       return response.data.data;
     } catch (error) {
-      const message = error.response?.data?.message || error.message || 'Failed to create timetable slot';
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to create timetable slot";
       return rejectWithValue(message);
     }
-  }
+  },
 );
 
 const initialState = {
@@ -34,7 +40,7 @@ const initialState = {
 };
 
 const timetableSlice = createSlice({
-  name: 'timetable',
+  name: "timetable",
   initialState,
   reducers: {
     clearTimetableError: (state) => {
