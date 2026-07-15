@@ -46,6 +46,17 @@ const studentSchema = new mongoose.Schema(
       codeforces: { type: String, trim: true, default: null },
       github: { type: String, trim: true, default: null },
     },
+    cgpa: {
+      type: Number,
+      default: 0.0,
+      min: 0.0,
+      max: 10.0,
+    },
+    backlogs: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
   },
   {
     timestamps: true,

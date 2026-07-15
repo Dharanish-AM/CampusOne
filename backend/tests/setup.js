@@ -18,6 +18,9 @@ require("../src/models/BusLocation");
 require("../src/models/LeaderboardEntry");
 require("../src/models/ChatHistory");
 require("../src/models/Complaint");
+require("../src/models/Company");
+require("../src/models/JobPosting");
+require("../src/models/JobApplication");
 
 const { connectRedis } = require("../src/config/redis");
 const server = require("../src/index");

@@ -19,6 +19,7 @@ import BusTrackingScreen from "../screens/app/BusTrackingScreen";
 import LeaderboardScreen from "../screens/app/LeaderboardScreen";
 import AIChatScreen from "../screens/app/AIChatScreen";
 import ComplaintScreen from "../screens/app/ComplaintScreen";
+import PlacementScreen from "../screens/app/PlacementScreen";
 
 const Tab = createBottomTabNavigator();
 const DashboardStack = createStackNavigator();
@@ -28,6 +29,7 @@ function DashboardStackNavigator() {
     <DashboardStack.Navigator screenOptions={{ headerShown: false }}>
       <DashboardStack.Screen name="DashboardMain" component={DashboardScreen} />
       <DashboardStack.Screen name="Complaint" component={ComplaintScreen} />
+      <DashboardStack.Screen name="Placement" component={PlacementScreen} />
     </DashboardStack.Navigator>
   );
 }

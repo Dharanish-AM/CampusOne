@@ -18,6 +18,7 @@ const leaderboardRoutes = require("./routes/leaderboardRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const complaintRoutes = require("./routes/complaintRoutes");
+const placementRoutes = require("./routes/placementRoutes");
 const { initLeaderboardJob } = require("./jobs/leaderboardJob");
 const { initQdrantSeed } = require("./jobs/qdrantSeedJob");
 const errorHandler = require("./middleware/errorMiddleware");
@@ -94,6 +95,7 @@ app.use("/api/leaderboard", leaderboardRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/complaints", complaintRoutes);
+app.use("/api/placements", placementRoutes);
 
 // API health endpoint
 app.get("/api/health", (req, res) => {

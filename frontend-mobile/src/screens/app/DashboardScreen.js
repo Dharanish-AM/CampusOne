@@ -420,30 +420,55 @@ export default function DashboardScreen() {
 
           {/* ── Placement ── */}
           {placement && (
-            <Card>
+            <Card onPress={() => navigation.navigate("Placement")}>
               <CardHeader
                 icon={Briefcase}
-                iconColor={placement.isEligible ? "#10B981" : "#6B7280"}
+                iconColor={
+                  placement.isEligible
+                    ? "#10B981"
+                    : placement.statusMessage.includes("Ineligible")
+                      ? "#EF4444"
+                      : "#6B7280"
+                }
                 iconBg={
                   placement.isEligible
                     ? "rgba(16,185,129,0.12)"
-                    : "rgba(107,114,128,0.12)"
+                    : placement.statusMessage.includes("Ineligible")
+                      ? "rgba(239,68,68,0.12)"
+                      : "rgba(107,114,128,0.12)"
                 }
                 title="Placement Status"
+                onPress={() => navigation.navigate("Placement")}
               />
               <View
                 style={[
                   styles.placementBadge,
-                  { borderColor: placement.isEligible ? "#10B981" : "#374151" },
+                  {
+                    borderColor: placement.isEligible
+                      ? "#10B981"
+                      : placement.statusMessage.includes("Ineligible")
+                        ? "#EF4444"
+                        : "#374151",
+                  },
                 ]}
               >
                 <Text
                   style={[
                     styles.placementStatus,
-                    { color: placement.isEligible ? "#10B981" : "#6B7280" },
+                    {
+                      color: placement.isEligible
+                        ? "#10B981"
+                        : placement.statusMessage.includes("Ineligible")
+                          ? "#EF4444"
+                          : "#6B7280",
+                    },
                   ]}
                 >
-                  {placement.isEligible ? "✓ Eligible" : "⌛ Not Yet Eligible"}
+                  {placement.isEligible
+                    ? "✓ Eligible"
+                    : placement.statusMessage.includes("Ineligible")
+                      ? "✕ Ineligible"
+                      : "⌛ Not Yet Eligible"}
                 </Text>
               </View>
               <Text style={styles.placementMsg}>{placement.statusMessage}</Text>

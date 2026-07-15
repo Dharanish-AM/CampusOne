@@ -154,13 +154,23 @@ const getDashboardData = async (req, res, next) => {
         },
       ];
 
-      // 7. Mock placement status
+      // 7. Dynamic placement eligibility
+      const isEligible =
+        student.semester >= 6 && student.cgpa >= 6.0 && student.backlogs === 0;
+      let statusMessage = "Placement registration opens in 6th Semester.";
+      if (student.semester >= 6) {
+        if (student.cgpa < 6.0) {
+          statusMessage = "Ineligible due to low CGPA (Required: 6.0+).";
+        } else if (student.backlogs > 0) {
+          statusMessage = `Ineligible due to ${student.backlogs} active backlog(s).`;
+        } else {
+          statusMessage =
+            "Eligible for active placement drives. Resume upload active.";
+        }
+      }
       dashboardData.placementStatus = {
-        isEligible: student.semester >= 6,
-        statusMessage:
-          student.semester >= 6
-            ? "Eligible for upcoming placements. Resume upload active."
-            : "Placement registration opens in 6th Semester.",
+        isEligible,
+        statusMessage,
       };
     } else if (userRole === "faculty") {
       const faculty = await Faculty.findOne({ userId: req.user._id });

@@ -15,6 +15,9 @@ const BusLocation = require("../models/BusLocation");
 const LeaderboardEntry = require("../models/LeaderboardEntry");
 const ChatHistory = require("../models/ChatHistory");
 const Complaint = require("../models/Complaint");
+const Company = require("../models/Company");
+const JobPosting = require("../models/JobPosting");
+const JobApplication = require("../models/JobApplication");
 
 // Database Connection URI
 const MONGO_URI =
@@ -4128,6 +4131,9 @@ const seedDatabase = async () => {
     await LeaderboardEntry.deleteMany({});
     await ChatHistory.deleteMany({});
     await Complaint.deleteMany({});
+    await Company.deleteMany({});
+    await JobPosting.deleteMany({});
+    await JobApplication.deleteMany({});
     console.log("All collections cleared successfully.");
 
     // 2. Create Users
@@ -4194,7 +4200,7 @@ const seedDatabase = async () => {
       userId: studentUser1._id,
       rollNumber: "CS-2023-042",
       department: "Computer Science",
-      semester: 5,
+      semester: 6,
       batch: "2023-2027",
       phoneNumber: "+15550198420",
       parentPhoneNumber: "+15550198421",
@@ -4204,6 +4210,8 @@ const seedDatabase = async () => {
         codeforces: "alex_cf",
         github: "arivera-dev",
       },
+      cgpa: 8.45,
+      backlogs: 0,
     });
 
     const createdStudentProfiles = [];
@@ -4218,6 +4226,8 @@ const seedDatabase = async () => {
         parentPhoneNumber: item.studentData.parentPhoneNumber,
         address: item.studentData.address,
         codingHandles: item.studentData.codingHandles,
+        cgpa: parseFloat((6.0 + Math.random() * 3.5).toFixed(2)),
+        backlogs: Math.random() > 0.85 ? 1 : 0,
       });
       createdStudentProfiles.push({
         profile: studentProfile,
@@ -4650,7 +4660,8 @@ const seedDatabase = async () => {
       {
         studentId: alexProfile._id,
         title: "Hostel Wi-Fi intermittent connection issues",
-        description: "The Wi-Fi in Hostel Block A is dropping connection every 15 minutes, making it impossible to work on coding assignments.",
+        description:
+          "The Wi-Fi in Hostel Block A is dropping connection every 15 minutes, making it impossible to work on coding assignments.",
         category: "infrastructure",
         status: "in_progress",
         assignedTo: hopperProfile._id,
@@ -4663,7 +4674,8 @@ const seedDatabase = async () => {
           },
           {
             status: "in_progress",
-            comment: "IT department has scheduled router inspection on Block A.",
+            comment:
+              "IT department has scheduled router inspection on Block A.",
             updatedBy: adminUser._id,
             updatedAt: new Date(Date.now() - 3600 * 1000 * 24),
           },
@@ -4672,7 +4684,8 @@ const seedDatabase = async () => {
       {
         studentId: alexProfile._id,
         title: "Incorrect mid-semester marks update in portal",
-        description: "My Database Management System mid-semester marks are updated as 12 instead of 22 in the portal. I have already verified my paper with the HOD.",
+        description:
+          "My Database Management System mid-semester marks are updated as 12 instead of 22 in the portal. I have already verified my paper with the HOD.",
         category: "academic",
         status: "pending",
         updates: [
@@ -4687,7 +4700,8 @@ const seedDatabase = async () => {
       {
         studentId: alexProfile._id,
         title: "Broken window latch in Hostel Room 302",
-        description: "The window latch in room 302 hostel is broken and won't lock, causing safety concerns.",
+        description:
+          "The window latch in room 302 hostel is broken and won't lock, causing safety concerns.",
         category: "hostel",
         status: "resolved",
         assignedTo: hopperProfile._id,
@@ -4709,6 +4723,99 @@ const seedDatabase = async () => {
     ]);
 
     console.log("Complaint tickets seeded.");
+
+    // 10. Create Placement Entries
+    console.log("Seeding Placement Companies & Job Postings...");
+
+    const google = await Company.create({
+      name: "Google",
+      industry: "Technology",
+      description:
+        "Organize the world's information and make it universally accessible.",
+      website: "https://google.com",
+    });
+
+    const microsoft = await Company.create({
+      name: "Microsoft",
+      industry: "Software Engineering",
+      description:
+        "Empower every person and organization on the planet to achieve more.",
+      website: "https://microsoft.com",
+    });
+
+    const netflix = await Company.create({
+      name: "Netflix",
+      industry: "Entertainment",
+      description: "Global streaming entertainment service.",
+      website: "https://netflix.com",
+    });
+
+    const job1 = await JobPosting.create({
+      companyId: google._id,
+      title: "Software Development Engineer (SDE-1)",
+      description:
+        "Design, develop and maintain core cloud services. Work on scalable architectures, APIs, and backend distributed systems.",
+      requirements:
+        "Proficiency in Java, Go, or Python. Strong knowledge of data structures, algorithms, and SQL databases.",
+      location: "Bangalore (Hybrid)",
+      salaryPackage: "24 LPA",
+      minCgpa: 8.0,
+      maxBacklogs: 0,
+      eligibleDepartments: ["Computer Science", "Information Technology"],
+      eligibleSemesters: [6, 7, 8],
+      deadline: new Date(Date.now() + 3600 * 1000 * 24 * 10), // 10 days in future
+    });
+
+    const job2 = await JobPosting.create({
+      companyId: microsoft._id,
+      title: "Frontend UI Developer Intern",
+      description:
+        "Build user-facing web and mobile components using React, Redux, and React Native. Implement modern, responsive UI design systems.",
+      requirements:
+        "Proficient in JavaScript/TypeScript, React, and CSS/flexbox. Experience with modern design layouts.",
+      location: "Hyderabad",
+      salaryPackage: "14 LPA",
+      minCgpa: 7.0,
+      maxBacklogs: 0,
+      eligibleDepartments: [
+        "Computer Science",
+        "Information Technology",
+        "Electronics & Communication",
+      ],
+      eligibleSemesters: [5, 6, 7],
+      deadline: new Date(Date.now() + 3600 * 1000 * 24 * 5), // 5 days in future
+    });
+
+    const job3 = await JobPosting.create({
+      companyId: netflix._id,
+      title: "Data Operations Associate",
+      description:
+        "Analyze, optimize, and build data streaming pipelines. Maintain data warehousing procedures and generate placement reports.",
+      requirements:
+        "Basic Python, scripting, Excel mastery, and power query. Good understanding of data metrics and graphs.",
+      location: "Mumbai",
+      salaryPackage: "9 LPA",
+      minCgpa: 6.0,
+      maxBacklogs: 1,
+      eligibleDepartments: [
+        "Computer Science",
+        "Information Technology",
+        "Mechanical Engineering",
+        "Civil Engineering",
+      ],
+      eligibleSemesters: [6, 7, 8],
+      deadline: new Date(Date.now() + 3600 * 1000 * 24 * 3), // 3 days in future
+    });
+
+    // Seed a pre-applied application for Alex to demonstrate the "Applied" tab in UI
+    await JobApplication.create({
+      jobId: job3._id,
+      studentId: alexProfile._id,
+      resumeUrl: "https://drive.google.com/file/d/alex_rivera_resume/view",
+      status: "applied",
+    });
+
+    console.log("Placement companies, job postings, and mock application seeded.");
     console.log("----------------------------------------------------");
     console.log("DATABASE SEEDING COMPLETED SUCCESSFULLY!");
     console.log("----------------------------------------------------");
