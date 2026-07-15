@@ -20,6 +20,7 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 const complaintRoutes = require("./routes/complaintRoutes");
 const placementRoutes = require("./routes/placementRoutes");
 const hostelRoutes = require("./routes/hostelRoutes");
+const libraryRoutes = require("./routes/libraryRoutes");
 const { initLeaderboardJob } = require("./jobs/leaderboardJob");
 const { initQdrantSeed } = require("./jobs/qdrantSeedJob");
 const errorHandler = require("./middleware/errorMiddleware");
@@ -98,6 +99,7 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/complaints", complaintRoutes);
 app.use("/api/placements", placementRoutes);
 app.use("/api/hostels", hostelRoutes);
+app.use("/api/library", libraryRoutes);
 
 // API health endpoint
 app.get("/api/health", (req, res) => {

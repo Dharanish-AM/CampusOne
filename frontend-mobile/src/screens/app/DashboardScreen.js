@@ -496,6 +496,25 @@ export default function DashboardScreen() {
             </Text>
           </Card>
 
+          {/* ── Library Status ── */}
+          <Card onPress={() => navigation.navigate("Library")}>
+            <CardHeader
+              icon={BookOpen}
+              iconColor="#10B981"
+              iconBg="rgba(16,185,129,0.12)"
+              title="Central Library"
+              onPress={() => navigation.navigate("Library")}
+            />
+            <View style={[styles.placementBadge, { borderColor: "#374151" }]}>
+              <Text style={[styles.placementStatus, { color: "#10B981" }]}>
+                Search Catalog & Checkouts
+              </Text>
+            </View>
+            <Text style={styles.placementMsg}>
+              Browse books, view overdue alerts, and check fine balance dues.
+            </Text>
+          </Card>
+
           {/* Error banner */}
           {error && (
             <View style={styles.errorBanner}>

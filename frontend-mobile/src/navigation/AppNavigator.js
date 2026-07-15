@@ -21,6 +21,7 @@ import AIChatScreen from "../screens/app/AIChatScreen";
 import ComplaintScreen from "../screens/app/ComplaintScreen";
 import PlacementScreen from "../screens/app/PlacementScreen";
 import HostelScreen from "../screens/app/HostelScreen";
+import LibraryScreen from "../screens/app/LibraryScreen";
 
 const Tab = createBottomTabNavigator();
 const DashboardStack = createStackNavigator();
@@ -32,6 +33,7 @@ function DashboardStackNavigator() {
       <DashboardStack.Screen name="Complaint" component={ComplaintScreen} />
       <DashboardStack.Screen name="Placement" component={PlacementScreen} />
       <DashboardStack.Screen name="Hostel" component={HostelScreen} />
+      <DashboardStack.Screen name="Library" component={LibraryScreen} />
     </DashboardStack.Navigator>
   );
 }

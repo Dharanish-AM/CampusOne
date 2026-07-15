@@ -20,6 +20,8 @@ const JobPosting = require("../models/JobPosting");
 const JobApplication = require("../models/JobApplication");
 const HostelAllocation = require("../models/HostelAllocation");
 const GatePassRequest = require("../models/GatePassRequest");
+const Book = require("../models/Book");
+const BookBorrow = require("../models/BookBorrow");
 
 // Database Connection URI
 const MONGO_URI =
@@ -4138,6 +4140,8 @@ const seedDatabase = async () => {
     await JobApplication.deleteMany({});
     await HostelAllocation.deleteMany({});
     await GatePassRequest.deleteMany({});
+    await Book.deleteMany({});
+    await BookBorrow.deleteMany({});
     console.log("All collections cleared successfully.");
 
     // 2. Create Users
@@ -4854,6 +4858,65 @@ const seedDatabase = async () => {
 
       console.log("Hostel room allocation and pending gate pass seeded.");
     }
+
+    // 12. Create Library Entries
+    console.log("Seeding Library Books & Checkout Logs...");
+    const book1 = await Book.create({
+      title: "Introduction to Algorithms",
+      author: "Thomas H. Cormen",
+      isbn: "ISBN-ALGO101",
+      subject: "Computer Science",
+      totalCopies: 4,
+      availableCopies: 3, // 1 copy checked out by Alex
+    });
+
+    const book2 = await Book.create({
+      title: "Design Patterns: Elements of Reusable Software",
+      author: "Erich Gamma",
+      isbn: "ISBN-DESPAT99",
+      subject: "Software Engineering",
+      totalCopies: 3,
+      availableCopies: 3,
+    });
+
+    const book3 = await Book.create({
+      title: "Calculus and Analytical Geometry",
+      author: "George B. Thomas",
+      isbn: "ISBN-MATH555",
+      subject: "Mathematics",
+      totalCopies: 1,
+      availableCopies: 0, // 1 copy checked out by Alex (overdue)
+    });
+
+    const book4 = await Book.create({
+      title: "Database System Concepts",
+      author: "Abraham Silberschatz",
+      isbn: "ISBN-DBSYS88",
+      subject: "Information Technology",
+      totalCopies: 2,
+      availableCopies: 2,
+    });
+
+    // Checkout 1: Active borrowed book
+    await BookBorrow.create({
+      studentId: alexProfile._id,
+      bookId: book1._id,
+      borrowedDate: new Date(Date.now() - 3600 * 1000 * 24 * 3), // 3 days ago
+      dueDate: new Date(Date.now() + 3600 * 1000 * 24 * 4), // 4 days future
+      status: "borrowed",
+    });
+
+    // Checkout 2: Overdue book
+    await BookBorrow.create({
+      studentId: alexProfile._id,
+      bookId: book3._id,
+      borrowedDate: new Date(Date.now() - 3600 * 1000 * 24 * 15), // 15 days ago
+      dueDate: new Date(Date.now() - 3600 * 1000 * 24 * 5), // 5 days overdue (fine: 25)
+      status: "overdue",
+      fineAmount: 25,
+    });
+
+    console.log("Library books and checkout entries seeded.");
     console.log("----------------------------------------------------");
     console.log("DATABASE SEEDING COMPLETED SUCCESSFULLY!");
     console.log("----------------------------------------------------");
