@@ -227,7 +227,12 @@ export default function BusTrackingScreen() {
       </MapView>
 
       {/* Floating Header */}
-      <View style={[styles.floatingHeader, { top: insets.top > 0 ? insets.top + 10 : 20 }]}>
+      <View
+        style={[
+          styles.floatingHeader,
+          { top: insets.top > 0 ? insets.top + 10 : 20 },
+        ]}
+      >
         <Text style={styles.headerTitle}>Live Bus Tracking</Text>
         <Text style={styles.headerSubtitle}>
           Real-time GPS coordinate feeds

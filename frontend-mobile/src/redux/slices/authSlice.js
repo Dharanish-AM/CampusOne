@@ -119,9 +119,11 @@ export const updateAuthProfile = createAsyncThunk(
       await AsyncStorage.setItem("profile", JSON.stringify(updatedProfile));
       return updatedProfile;
     } catch (error) {
-      return rejectWithValue(error.message || "Failed to update profile locally");
+      return rejectWithValue(
+        error.message || "Failed to update profile locally",
+      );
     }
-  }
+  },
 );
 
 const initialState = {

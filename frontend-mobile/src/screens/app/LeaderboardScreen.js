@@ -209,7 +209,15 @@ const DetailSheet = ({ entry, visible, onClose }) => {
 
         <View style={styles.sheetStats}>
           {/* LeetCode */}
-          <View style={[styles.sheetPlatform, { borderColor: 'rgba(249, 115, 22, 0.3)', backgroundColor: 'rgba(249, 115, 22, 0.15)' }]}>
+          <View
+            style={[
+              styles.sheetPlatform,
+              {
+                borderColor: "rgba(249, 115, 22, 0.3)",
+                backgroundColor: "rgba(249, 115, 22, 0.15)",
+              },
+            ]}
+          >
             <View style={styles.sheetPlatformHeader}>
               <Code size={16} color="#fb923c" />
               <Text style={[styles.sheetPlatformTitle, { color: "#fb923c" }]}>
@@ -243,7 +251,15 @@ const DetailSheet = ({ entry, visible, onClose }) => {
           </View>
 
           {/* Codeforces */}
-          <View style={[styles.sheetPlatform, { borderColor: 'rgba(59, 130, 246, 0.3)', backgroundColor: 'rgba(59, 130, 246, 0.15)' }]}>
+          <View
+            style={[
+              styles.sheetPlatform,
+              {
+                borderColor: "rgba(59, 130, 246, 0.3)",
+                backgroundColor: "rgba(59, 130, 246, 0.15)",
+              },
+            ]}
+          >
             <View style={styles.sheetPlatformHeader}>
               <Zap size={16} color="#60a5fa" />
               <Text style={[styles.sheetPlatformTitle, { color: "#60a5fa" }]}>
@@ -443,10 +459,14 @@ export default function LeaderboardScreen() {
       if (form.codeforces !== undefined)
         payload.codeforces = form.codeforces || null;
       if (form.github !== undefined) payload.github = form.github || null;
-      
+
       const resultAction = await dispatch(updateCodingHandles(payload));
       if (updateCodingHandles.fulfilled.match(resultAction)) {
-        dispatch(updateAuthProfile({ codingHandles: resultAction.payload.codingHandles }));
+        dispatch(
+          updateAuthProfile({
+            codingHandles: resultAction.payload.codingHandles,
+          }),
+        );
       }
       setShowHandlesModal(false);
     },
@@ -787,7 +807,7 @@ const styles = StyleSheet.create({
   podiumName: {
     color: "#FFFFFF",
     fontSize: 12,
-    fontFamily: 'SpaceGrotesk_600SemiBold',
+    fontFamily: "SpaceGrotesk_600SemiBold",
     textAlign: "center",
   },
   podiumDept: {
@@ -837,7 +857,11 @@ const styles = StyleSheet.create({
   },
   rowAvatarText: { color: "#FFFFFF", fontSize: 14, fontWeight: "700" },
   rowInfo: { flex: 1 },
-  rowName: { color: "#FFFFFF", fontSize: 14, fontFamily: 'SpaceGrotesk_600SemiBold' },
+  rowName: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontFamily: "SpaceGrotesk_600SemiBold",
+  },
   rowDept: { color: "#6B7280", fontSize: 12, marginTop: 1 },
   platformIcons: { flexDirection: "row", gap: 4, marginTop: 4 },
   platformIcon: { opacity: 0.9 },
@@ -866,7 +890,11 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     marginBottom: 16,
   },
-  sheetName: { color: "#FFFFFF", fontSize: 20, fontFamily: 'Fraunces_600SemiBold' },
+  sheetName: {
+    color: "#FFFFFF",
+    fontSize: 20,
+    fontFamily: "Fraunces_600SemiBold",
+  },
   sheetDept: { color: "#6B7280", fontSize: 13, marginBottom: 20 },
   sheetStats: { gap: 16 },
   sheetPlatform: {
@@ -904,7 +932,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: "#FFFFFF",
     fontSize: 20,
-    fontFamily: 'Fraunces_600SemiBold',
+    fontFamily: "Fraunces_600SemiBold",
   },
   modalTitle: {
     color: "#FFFFFF",

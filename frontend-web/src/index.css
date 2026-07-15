@@ -26,7 +26,7 @@
 
   --brand-bg: #0f172a;
   --page-bg: #161f2d;
-  
+
   --text-primary: #f1f5f9;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
@@ -35,7 +35,7 @@
   --surface-solid: #1e2634;
   --surface-soft: rgba(30, 41, 59, 0.3);
   --surface-strong: rgba(15, 23, 42, 0.8);
-  
+
   --border-subtle: rgba(255, 255, 255, 0.07);
   --glass-background: rgba(15, 23, 42, 0.6);
   --glass-border: rgba(255, 255, 255, 0.07);
@@ -69,7 +69,7 @@
 
   --brand-bg: #f8fafc;
   --page-bg: #ffffff;
-  
+
   --text-primary: #0f172a;
   --text-secondary: #475569;
   --text-muted: #64748b;
@@ -78,7 +78,7 @@
   --surface-solid: #ffffff;
   --surface-soft: #f1f5f9;
   --surface-strong: #ffffff;
-  
+
   --border-subtle: #cbd5e1;
   --glass-background: rgba(255, 255, 255, 0.8);
   --glass-border: #cbd5e1;
@@ -104,7 +104,9 @@ body {
   background: var(--bg-gradient);
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
-  transition: color 0.3s ease, background 0.3s ease;
+  transition:
+    color 0.3s ease,
+    background 0.3s ease;
 }
 
 #root {
@@ -129,7 +131,9 @@ body {
   backdrop-filter: blur(20px) saturate(180%);
   border-radius: 16px;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-  transition: background 0.3s ease, border-color 0.3s ease;
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease;
 }
 
 /* Floating Navigation Shell for Student Portal aesthetic */
@@ -140,7 +144,9 @@ body {
   border-radius: 24px;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   padding: 1rem;
-  transition: background 0.3s ease, border-color 0.3s ease;
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease;
   margin: 1rem;
   animation: nav-float-in 0.6s ease-out forwards;
 }
@@ -201,4 +207,3 @@ body {
   );
   background-size: 1000px 100%;
 }
-

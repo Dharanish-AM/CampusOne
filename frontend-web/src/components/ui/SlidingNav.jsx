@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
 
 export function SlidingNav({ tabs, activeIndex, onChange }) {
   const tabWidth = 144; // w-36 = 144px in Tailwind
@@ -16,7 +16,7 @@ export function SlidingNav({ tabs, activeIndex, onChange }) {
         }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
       />
-      
+
       {tabs.map((tab, idx) => {
         const isActive = activeIndex === idx;
         return (
@@ -25,7 +25,9 @@ export function SlidingNav({ tabs, activeIndex, onChange }) {
             onClick={() => onChange(idx)}
             style={{ width: tabWidth }}
             className={`relative z-10 px-4 py-2 text-sm font-semibold transition-colors flex items-center justify-center gap-2 ${
-              isActive ? 'text-white' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              isActive
+                ? "text-white"
+                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             }`}
           >
             {tab.icon && <tab.icon size={16} />}

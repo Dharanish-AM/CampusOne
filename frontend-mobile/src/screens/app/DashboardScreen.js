@@ -369,6 +369,28 @@ export default function DashboardScreen() {
             </View>
           </Card>
 
+          {/* ── Complaint Portal CTA ── */}
+          <Card onPress={() => navigation.navigate("Complaint")}>
+            <View style={styles.aiRow}>
+              <View
+                style={[
+                  styles.cardIconWrap,
+                  { backgroundColor: "rgba(239,68,68,0.12)" },
+                ]}
+              >
+                <AlertTriangle size={16} color="#EF4444" />
+              </View>
+              <View style={styles.aiText}>
+                <Text style={styles.aiTitle}>Grievance & Support Portal</Text>
+                <Text style={styles.aiSub}>
+                  File academic, hostel, or transport complaints and track
+                  resolutions
+                </Text>
+              </View>
+              <ChevronRight size={16} color="#EF4444" />
+            </View>
+          </Card>
+
           {/* ── Notifications ── */}
           {notifications.length > 0 && (
             <Card>
@@ -476,8 +498,18 @@ const styles = StyleSheet.create({
   },
   avatarText: { fontSize: 18, fontWeight: "700", color: "#FFFFFF" },
   greeting: { color: "#9CA3AF", fontSize: 12 },
-  userName: { color: "#FFFFFF", fontSize: 17, fontFamily: 'Fraunces_600SemiBold', marginTop: 1 },
-  subInfo: { color: "#6B7280", fontSize: 11, fontFamily: 'SpaceGrotesk_400Regular', marginTop: 2 },
+  userName: {
+    color: "#FFFFFF",
+    fontSize: 17,
+    fontFamily: "Fraunces_600SemiBold",
+    marginTop: 1,
+  },
+  subInfo: {
+    color: "#6B7280",
+    fontSize: 11,
+    fontFamily: "SpaceGrotesk_400Regular",
+    marginTop: 2,
+  },
   logoutBtn: {
     padding: 8,
     borderRadius: 10,
@@ -507,7 +539,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  cardTitle: { color: "#E5E7EB", fontSize: 14, fontFamily: 'SpaceGrotesk_600SemiBold' },
+  cardTitle: {
+    color: "#E5E7EB",
+    fontSize: 14,
+    fontFamily: "SpaceGrotesk_600SemiBold",
+  },
 
   // Attendance
   attendanceRow: { flexDirection: "row", alignItems: "center", gap: 16 },

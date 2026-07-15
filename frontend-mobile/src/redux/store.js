@@ -6,6 +6,7 @@ import busReducer from "./slices/busSlice";
 import leaderboardReducer from "./slices/leaderboardSlice";
 import chatReducer from "./slices/chatSlice";
 import dashboardReducer from "./slices/dashboardSlice";
+import complaintReducer from "./slices/complaintSlice";
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     leaderboard: leaderboardReducer,
     chat: chatReducer,
     dashboard: dashboardReducer,
+    complaint: complaintReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

@@ -5,15 +5,20 @@ const resolveFontFamily = (stylesArray) => {
   const flatStyle = RN.StyleSheet.flatten(stylesArray) || {};
   let fontFamily = flatStyle.fontFamily;
   const fontWeight = flatStyle.fontWeight;
-  
+
   if (!fontFamily) {
     fontFamily = "SpaceGrotesk";
   }
-  
+
   let resolvedFont = "SpaceGrotesk_400Regular";
-  
+
   if (fontFamily === "SpaceGrotesk") {
-    if (fontWeight === "bold" || fontWeight === "700" || fontWeight === "800" || fontWeight === "900") {
+    if (
+      fontWeight === "bold" ||
+      fontWeight === "700" ||
+      fontWeight === "800" ||
+      fontWeight === "900"
+    ) {
       resolvedFont = "SpaceGrotesk_700Bold";
     } else if (fontWeight === "600" || fontWeight === "500") {
       resolvedFont = "SpaceGrotesk_600SemiBold";
@@ -21,7 +26,12 @@ const resolveFontFamily = (stylesArray) => {
       resolvedFont = "SpaceGrotesk_400Regular";
     }
   } else if (fontFamily === "Fraunces") {
-    if (fontWeight === "bold" || fontWeight === "700" || fontWeight === "800" || fontWeight === "900") {
+    if (
+      fontWeight === "bold" ||
+      fontWeight === "700" ||
+      fontWeight === "800" ||
+      fontWeight === "900"
+    ) {
       resolvedFont = "Fraunces_700Bold";
     } else if (fontWeight === "600" || fontWeight === "500") {
       resolvedFont = "Fraunces_600SemiBold";
@@ -31,7 +41,7 @@ const resolveFontFamily = (stylesArray) => {
   } else {
     resolvedFont = fontFamily;
   }
-  
+
   return resolvedFont;
 };
 
@@ -46,7 +56,9 @@ const PatchedText = React.forwardRef((props, ref) => {
     fontFamily: resolvedFont,
     fontWeight: "normal",
   };
-  return <OriginalText ref={ref} {...props} style={[props.style, styleOverride]} />;
+  return (
+    <OriginalText ref={ref} {...props} style={[props.style, styleOverride]} />
+  );
 });
 
 const PatchedTextInput = React.forwardRef((props, ref) => {
@@ -55,7 +67,13 @@ const PatchedTextInput = React.forwardRef((props, ref) => {
     fontFamily: resolvedFont,
     fontWeight: "normal",
   };
-  return <OriginalTextInput ref={ref} {...props} style={[props.style, styleOverride]} />;
+  return (
+    <OriginalTextInput
+      ref={ref}
+      {...props}
+      style={[props.style, styleOverride]}
+    />
+  );
 });
 
 // Overwrite globally in the module registry
@@ -77,10 +95,13 @@ try {
         fontFamily: resolvedFont,
         fontWeight: "normal",
       };
-      return originalRender({
-        ...props,
-        style: [props.style, styleOverride],
-      }, ref);
+      return originalRender(
+        {
+          ...props,
+          style: [props.style, styleOverride],
+        },
+        ref,
+      );
     };
   }
 }
@@ -101,10 +122,13 @@ try {
         fontFamily: resolvedFont,
         fontWeight: "normal",
       };
-      return originalRender({
-        ...props,
-        style: [props.style, styleOverride],
-      }, ref);
+      return originalRender(
+        {
+          ...props,
+          style: [props.style, styleOverride],
+        },
+        ref,
+      );
     };
   }
 }

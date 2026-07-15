@@ -10,12 +10,12 @@ import {
   SpaceGrotesk_400Regular,
   SpaceGrotesk_600SemiBold,
   SpaceGrotesk_700Bold,
-} from '@expo-google-fonts/space-grotesk';
+} from "@expo-google-fonts/space-grotesk";
 import {
   Fraunces_400Regular,
   Fraunces_600SemiBold,
   Fraunces_700Bold,
-} from '@expo-google-fonts/fraunces';
+} from "@expo-google-fonts/fraunces";
 
 import store from "./src/redux/store";
 import { loadStoredAuth } from "./src/redux/slices/authSlice";

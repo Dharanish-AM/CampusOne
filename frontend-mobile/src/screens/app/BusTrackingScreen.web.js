@@ -10,7 +10,14 @@ import {
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import io from "socket.io-client";
-import { MapPin, Navigation, Users, Shield, Clock, Compass } from "lucide-react-native";
+import {
+  MapPin,
+  Navigation,
+  Users,
+  Shield,
+  Clock,
+  Compass,
+} from "lucide-react-native";
 import {
   fetchRoutes,
   fetchBusLocation,
@@ -80,18 +87,21 @@ export default function BusTrackingScreen() {
         <Compass size={48} color="#1e2634" style={styles.compassBg} />
         <View style={styles.mapGridLineH} />
         <View style={styles.mapGridLineV} />
-        
+
         <View style={styles.mockMapLabelContainer}>
           <MapPin size={18} color="#c084fc" />
           <Text style={styles.mockMapTitle}>Interactive Web Map Sandbox</Text>
           <Text style={styles.mockMapSubtitle}>
-            Native map views are mocked on web. Route chips, socket updates, and telemetry remain fully functional.
+            Native map views are mocked on web. Route chips, socket updates, and
+            telemetry remain fully functional.
           </Text>
         </View>
 
         {activeRoute && (
           <View style={styles.timelineContainer}>
-            <Text style={styles.timelineTitle}>Route Timeline: {activeRoute.routeName}</Text>
+            <Text style={styles.timelineTitle}>
+              Route Timeline: {activeRoute.routeName}
+            </Text>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -100,12 +110,14 @@ export default function BusTrackingScreen() {
               <View style={styles.timelineTrackContainer}>
                 {/* Horizontal progress line */}
                 <View style={styles.timelineLine} />
-                
+
                 {/* Stops along the track */}
                 {activeRoute.stops.map((stop, idx) => (
                   <View key={stop._id || idx} style={styles.timelineNode}>
                     <View style={styles.stopBullet} />
-                    <Text style={styles.timelineStopName} numberOfLines={1}>{stop.name}</Text>
+                    <Text style={styles.timelineStopName} numberOfLines={1}>
+                      {stop.name}
+                    </Text>
                     <Text style={styles.timelineStopCoords}>
                       {stop.latitude.toFixed(3)}, {stop.longitude.toFixed(3)}
                     </Text>
@@ -114,10 +126,21 @@ export default function BusTrackingScreen() {
 
                 {/* Live Bus marker icon overlay on the line */}
                 {busLocation && (
-                  <View style={[styles.timelineBusMarker, { left: `${Math.min(85, Math.max(15, activeRoute.stops.length * 10))}%` }]}>
+                  <View
+                    style={[
+                      styles.timelineBusMarker,
+                      {
+                        left: `${Math.min(85, Math.max(15, activeRoute.stops.length * 10))}%`,
+                      },
+                    ]}
+                  >
                     <View style={styles.timelineBusGlow} />
                     <View style={styles.timelineBusCore}>
-                      <Navigation size={12} color="#FFFFFF" style={styles.busIcon} />
+                      <Navigation
+                        size={12}
+                        color="#FFFFFF"
+                        style={styles.busIcon}
+                      />
                     </View>
                   </View>
                 )}
@@ -195,7 +218,8 @@ export default function BusTrackingScreen() {
                 </View>
                 <View style={styles.coordsRow}>
                   <Text style={styles.coordsText}>
-                    Active Coordinates: Lat {busLocation.latitude.toFixed(5)} · Lon {busLocation.longitude.toFixed(5)}
+                    Active Coordinates: Lat {busLocation.latitude.toFixed(5)} ·
+                    Lon {busLocation.longitude.toFixed(5)}
                   </Text>
                 </View>
                 <Text style={styles.driverText}>

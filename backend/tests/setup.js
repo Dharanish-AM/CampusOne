@@ -17,6 +17,7 @@ require("../src/models/BusRoute");
 require("../src/models/BusLocation");
 require("../src/models/LeaderboardEntry");
 require("../src/models/ChatHistory");
+require("../src/models/Complaint");
 
 const { connectRedis } = require("../src/config/redis");
 const server = require("../src/index");
