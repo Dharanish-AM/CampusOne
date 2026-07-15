@@ -26,6 +26,7 @@ import {
   ChevronRight,
   TrendingUp,
   Calendar,
+  Home,
 } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
 import { logoutUser } from "../../redux/slices/authSlice";
@@ -474,6 +475,26 @@ export default function DashboardScreen() {
               <Text style={styles.placementMsg}>{placement.statusMessage}</Text>
             </Card>
           )}
+
+          {/* ── Hostel Allocation ── */}
+          <Card onPress={() => navigation.navigate("Hostel")}>
+            <CardHeader
+              icon={Home}
+              iconColor="#10B981"
+              iconBg="rgba(16,185,129,0.12)"
+              title="Hostel & Gate Pass"
+              onPress={() => navigation.navigate("Hostel")}
+            />
+            <View style={[styles.placementBadge, { borderColor: "#374151" }]}>
+              <Text style={[styles.placementStatus, { color: "#10B981" }]}>
+                View Room & Apply Pass
+              </Text>
+            </View>
+            <Text style={styles.placementMsg}>
+              Check your room details, roommates, and submit exit gate pass
+              requests.
+            </Text>
+          </Card>
 
           {/* Error banner */}
           {error && (

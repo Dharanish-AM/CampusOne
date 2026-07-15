@@ -8,6 +8,7 @@ import chatReducer from "./slices/chatSlice";
 import dashboardReducer from "./slices/dashboardSlice";
 import complaintReducer from "./slices/complaintSlice";
 import placementReducer from "./slices/placementSlice";
+import hostelReducer from "./slices/hostelSlice";
 
 export const store = configureStore({
   reducer: {
@@ -20,6 +21,7 @@ export const store = configureStore({
     dashboard: dashboardReducer,
     complaint: complaintReducer,
     placement: placementReducer,
+    hostel: hostelReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

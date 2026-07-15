@@ -18,6 +18,8 @@ const Complaint = require("../models/Complaint");
 const Company = require("../models/Company");
 const JobPosting = require("../models/JobPosting");
 const JobApplication = require("../models/JobApplication");
+const HostelAllocation = require("../models/HostelAllocation");
+const GatePassRequest = require("../models/GatePassRequest");
 
 // Database Connection URI
 const MONGO_URI =
@@ -4134,6 +4136,8 @@ const seedDatabase = async () => {
     await Company.deleteMany({});
     await JobPosting.deleteMany({});
     await JobApplication.deleteMany({});
+    await HostelAllocation.deleteMany({});
+    await GatePassRequest.deleteMany({});
     console.log("All collections cleared successfully.");
 
     // 2. Create Users
@@ -4815,7 +4819,41 @@ const seedDatabase = async () => {
       status: "applied",
     });
 
-    console.log("Placement companies, job postings, and mock application seeded.");
+    console.log(
+      "Placement companies, job postings, and mock application seeded.",
+    );
+
+    // 11. Create Hostel Entries
+    console.log("Seeding Hostel Allocations & Gate Passes...");
+    const wardenFaculty = await Faculty.findOne({ userId: facultyUser1._id });
+    if (wardenFaculty) {
+      await HostelAllocation.create({
+        studentId: alexProfile._id,
+        block: "A",
+        roomNumber: "302",
+        wardenId: wardenFaculty._id,
+      });
+
+      if (createdStudentProfiles.length > 0) {
+        await HostelAllocation.create({
+          studentId: createdStudentProfiles[0].profile._id,
+          block: "A",
+          roomNumber: "302",
+          wardenId: wardenFaculty._id,
+        });
+      }
+
+      await GatePassRequest.create({
+        studentId: alexProfile._id,
+        reason: "Going home for the weekend festival and family dinner",
+        leaveType: "home",
+        departureTime: new Date(Date.now() + 3600 * 1000 * 24 * 2), // 2 days in future
+        expectedReturnTime: new Date(Date.now() + 3600 * 1000 * 24 * 4), // 4 days in future
+        status: "pending",
+      });
+
+      console.log("Hostel room allocation and pending gate pass seeded.");
+    }
     console.log("----------------------------------------------------");
     console.log("DATABASE SEEDING COMPLETED SUCCESSFULLY!");
     console.log("----------------------------------------------------");

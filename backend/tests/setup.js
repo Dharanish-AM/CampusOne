@@ -21,6 +21,8 @@ require("../src/models/Complaint");
 require("../src/models/Company");
 require("../src/models/JobPosting");
 require("../src/models/JobApplication");
+require("../src/models/HostelAllocation");
+require("../src/models/GatePassRequest");
 
 const { connectRedis } = require("../src/config/redis");
 const server = require("../src/index");
