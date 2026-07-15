@@ -533,7 +533,7 @@ export default function DashboardScreen() {
 // ── Styles ────────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#0f172a" },
-  scroll: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 24 },
+  scroll: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 120 },
 
   loadingContainer: {
     flex: 1,
