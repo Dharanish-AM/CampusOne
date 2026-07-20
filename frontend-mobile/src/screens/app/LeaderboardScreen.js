@@ -23,7 +23,7 @@ import {
   GitBranch,
   Star,
   Zap,
-  Edit3,
+  Pencil,
   X,
   ChevronUp,
   Award,
@@ -650,7 +650,7 @@ export default function LeaderboardScreen() {
           onPress={() => setShowHandlesModal(true)}
           activeOpacity={0.8}
         >
-          <Edit3 size={14} color="#000" />
+          <Pencil size={14} color="#000" />
           <Text style={styles.editHandlesText}>Edit</Text>
         </TouchableOpacity>
       </View>

@@ -8,6 +8,12 @@ import {
   MapPin,
   Trophy,
   MessageSquare,
+  CreditCard,
+  Coffee,
+  Tag,
+  Users,
+  GraduationCap,
+  Archive,
 } from "lucide-react-native";
 
 import { createStackNavigator } from "@react-navigation/stack";
@@ -22,6 +28,13 @@ import ComplaintScreen from "../screens/app/ComplaintScreen";
 import PlacementScreen from "../screens/app/PlacementScreen";
 import HostelScreen from "../screens/app/HostelScreen";
 import LibraryScreen from "../screens/app/LibraryScreen";
+import FeesScreen from "../screens/app/FeesScreen";
+import CafeteriaScreen from "../screens/app/CafeteriaScreen";
+import MarketplaceScreen from "../screens/app/MarketplaceScreen";
+import ClubsScreen from "../screens/app/ClubsScreen";
+import AlumniScreen from "../screens/app/AlumniScreen";
+import StudentIdScreen from "../screens/app/StudentIdScreen";
+import LostFoundScreen from "../screens/app/LostFoundScreen";
 
 const Tab = createBottomTabNavigator();
 const DashboardStack = createStackNavigator();
@@ -115,6 +128,76 @@ export default function AppNavigator() {
           tabBarLabel: "AI Chat",
           tabBarIcon: ({ color, size }) => (
             <MessageSquare size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Fees"
+        component={FeesScreen}
+        options={{
+          tabBarLabel: "Fees",
+          tabBarIcon: ({ color, size }) => (
+            <CreditCard size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Canteen"
+        component={CafeteriaScreen}
+        options={{
+          tabBarLabel: "Canteen",
+          tabBarIcon: ({ color, size }) => (
+            <Coffee size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Store"
+        component={MarketplaceScreen}
+        options={{
+          tabBarLabel: "Store",
+          tabBarIcon: ({ color, size }) => (
+            <Tag size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Clubs"
+        component={ClubsScreen}
+        options={{
+          tabBarLabel: "Clubs",
+          tabBarIcon: ({ color, size }) => (
+            <Users size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Alumni"
+        component={AlumniScreen}
+        options={{
+          tabBarLabel: "Alumni",
+          tabBarIcon: ({ color, size }) => (
+            <GraduationCap size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="DigitalID"
+        component={StudentIdScreen}
+        options={{
+          tabBarLabel: "Digital ID",
+          tabBarIcon: ({ color, size }) => (
+            <CreditCard size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="LostFound"
+        component={LostFoundScreen}
+        options={{
+          tabBarLabel: "Lost & Found",
+          tabBarIcon: ({ color, size }) => (
+            <Archive size={size} color={color} />
           ),
         }}
       />

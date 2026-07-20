@@ -21,6 +21,13 @@ const complaintRoutes = require("./routes/complaintRoutes");
 const placementRoutes = require("./routes/placementRoutes");
 const hostelRoutes = require("./routes/hostelRoutes");
 const libraryRoutes = require("./routes/libraryRoutes");
+const feeRoutes = require("./routes/feeRoutes");
+const cafeteriaRoutes = require("./routes/cafeteriaRoutes");
+const marketplaceRoutes = require("./routes/marketplaceRoutes");
+const clubRoutes = require("./routes/clubRoutes");
+const alumniRoutes = require("./routes/alumniRoutes");
+const studentIdRoutes = require("./routes/studentIdRoutes");
+const lostFoundRoutes = require("./routes/lostFoundRoutes");
 const { initLeaderboardJob } = require("./jobs/leaderboardJob");
 const { initQdrantSeed } = require("./jobs/qdrantSeedJob");
 const errorHandler = require("./middleware/errorMiddleware");
@@ -100,6 +107,13 @@ app.use("/api/complaints", complaintRoutes);
 app.use("/api/placements", placementRoutes);
 app.use("/api/hostels", hostelRoutes);
 app.use("/api/library", libraryRoutes);
+app.use("/api/fees", feeRoutes);
+app.use("/api/cafeteria", cafeteriaRoutes);
+app.use("/api/marketplace", marketplaceRoutes);
+app.use("/api/clubs", clubRoutes);
+app.use("/api/alumni", alumniRoutes);
+app.use("/api/student-id", studentIdRoutes);
+app.use("/api/lost-found", lostFoundRoutes);
 
 // API health endpoint
 app.get("/api/health", (req, res) => {

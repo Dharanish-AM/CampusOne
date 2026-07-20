@@ -18,7 +18,7 @@ import {
   DollarSign,
   AlertTriangle,
   Calendar,
-  CheckCircle,
+  CircleCheck,
   FileText,
 } from "lucide-react-native";
 import {
@@ -326,7 +326,7 @@ export default function LibraryScreen() {
                   ]}
                 >
                   {book.availableCopies > 0 ? (
-                    <CheckCircle
+                    <CircleCheck
                       size={10}
                       color="#10B981"
                       style={{ marginRight: 4 }}

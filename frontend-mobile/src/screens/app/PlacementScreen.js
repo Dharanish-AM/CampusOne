@@ -20,7 +20,7 @@ import {
   Calendar,
   DollarSign,
   MapPin,
-  CheckCircle,
+  CircleCheck,
   XCircle,
   AlertCircle,
   ArrowLeft,
@@ -290,7 +290,7 @@ export default function PlacementScreen({ navigation }) {
           style={[styles.tab, activeTab === "applied" && styles.tabActive]}
           activeOpacity={0.8}
         >
-          <CheckCircle
+          <CircleCheck
             size={15}
             color={activeTab === "applied" ? "#0f172a" : "#9CA3AF"}
           />
@@ -398,7 +398,7 @@ export default function PlacementScreen({ navigation }) {
                               styles.appliedLabel,
                             ]}
                           >
-                            <CheckCircle size={10} color="#10B981" />
+                            <CircleCheck size={10} color="#10B981" />
                             <Text style={styles.appliedLabelText}>Applied</Text>
                           </View>
                         ) : isEligible ? (
@@ -408,7 +408,7 @@ export default function PlacementScreen({ navigation }) {
                               styles.eligibleLabel,
                             ]}
                           >
-                            <CheckCircle size={10} color="#10B981" />
+                            <CircleCheck size={10} color="#10B981" />
                             <Text style={styles.eligibleLabelText}>
                               Eligible
                             </Text>
@@ -538,7 +538,7 @@ export default function PlacementScreen({ navigation }) {
             !isLoading &&
             (applications.length === 0 ? (
               <View style={styles.emptyState}>
-                <CheckCircle size={40} color="#374151" />
+                <CircleCheck size={40} color="#374151" />
                 <Text style={styles.emptyStateTitle}>No Applications Yet</Text>
                 <Text style={styles.emptyStateSub}>
                   You haven't submitted applications to any drives yet.

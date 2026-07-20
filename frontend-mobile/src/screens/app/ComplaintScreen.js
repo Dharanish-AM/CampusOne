@@ -20,9 +20,9 @@ import {
   AlertTriangle,
   Plus,
   X,
-  CheckCircle2,
+  CircleCheck,
   Clock,
-  HelpCircle,
+  CircleQuestionMark,
   ArrowLeft,
   ChevronDown,
   ChevronUp,
@@ -135,7 +135,7 @@ export default function ComplaintScreen({ navigation }) {
       case "infrastructure":
         return <Building size={16} color={color} />;
       default:
-        return <HelpCircle size={16} color={color} />;
+        return <CircleQuestionMark size={16} color={color} />;
     }
   };
 

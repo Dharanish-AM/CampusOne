@@ -10,6 +10,13 @@ import complaintReducer from "./slices/complaintSlice";
 import placementReducer from "./slices/placementSlice";
 import hostelReducer from "./slices/hostelSlice";
 import libraryReducer from "./slices/librarySlice";
+import feesReducer from "./slices/feeSlice";
+import cafeteriaReducer from "./slices/cafeteriaSlice";
+import marketplaceReducer from "./slices/marketplaceSlice";
+import clubReducer from "./slices/clubSlice";
+import alumniReducer from "./slices/alumniSlice";
+import studentIdReducer from "./slices/studentIdSlice";
+import lostFoundReducer from "./slices/lostFoundSlice";
 
 export const store = configureStore({
   reducer: {
@@ -24,6 +31,13 @@ export const store = configureStore({
     placement: placementReducer,
     hostel: hostelReducer,
     library: libraryReducer,
+    fees: feesReducer,
+    cafeteria: cafeteriaReducer,
+    marketplace: marketplaceReducer,
+    clubs: clubReducer,
+    alumni: alumniReducer,
+    studentId: studentIdReducer,
+    lostFound: lostFoundReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

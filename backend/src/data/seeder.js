@@ -22,6 +22,14 @@ const HostelAllocation = require("../models/HostelAllocation");
 const GatePassRequest = require("../models/GatePassRequest");
 const Book = require("../models/Book");
 const BookBorrow = require("../models/BookBorrow");
+const CanteenItem = require("../models/CanteenItem");
+const CanteenOrder = require("../models/CanteenOrder");
+const MarketplaceProduct = require("../models/MarketplaceProduct");
+const Club = require("../models/Club");
+const ClubEvent = require("../models/ClubEvent");
+const AlumniProfile = require("../models/AlumniProfile");
+const MentorshipRequest = require("../models/MentorshipRequest");
+const LostAndFoundItem = require("../models/LostAndFoundItem");
 
 // Database Connection URI
 const MONGO_URI =
@@ -4142,6 +4150,14 @@ const seedDatabase = async () => {
     await GatePassRequest.deleteMany({});
     await Book.deleteMany({});
     await BookBorrow.deleteMany({});
+    await CanteenItem.deleteMany({});
+    await CanteenOrder.deleteMany({});
+    await MarketplaceProduct.deleteMany({});
+    await Club.deleteMany({});
+    await ClubEvent.deleteMany({});
+    await AlumniProfile.deleteMany({});
+    await MentorshipRequest.deleteMany({});
+    await LostAndFoundItem.deleteMany({});
     console.log("All collections cleared successfully.");
 
     // 2. Create Users
@@ -4196,6 +4212,28 @@ const seedDatabase = async () => {
       email: "admin@campusone.edu",
       password: "password123",
       role: "admin",
+    });
+
+    // Alumni Users
+    const alumUser1 = await User.create({
+      name: "Siddharth Verma",
+      email: "siddharth_alum@campusone.edu",
+      password: "password123",
+      role: "student",
+    });
+
+    const alumUser2 = await User.create({
+      name: "Neha Sharma",
+      email: "neha_alum@campusone.edu",
+      password: "password123",
+      role: "student",
+    });
+
+    const alumUser3 = await User.create({
+      name: "Rohan Das",
+      email: "rohan_alum@campusone.edu",
+      password: "password123",
+      role: "student",
     });
 
     console.log("Users created successfully.");
@@ -4915,6 +4953,306 @@ const seedDatabase = async () => {
       status: "overdue",
       fineAmount: 25,
     });
+
+    // 13. Create Cafeteria Menu Items
+    console.log("Seeding Cafeteria Menu Items...");
+    await CanteenItem.create([
+      {
+        name: "Idly with Sambar & Chutney",
+        price: 35,
+        description: "Three steamed fluffy rice cakes served with hot sambar and coconut chutney.",
+        category: "breakfast",
+        isAvailable: true,
+        preparationTime: 8,
+      },
+      {
+        name: "Masala Dosa",
+        price: 55,
+        description: "Crispy rice crepe filled with spiced potato masala and served with chutneys.",
+        category: "breakfast",
+        isAvailable: true,
+        preparationTime: 12,
+      },
+      {
+        name: "Poori Masala",
+        price: 45,
+        description: "Two deep-fried golden puffed breads served with potato curry.",
+        category: "breakfast",
+        isAvailable: true,
+        preparationTime: 10,
+      },
+      {
+        name: "South Indian Meals",
+        price: 90,
+        description: "Steamed rice served with sambar, rasam, kootu, poriyal, curd, appalam, and pickle.",
+        category: "lunch",
+        isAvailable: true,
+        preparationTime: 15,
+      },
+      {
+        name: "Veg Fried Rice",
+        price: 75,
+        description: "Stir-fried rice loaded with fresh garden vegetables and soy seasoning.",
+        category: "lunch",
+        isAvailable: true,
+        preparationTime: 15,
+      },
+      {
+        name: "Samosa (2 pcs)",
+        price: 25,
+        description: "Crispy pastry pockets filled with potato pea masala.",
+        category: "snacks",
+        isAvailable: true,
+        preparationTime: 5,
+      },
+      {
+        name: "Onion Pakoda",
+        price: 30,
+        description: "Crisp golden onion fritters seasoned with green chilies and curry leaves.",
+        category: "snacks",
+        isAvailable: true,
+        preparationTime: 8,
+      },
+      {
+        name: "Masaal Tea / Filter Coffee",
+        price: 15,
+        description: "Brewed milk tea infused with cardamom and ginger, or traditional filter coffee.",
+        category: "snacks",
+        isAvailable: true,
+        preparationTime: 3,
+      },
+      {
+        name: "Chapati with Veg Kurma",
+        price: 50,
+        description: "Two wheat flatbreads served with mixed vegetable coconut gravy.",
+        category: "dinner",
+        isAvailable: true,
+        preparationTime: 10,
+      },
+      {
+        name: "Parotta with Salna",
+        price: 55,
+        description: "Two layered flaky flatbreads served with spicy aromatic vegetable salna.",
+        category: "dinner",
+        isAvailable: true,
+        preparationTime: 12,
+      }
+    ]);
+    console.log("Cafeteria menu items seeded.");
+
+    // 14. Seed Marketplace Products
+    console.log("Seeding Marketplace Products...");
+    // Let's list a few items under other student profile references to allow Alex (primary student) to view them.
+    const seller1 = createdStudentProfiles[0]?.profile._id || alexProfile._id;
+    const seller2 = createdStudentProfiles[1]?.profile._id || alexProfile._id;
+
+    await MarketplaceProduct.create([
+      {
+        studentId: seller1,
+        title: "Engineering Electromagnetics (8th Edition)",
+        description: "Hardcover textbook by William Hayt. Minimal highlights, great condition for EE/ECE courses.",
+        price: 450,
+        category: "textbooks",
+        images: ["https://placehold.co/150x150/1e2634/ffffff?text=Book"],
+        status: "available",
+      },
+      {
+        studentId: seller2,
+        title: "Logitech Wireless Mouse M331",
+        description: "Silent clicking, wireless mouse. Comes with USB receiver and AA battery.",
+        price: 600,
+        category: "electronics",
+        images: ["https://placehold.co/150x150/1e2634/ffffff?text=Mouse"],
+        status: "available",
+      },
+      {
+        studentId: seller1,
+        title: "Hercules Geared Cycle (Dual Suspension)",
+        description: "18-speed gear bicycle. Perfect for commuting around campus hostels and departments. Brake pads recently replaced.",
+        price: 3200,
+        category: "cycles",
+        images: ["https://placehold.co/150x150/1e2634/ffffff?text=Bicycle"],
+        status: "available",
+      },
+      {
+        studentId: seller2,
+        title: "Hostel Study Table Lamp",
+        description: "LED study desk lamp with adjustable arm and 3 brightness modes. USB powered.",
+        price: 250,
+        category: "hostel_supplies",
+        images: ["https://placehold.co/150x150/1e2634/ffffff?text=Lamp"],
+        status: "available",
+      },
+      {
+        studentId: alexProfile._id, // Listed by the primary logged-in student to test "My Listings" tab
+        title: "Gate CSE Prep Books Set",
+        description: "Complete set of gate preparation books including theory materials and past solved papers.",
+        price: 1200,
+        category: "textbooks",
+        images: ["https://placehold.co/150x150/1e2634/ffffff?text=GATE+Books"],
+        status: "available",
+      }
+    ]);
+    console.log("Marketplace products seeded.");
+ 
+    // 15. Seed Clubs and Club Events
+    console.log("Seeding Clubs and Communities...");
+    const advisor1 = turingProfile._id;
+    const advisor2 = hopperProfile._id;
+    const studentCoord = alexProfile._id; // Alex coordinates Coding Club
+
+    const codingClub = await Club.create({
+      name: "Campus Coding Club",
+      description: "A student-run community of computer enthusiasts, competitive programmers, and builders.",
+      facultyAdvisor: advisor1,
+      members: [alexProfile._id, seller1, seller2],
+      coordinators: [studentCoord],
+      logoUrl: "https://placehold.co/100x100/1e2634/ffffff?text=Code",
+    });
+
+    const roboticsClub = await Club.create({
+      name: "Robotics and IoT Society",
+      description: "Exploring mechanical designs, microcontrollers, embedded programming, and IoT automation.",
+      facultyAdvisor: advisor2,
+      members: [seller1, seller2],
+      coordinators: [seller1],
+      logoUrl: "https://placehold.co/100x100/1e2634/ffffff?text=Robot",
+    });
+
+    const musicClub = await Club.create({
+      name: "Melody Makers Music Club",
+      description: "For the love of acoustics, bands, vocals, and musical events on campus.",
+      facultyAdvisor: advisor2,
+      members: [alexProfile._id, seller2],
+      coordinators: [seller2],
+      logoUrl: "https://placehold.co/100x100/1e2634/ffffff?text=Music",
+    });
+
+    console.log("Clubs seeded. Seeding upcoming events...");
+
+    await ClubEvent.create([
+      {
+        clubId: codingClub._id,
+        title: "Hackathon Prep Workshop",
+        description: "Learn how to brainstorm ideas, choose tech stacks, structure API designs, and build projects under 24 hours.",
+        dateTime: new Date(Date.now() + 3600 * 1000 * 24 * 3), // 3 days in future
+        venue: "Computer Science Lab 4",
+        rsvps: [alexProfile._id, seller2],
+      },
+      {
+        clubId: codingClub._id,
+        title: "Competitive Programming Contest 3",
+        description: "Standard 3-hour code contest on algorithms and data structures. Top scores added to dashboard leaderboard.",
+        dateTime: new Date(Date.now() + 3600 * 1000 * 24 * 7), // 7 days in future
+        venue: "Online Coding Portal",
+        rsvps: [seller1],
+      },
+      {
+        clubId: roboticsClub._id,
+        title: "Line Follower Robot Hands-on",
+        description: "Introduction to IR sensors, Arduino calibration, and chassis modeling. Kits will be provided to registered attendees.",
+        dateTime: new Date(Date.now() + 3600 * 1000 * 24 * 5), // 5 days in future
+        venue: "IoT & Embedded Labs Block A",
+        rsvps: [seller2, alexProfile._id],
+      },
+      {
+        clubId: musicClub._id,
+        title: "Acoustic Jam Night Session",
+        description: "An informal get-together to sing, jam, play instruments, and enjoy acoustic tracks under the central campus lawn.",
+        dateTime: new Date(Date.now() + 3600 * 1000 * 24 * 2), // 2 days in future
+        venue: "Central Lawns Amphitheater",
+        rsvps: [alexProfile._id, seller2, seller1],
+      }
+    ]);
+    console.log("Club events seeded.");
+
+    // 16. Seed Alumni Profiles & Mentorship Requests
+    console.log("Seeding Alumni Directory...");
+    
+    const alumProfile1 = await AlumniProfile.create({
+      userId: alumUser1._id,
+      graduationYear: 2022,
+      department: "Computer Science",
+      company: "Amazon",
+      position: "Software Development Engineer (SDE-2)",
+      isMentor: true,
+      linkedInUrl: "https://linkedin.com/in/siddharth-verma-mock",
+    });
+
+    const alumProfile2 = await AlumniProfile.create({
+      userId: alumUser2._id,
+      graduationYear: 2023,
+      department: "Computer Science",
+      company: "Qualcomm",
+      position: "Hardware Design Engineer",
+      isMentor: true,
+      linkedInUrl: "https://linkedin.com/in/neha-sharma-mock",
+    });
+
+    const alumProfile3 = await AlumniProfile.create({
+      userId: alumUser3._id,
+      graduationYear: 2021,
+      department: "Information Technology",
+      company: "Microsoft",
+      position: "Associate Product Manager",
+      isMentor: false,
+      linkedInUrl: "https://linkedin.com/in/rohan-das-mock",
+    });
+
+    console.log("Alumni Profiles seeded. Seeding active mentorship requests...");
+
+    await MentorshipRequest.create({
+      studentId: alexProfile._id,
+      alumniId: alumProfile2._id, // Neha Sharma
+      status: "pending",
+      notes: "Hi Neha, I am currently preparing for summer ECE/CSE placements and would love to receive guidance on system design and mock interviews.",
+    });
+
+    console.log("Mentorship requests seeded.");
+
+    // 17. Seed Lost & Found Listings
+    console.log("Seeding Lost & Found Listings...");
+    
+    await LostAndFoundItem.create([
+      {
+        reporterId: seller1,
+        title: "Keys with Red Leather Strap",
+        description: "Found a set of keys with a red leather keychain near Block C cafeteria entrance.",
+        type: "found",
+        category: "keys",
+        location: "Block C Cafeteria",
+        status: "open",
+      },
+      {
+        reporterId: seller2,
+        title: "Lost Black Leather Wallet",
+        description: "Contains campus library card, driving license, and some cash. Lost near central seminar hall.",
+        type: "lost",
+        category: "documents",
+        location: "Central Seminar Hall",
+        status: "open",
+      },
+      {
+        reporterId: alexProfile._id,
+        title: "Found Casio Calculator fx-991EX",
+        description: "Scientific calculator left in Room 302 after the math test. Contact me to retrieve it.",
+        type: "found",
+        category: "electronics",
+        location: "Room 302 (Science Block)",
+        status: "open",
+      },
+      {
+        reporterId: seller1,
+        title: "Blue Denim Jacket",
+        description: "Found blue denim jacket left hanging on the library chair on ground floor.",
+        type: "found",
+        category: "clothing",
+        location: "Central Library Ground Floor",
+        status: "resolved",
+      }
+    ]);
+
+    console.log("Lost & Found listings seeded.");
 
     console.log("Library books and checkout entries seeded.");
     console.log("----------------------------------------------------");

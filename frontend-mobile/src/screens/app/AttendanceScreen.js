@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import io from "socket.io-client";
 import {
   BookOpen,
-  CheckCircle,
+  CircleCheck,
   AlertTriangle,
   Info,
   Calendar,
@@ -226,7 +226,7 @@ export default function AttendanceScreen() {
                     ]}
                   >
                     {sub.prediction.status === "safe" ? (
-                      <CheckCircle size={16} color="#10B981" />
+                      <CircleCheck size={16} color="#10B981" />
                     ) : (
                       <AlertTriangle size={16} color="#EF4444" />
                     )}
