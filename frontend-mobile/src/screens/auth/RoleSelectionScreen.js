@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Dimensions,
+  Platform,
 } from "react-native";
 import {
   GraduationCap,
@@ -112,9 +113,16 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: "#FFFFFF",
     letterSpacing: 1.5,
-    textShadowColor: "rgba(192, 132, 252, 0.4)",
-    textShadowOffset: { width: 0, height: 4 },
-    textShadowRadius: 10,
+    ...Platform.select({
+      web: {
+        textShadow: "0px 4px 10px rgba(192, 132, 252, 0.4)",
+      },
+      default: {
+        textShadowColor: "rgba(192, 132, 252, 0.4)",
+        textShadowOffset: { width: 0, height: 4 },
+        textShadowRadius: 10,
+      },
+    }),
   },
   subtitle: {
     fontSize: 15,
@@ -135,11 +143,18 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
+    ...Platform.select({
+      web: {
+        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.3)",
+      },
+      default: {
+        shadowColor: "#000000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 5,
+      },
+    }),
   },
   iconWrapper: {
     padding: 12,
