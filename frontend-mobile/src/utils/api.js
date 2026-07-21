@@ -60,12 +60,21 @@ api.interceptors.response.use(
     // Check if error is due to a network connection failure
     if (!error.response) {
       console.warn("Network Error / Offline:", error.message);
-      // Construct a unified error object for connection timeouts
       return Promise.reject(
         new Error(
           "Network connection issues detected. Please check your connectivity.",
         ),
       );
+    }
+
+    // GUARD: Never intercept logout or refresh requests — these must not trigger
+    // another dispatch cycle, or we end up in an infinite logout loop.
+    const requestUrl = originalRequest?.url || "";
+    if (
+      requestUrl.includes("/auth/logout") ||
+      requestUrl.includes("/auth/refresh")
+    ) {
+      return Promise.reject(error);
     }
 
     // Intercept 401 Unauthorized (Expired Access Token)
@@ -123,7 +132,7 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
-        // Force logout if refresh fails
+        // Force logout if refresh fails — dispatch once and stop
         store.dispatch(logoutUser());
         return Promise.reject(
           new Error(

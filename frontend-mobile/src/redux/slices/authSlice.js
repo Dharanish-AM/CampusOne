@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import api from "../../utils/api";
+import axios from "axios";
+import api, { SOCKET_URL } from "../../utils/api";
 
 export const registerUser = createAsyncThunk(
   "auth/register",
@@ -52,13 +53,23 @@ export const logoutUser = createAsyncThunk(
   "auth/logout",
   async (_, { rejectWithValue }) => {
     try {
-      // Clear server session
-      await api.post("/auth/logout");
+      // Use a raw axios instance (not the intercepted `api`) so this call
+      // can never itself trigger a 401 intercept cycle and re-dispatch logoutUser.
+      const accessToken = await AsyncStorage.getItem("accessToken");
+      await axios.post(
+        `${SOCKET_URL}/api/auth/logout`,
+        {},
+        {
+          headers: accessToken
+            ? { Authorization: `Bearer ${accessToken}` }
+            : {},
+          timeout: 5000,
+        },
+      );
     } catch (error) {
-      // Even if network request fails, clear local credentials
+      // Even if the server request fails, always clear local credentials
       console.warn("Logout server request failed:", error.message);
     } finally {
-      // Clear AsyncStorage
       await AsyncStorage.multiRemove([
         "accessToken",
         "refreshToken",
