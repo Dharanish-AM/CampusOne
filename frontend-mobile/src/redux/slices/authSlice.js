@@ -1,17 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
-
-// Base API URL - pointing to local machine default server port
-// Note: When running on Android Emulator, localhost maps to 10.0.2.2.
-// For iOS Simulator, localhost works. For Expo Go physical devices, use LAN IP.
-const API_URL = "http://192.168.0.109:5000/api/auth";
+import api from "../../utils/api";
 
 export const registerUser = createAsyncThunk(
   "auth/register",
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${API_URL}/register`, userData);
+      const response = await api.post("/auth/register", userData);
       const { user, profile, accessToken, refreshToken } = response.data.data;
 
       // Persist in AsyncStorage
@@ -34,7 +29,7 @@ export const loginUser = createAsyncThunk(
   "auth/login",
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${API_URL}/login`, credentials);
+      const response = await api.post("/auth/login", credentials);
       const { user, profile, accessToken, refreshToken } = response.data.data;
 
       // Persist in AsyncStorage
@@ -55,21 +50,10 @@ export const loginUser = createAsyncThunk(
 
 export const logoutUser = createAsyncThunk(
   "auth/logout",
-  async (_, { getState, rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const state = getState();
-      const token = state.auth.token;
-
-      // Clear server session if token is available
-      if (token) {
-        await axios.post(
-          `${API_URL}/logout`,
-          {},
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          },
-        );
-      }
+      // Clear server session
+      await api.post("/auth/logout");
     } catch (error) {
       // Even if network request fails, clear local credentials
       console.warn("Logout server request failed:", error.message);

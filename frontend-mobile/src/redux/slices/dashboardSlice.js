@@ -1,22 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
-
-const API_URL = "http://192.168.0.109:5000/api/dashboard";
-
-// ── Helper: build Authorization headers ──────────────────────────────────────
-const getAuthHeaders = async () => {
-  const token = await AsyncStorage.getItem("accessToken");
-  return { Authorization: `Bearer ${token}` };
-};
+import api from "../../utils/api";
 
 // ── Thunk: fetchDashboardData ──────────────────────────────────────────────────
 export const fetchDashboardData = createAsyncThunk(
   "dashboard/fetchData",
   async (_, { rejectWithValue }) => {
     try {
-      const headers = await getAuthHeaders();
-      const response = await axios.get(API_URL, { headers });
+      const response = await api.get("/dashboard");
       return response.data.data;
     } catch (error) {
       const message =

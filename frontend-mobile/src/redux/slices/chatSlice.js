@@ -1,25 +1,15 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
-
-const API_URL = "http://192.168.0.109:5000/api/chat";
-
-// ── Helper: build Authorization headers ──────────────────────────────────────
-const getAuthHeaders = async () => {
-  const token = await AsyncStorage.getItem("accessToken");
-  return { Authorization: `Bearer ${token}` };
-};
+import api from "../../utils/api";
 
 // ── Thunk: sendMessage ────────────────────────────────────────────────────────
 export const sendMessage = createAsyncThunk(
   "chat/sendMessage",
   async ({ message, conversationId }, { rejectWithValue }) => {
     try {
-      const headers = await getAuthHeaders();
       const body = { message };
       if (conversationId) body.conversationId = conversationId;
 
-      const response = await axios.post(API_URL, body, { headers });
+      const response = await api.post("/chat", body);
       return response.data.data; // { reply, conversationId }
     } catch (error) {
       const message = error.response?.data?.message || "Failed to send message";
@@ -33,12 +23,8 @@ export const loadHistory = createAsyncThunk(
   "chat/loadHistory",
   async (conversationId, { rejectWithValue }) => {
     try {
-      const headers = await getAuthHeaders();
       const params = conversationId ? { conversationId } : {};
-      const response = await axios.get(`${API_URL}/history`, {
-        headers,
-        params,
-      });
+      const response = await api.get("/chat/history", { params });
       return response.data.data; // Array of { role, content, createdAt }
     } catch (error) {
       const message = error.response?.data?.message || "Failed to load history";

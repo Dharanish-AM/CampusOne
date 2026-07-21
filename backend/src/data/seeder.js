@@ -30,6 +30,8 @@ const ClubEvent = require("../models/ClubEvent");
 const AlumniProfile = require("../models/AlumniProfile");
 const MentorshipRequest = require("../models/MentorshipRequest");
 const LostAndFoundItem = require("../models/LostAndFoundItem");
+const FeeStructure = require("../models/FeeStructure");
+const FeeInvoice = require("../models/FeeInvoice");
 
 // Database Connection URI
 const MONGO_URI =
@@ -4158,111 +4160,129 @@ const seedDatabase = async () => {
     await AlumniProfile.deleteMany({});
     await MentorshipRequest.deleteMany({});
     await LostAndFoundItem.deleteMany({});
+    await FeeStructure.deleteMany({});
+    await FeeInvoice.deleteMany({});
     console.log("All collections cleared successfully.");
 
-    // 2. Create Users
-    console.log("Creating users...");
+    // 2. Create System Users (one per role)
+    console.log("Creating system users...");
 
-    // Primary Student User
-    const studentUser1 = await User.create({
-      name: "Alex Rivera",
-      email: "student@campusone.edu",
-      password: "password123",
-      role: "student",
-    });
-
-    // Create the Excel Student Users
-    const createdUsers = [];
-    for (const s of studentsData) {
-      const u = await User.create({
-        name: s.name,
-        email: s.email,
-        password: "password123",
-        role: "student",
-      });
-      createdUsers.push({ user: u, studentData: s });
-    }
-
-    // Faculty Users
-    const facultyUser1 = await User.create({
-      name: "Prof. Alan Turing",
-      email: "turing@campusone.edu",
-      password: "password123",
-      role: "faculty",
-    });
-
-    const facultyUser2 = await User.create({
-      name: "Prof. Grace Hopper",
-      email: "hopper@campusone.edu",
-      password: "password123",
-      role: "faculty",
-    });
-
-    // Transport Driver User
-    const driverUser = await User.create({
-      name: "Bob Miller",
-      email: "bob_driver@campusone.edu",
-      password: "password123",
-      role: "transport_staff",
-    });
-
-    // Admin User
     const adminUser = await User.create({
-      name: "CampusOne Admin",
+      name: "Rajesh Kumar V",
       email: "admin@campusone.edu",
       password: "password123",
       role: "admin",
     });
 
-    // Alumni Users
+    const placementUser = await User.create({
+      name: "Kavitha Rajan",
+      email: "placement@campusone.edu",
+      password: "password123",
+      role: "placement_officer",
+    });
+
+    const driverUser = await User.create({
+      name: "Murugan S",
+      email: "murugan.driver@campusone.edu",
+      password: "password123",
+      role: "transport_staff",
+    });
+
+    const facultyUser1 = await User.create({
+      name: "Dr. Meenakshi Sundaram R",
+      email: "meenakshi@campusone.edu",
+      password: "password123",
+      role: "faculty",
+    });
+
+    const facultyUser2 = await User.create({
+      name: "Dr. Priya Nair",
+      email: "priya.nair@campusone.edu",
+      password: "password123",
+      role: "faculty",
+    });
+
+    // Alumni users (stored as role "student" — no separate alumni role in schema)
     const alumUser1 = await User.create({
-      name: "Siddharth Verma",
-      email: "siddharth_alum@campusone.edu",
+      name: "Siddharth Venkataraman",
+      email: "siddharth.alum@campusone.edu",
       password: "password123",
       role: "student",
     });
 
     const alumUser2 = await User.create({
-      name: "Neha Sharma",
-      email: "neha_alum@campusone.edu",
+      name: "Neha Krishnaswamy",
+      email: "neha.alum@campusone.edu",
       password: "password123",
       role: "student",
     });
 
     const alumUser3 = await User.create({
-      name: "Rohan Das",
-      email: "rohan_alum@campusone.edu",
+      name: "Rohan Balaji",
+      email: "rohan.alum@campusone.edu",
       password: "password123",
       role: "student",
     });
 
-    console.log("Users created successfully.");
+    // Student Users — Dharanish A M (23CS041) gets the primary demo credentials
+    const PRIMARY_ROLL = "23CS041";
+    const createdUsers = [];
+    let primaryStudentUser = null;
+    let primaryStudentData = null;
 
-    // 3. Create Student & Faculty Profiles
-    console.log("Creating Student and Faculty profiles...");
+    for (const s of studentsData) {
+      const isDemoAccount = s.rollNumber === PRIMARY_ROLL;
+      const u = await User.create({
+        name: s.name,
+        email: isDemoAccount ? "student@campusone.edu" : s.email,
+        password: "password123",
+        role: "student",
+      });
+      if (isDemoAccount) {
+        primaryStudentUser = u;
+        primaryStudentData = s;
+      }
+      createdUsers.push({ user: u, studentData: s });
+    }
 
-    // Student Profiles
-    const alexProfile = await Student.create({
-      userId: studentUser1._id,
-      rollNumber: "CS-2023-042",
+    console.log(`Users created (${createdUsers.length} students + 8 system users).`);
+
+    // 3. Create Faculty Profiles
+    console.log("Creating faculty profiles...");
+
+    const meenakshiProfile = await Faculty.create({
+      userId: facultyUser1._id,
+      employeeId: "FAC-CS-001",
       department: "Computer Science",
-      semester: 6,
-      batch: "2023-2027",
-      phoneNumber: "+15550198420",
-      parentPhoneNumber: "+15550198421",
-      address: "742 Evergreen Terrace, Campus Hills",
-      codingHandles: {
-        leetcode: "alex_codes_99",
-        codeforces: "alex_cf",
-        github: "arivera-dev",
-      },
-      cgpa: 8.45,
-      backlogs: 0,
+      designation: "Professor & Head of Department",
+      phoneNumber: "+919840001234",
     });
 
+    const priyaProfile = await Faculty.create({
+      userId: facultyUser2._id,
+      employeeId: "FAC-CS-002",
+      department: "Computer Science",
+      designation: "Associate Professor",
+      phoneNumber: "+919840005678",
+    });
+
+    console.log("Faculty profiles created.");
+
+    // 4. Create Student Profiles
+    console.log("Creating student profiles...");
+
+    // Derive a realistic CGPA from the leaderboard score (higher score → higher CGPA)
+    const scoreToCgpa = (score) => {
+      const base = 5.5 + (Math.min(score || 0, 12000) / 12000) * 4.2;
+      const jitter = (Math.random() - 0.5) * 0.35;
+      return Math.max(5.5, Math.min(10.0, parseFloat((base + jitter).toFixed(2))));
+    };
+
     const createdStudentProfiles = [];
+    let primaryStudentProfile = null;
+
     for (const item of createdUsers) {
-      const studentProfile = await Student.create({
+      const profile = await Student.create({
         userId: item.user._id,
         rollNumber: item.studentData.rollNumber,
         department: item.studentData.department,
@@ -4272,365 +4292,163 @@ const seedDatabase = async () => {
         parentPhoneNumber: item.studentData.parentPhoneNumber,
         address: item.studentData.address,
         codingHandles: item.studentData.codingHandles,
-        cgpa: parseFloat((6.0 + Math.random() * 3.5).toFixed(2)),
-        backlogs: Math.random() > 0.85 ? 1 : 0,
+        cgpa: scoreToCgpa(item.studentData.leaderboardScore),
+        backlogs: Math.random() > 0.92 ? 1 : 0,
       });
-      createdStudentProfiles.push({
-        profile: studentProfile,
-        studentData: item.studentData,
-        user: item.user,
-      });
+
+      if (item.studentData.rollNumber === PRIMARY_ROLL) {
+        primaryStudentProfile = profile;
+      }
+      createdStudentProfiles.push({ profile, studentData: item.studentData, user: item.user });
     }
 
-    // Faculty Profiles
-    const turingProfile = await Faculty.create({
-      userId: facultyUser1._id,
-      employeeId: "EMP-TURING-101",
-      department: "Computer Science",
-      designation: "Professor & Chair",
-      phoneNumber: "+15550123401",
-    });
+    console.log(`${createdStudentProfiles.length} student profiles created.`);
+    console.log(`Primary demo student: ${primaryStudentData.name} (${PRIMARY_ROLL})`);
 
-    const hopperProfile = await Faculty.create({
-      userId: facultyUser2._id,
-      employeeId: "EMP-HOPPER-102",
-      department: "Computer Science",
-      designation: "Associate Professor",
-      phoneNumber: "+15550123402",
-    });
-
-    console.log("Profiles created successfully.");
-
-    // 4. Create Subjects
+    // 5. Create Subjects (Semester 5, CS — Anna University aligned codes)
     console.log("Creating subjects...");
+
     const mlSubject = await Subject.create({
       name: "Machine Learning",
-      code: "CS-301",
+      code: "19CS501",
       department: "Computer Science",
       credits: 4,
     });
 
     const osSubject = await Subject.create({
       name: "Operating Systems",
-      code: "CS-302",
+      code: "19CS502",
       department: "Computer Science",
       credits: 4,
     });
 
     const cnSubject = await Subject.create({
       name: "Computer Networks",
-      code: "CS-303",
+      code: "19CS503",
       department: "Computer Science",
       credits: 3,
     });
 
     const seSubject = await Subject.create({
       name: "Software Engineering",
-      code: "CS-304",
+      code: "19CS504",
       department: "Computer Science",
       credits: 3,
     });
 
     const dbSubject = await Subject.create({
       name: "Database Systems",
-      code: "CS-305",
+      code: "19CS505",
       department: "Computer Science",
       credits: 4,
     });
 
-    console.log("Subjects created successfully.");
+    console.log("5 subjects created.");
 
-    // 5. Create Attendance Logs (Rich 3-week weekday logs for Alex)
-    console.log("Generating attendance logs for primary student...");
+    // 6. Create Attendance Logs (21 weekdays — ~1 month of data)
+    console.log("Generating 21-day attendance logs...");
 
-    const subjectsList = [
-      { subject: mlSubject, presentRate: 0.93 },
-      { subject: osSubject, presentRate: 0.8 },
-      { subject: cnSubject, presentRate: 0.6 },
-      { subject: seSubject, presentRate: 0.86 },
-      { subject: dbSubject, presentRate: 0.73 },
+    // CN is intentionally low (~62%) to trigger the shortage alert UI in the app
+    const subjectsWithRates = [
+      { subject: mlSubject,  presentRate: 0.88 }, // ~88% — safe
+      { subject: osSubject,  presentRate: 0.79 }, // ~79% — borderline
+      { subject: cnSubject,  presentRate: 0.62 }, // ~62% — SHORTAGE ALERT
+      { subject: seSubject,  presentRate: 0.91 }, // ~91% — safe
+      { subject: dbSubject,  presentRate: 0.74 }, // ~74% — borderline
+    ];
+
+    // Generate for primary student + 5 representative classmates (keep seeder fast)
+    const classmates = createdStudentProfiles
+      .filter((s) => s.studentData.rollNumber !== PRIMARY_ROLL)
+      .slice(0, 5);
+
+    const allStudentsForAttendance = [
+      { profile: primaryStudentProfile, user: primaryStudentUser },
+      ...classmates.map((c) => ({ profile: c.profile, user: c.user })),
     ];
 
     const attendanceRecords = [];
-    const weekdaysCount = 15;
-    let currentDaysBack = 0;
-    let checkedDate = new Date();
+    let weekdaysSoFar = 0;
+    const cursor = new Date();
 
-    while (currentDaysBack < weekdaysCount) {
-      checkedDate.setDate(checkedDate.getDate() - 1);
-      if (checkedDate.getDay() === 0 || checkedDate.getDay() === 6) {
-        continue;
-      }
+    while (weekdaysSoFar < 21) {
+      cursor.setDate(cursor.getDate() - 1);
+      const day = cursor.getDay();
+      if (day === 0 || day === 6) continue; // skip weekends
 
-      currentDaysBack++;
-      const attendanceDay = new Date(checkedDate);
-      attendanceDay.setHours(0, 0, 0, 0);
+      weekdaysSoFar++;
+      const attendanceDate = new Date(cursor);
+      attendanceDate.setHours(0, 0, 0, 0);
 
-      for (const item of subjectsList) {
-        const isPresent = Math.random() < item.presentRate;
-        const status = isPresent
-          ? "present"
-          : Math.random() < 0.3
-            ? "leave"
-            : "absent";
-
-        attendanceRecords.push({
-          studentId: alexProfile._id,
-          subjectId: item.subject._id,
-          date: new Date(attendanceDay),
-          status: status,
-          markedBy: facultyUser1._id,
-        });
-      }
-
-      // Generate attendance logs for all other students (Excel data)
-      for (const studentItem of createdStudentProfiles) {
-        for (const item of subjectsList) {
-          const isPresent = Math.random() < item.presentRate;
-          const status = isPresent
-            ? "present"
-            : Math.random() < 0.3
-              ? "leave"
-              : "absent";
-
+      for (const { profile } of allStudentsForAttendance) {
+        for (const { subject, presentRate } of subjectsWithRates) {
+          const rand = Math.random();
+          let status;
+          if (rand < presentRate) {
+            status = "present";
+          } else if (rand < presentRate + 0.12) {
+            status = "leave";
+          } else {
+            status = "absent";
+          }
           attendanceRecords.push({
-            studentId: studentItem.profile._id,
-            subjectId: item.subject._id,
-            date: new Date(attendanceDay),
-            status: status,
+            studentId: profile._id,
+            subjectId: subject._id,
+            date: new Date(attendanceDate),
+            status,
             markedBy: facultyUser1._id,
           });
         }
       }
     }
 
-    await Attendance.create(attendanceRecords);
-    console.log(
-      `Successfully generated ${attendanceRecords.length} attendance logs for all students.`,
+    await Attendance.insertMany(attendanceRecords);
+    console.log(`${attendanceRecords.length} attendance records generated.`);
+
+    // 7. Create Timetable (Mon–Sat, Semester 5 CS — room names match real college conventions)
+    console.log("Seeding weekly timetable...");
+
+    const timetableSlots = [
+      // Monday
+      { subjectId: mlSubject._id, facultyId: meenakshiProfile._id, roomNumber: "LH-401", type: "lecture", dayOfWeek: "Monday",    startTime: "09:00", endTime: "10:00" },
+      { subjectId: osSubject._id, facultyId: priyaProfile._id,      roomNumber: "LH-402", type: "lecture", dayOfWeek: "Monday",    startTime: "10:15", endTime: "11:15" },
+      { subjectId: seSubject._id, facultyId: meenakshiProfile._id,  roomNumber: "LH-403", type: "lecture", dayOfWeek: "Monday",    startTime: "11:30", endTime: "12:30" },
+      { subjectId: dbSubject._id, facultyId: meenakshiProfile._id,  roomNumber: "LH-401", type: "lecture", dayOfWeek: "Monday",    startTime: "14:00", endTime: "15:00" },
+      // Tuesday
+      { subjectId: cnSubject._id, facultyId: priyaProfile._id,      roomNumber: "LH-402", type: "lecture", dayOfWeek: "Tuesday",   startTime: "09:00", endTime: "10:00" },
+      { subjectId: dbSubject._id, facultyId: meenakshiProfile._id,  roomNumber: "LH-401", type: "lecture", dayOfWeek: "Tuesday",   startTime: "10:15", endTime: "11:15" },
+      { subjectId: mlSubject._id, facultyId: meenakshiProfile._id,  roomNumber: "CS-LAB-1", type: "lab",  dayOfWeek: "Tuesday",   startTime: "14:00", endTime: "16:00" },
+      // Wednesday
+      { subjectId: mlSubject._id, facultyId: meenakshiProfile._id,  roomNumber: "LH-401", type: "lecture", dayOfWeek: "Wednesday", startTime: "09:00", endTime: "10:00" },
+      { subjectId: osSubject._id, facultyId: priyaProfile._id,      roomNumber: "LH-402", type: "lecture", dayOfWeek: "Wednesday", startTime: "10:15", endTime: "11:15" },
+      { subjectId: cnSubject._id, facultyId: priyaProfile._id,      roomNumber: "LH-403", type: "lecture", dayOfWeek: "Wednesday", startTime: "11:30", endTime: "12:30" },
+      { subjectId: seSubject._id, facultyId: meenakshiProfile._id,  roomNumber: "LH-401", type: "lecture", dayOfWeek: "Wednesday", startTime: "14:00", endTime: "15:00" },
+      // Thursday
+      { subjectId: dbSubject._id, facultyId: meenakshiProfile._id,  roomNumber: "LH-401", type: "lecture", dayOfWeek: "Thursday",  startTime: "09:00", endTime: "10:00" },
+      { subjectId: seSubject._id, facultyId: meenakshiProfile._id,  roomNumber: "LH-403", type: "lecture", dayOfWeek: "Thursday",  startTime: "10:15", endTime: "11:15" },
+      { subjectId: osSubject._id, facultyId: priyaProfile._id,      roomNumber: "CS-LAB-2", type: "lab",  dayOfWeek: "Thursday",  startTime: "14:00", endTime: "16:00" },
+      // Friday
+      { subjectId: mlSubject._id, facultyId: meenakshiProfile._id,  roomNumber: "LH-401", type: "lecture", dayOfWeek: "Friday",    startTime: "09:00", endTime: "10:00" },
+      { subjectId: osSubject._id, facultyId: priyaProfile._id,      roomNumber: "LH-402", type: "lecture", dayOfWeek: "Friday",    startTime: "10:15", endTime: "11:15" },
+      { subjectId: dbSubject._id, facultyId: meenakshiProfile._id,  roomNumber: "LH-401", type: "lecture", dayOfWeek: "Friday",    startTime: "11:30", endTime: "12:30" },
+      { subjectId: cnSubject._id, facultyId: priyaProfile._id,      roomNumber: "CS-LAB-1", type: "lab",  dayOfWeek: "Friday",    startTime: "14:00", endTime: "16:00" },
+      // Saturday (half-day — Software Engineering lab)
+      { subjectId: seSubject._id, facultyId: meenakshiProfile._id,  roomNumber: "CS-LAB-2", type: "lab",  dayOfWeek: "Saturday",  startTime: "09:00", endTime: "12:00" },
+    ];
+
+    await Timetable.insertMany(
+      timetableSlots.map((slot) => ({
+        ...slot,
+        isRecurring: true,
+        department: "Computer Science",
+        semester: 5,
+        batch: "2023-2027",
+      }))
     );
+    console.log(`${timetableSlots.length} timetable slots seeded.`);
 
-    // 6. Create Timetable (Weekly Lecture and Lab Slots)
-    console.log("Seeding timetable schedule...");
-
-    // Monday
-    await Timetable.create({
-      subjectId: mlSubject._id,
-      facultyId: turingProfile._id,
-      roomNumber: "LH-101",
-      type: "lecture",
-      isRecurring: true,
-      dayOfWeek: "Monday",
-      startTime: "09:00",
-      endTime: "10:00",
-      department: "Computer Science",
-      semester: 5,
-      batch: "2023-2027",
-    });
-
-    await Timetable.create({
-      subjectId: osSubject._id,
-      facultyId: hopperProfile._id,
-      roomNumber: "LH-102",
-      type: "lecture",
-      isRecurring: true,
-      dayOfWeek: "Monday",
-      startTime: "10:15",
-      endTime: "11:15",
-      department: "Computer Science",
-      semester: 5,
-      batch: "2023-2027",
-    });
-
-    await Timetable.create({
-      subjectId: seSubject._id,
-      facultyId: turingProfile._id,
-      roomNumber: "LH-103",
-      type: "lecture",
-      isRecurring: true,
-      dayOfWeek: "Monday",
-      startTime: "11:30",
-      endTime: "12:30",
-      department: "Computer Science",
-      semester: 5,
-      batch: "2023-2027",
-    });
-
-    // Tuesday
-    await Timetable.create({
-      subjectId: cnSubject._id,
-      facultyId: hopperProfile._id,
-      roomNumber: "LH-201",
-      type: "lecture",
-      isRecurring: true,
-      dayOfWeek: "Tuesday",
-      startTime: "09:00",
-      endTime: "10:00",
-      department: "Computer Science",
-      semester: 5,
-      batch: "2023-2027",
-    });
-
-    await Timetable.create({
-      subjectId: dbSubject._id,
-      facultyId: turingProfile._id,
-      roomNumber: "LH-202",
-      type: "lecture",
-      isRecurring: true,
-      dayOfWeek: "Tuesday",
-      startTime: "10:15",
-      endTime: "11:15",
-      department: "Computer Science",
-      semester: 5,
-      batch: "2023-2027",
-    });
-
-    await Timetable.create({
-      subjectId: mlSubject._id,
-      facultyId: turingProfile._id,
-      roomNumber: "LAB-3",
-      type: "lab",
-      isRecurring: true,
-      dayOfWeek: "Tuesday",
-      startTime: "14:00",
-      endTime: "16:00",
-      department: "Computer Science",
-      semester: 5,
-      batch: "2023-2027",
-    });
-
-    // Wednesday
-    await Timetable.create({
-      subjectId: mlSubject._id,
-      facultyId: turingProfile._id,
-      roomNumber: "LH-101",
-      type: "lecture",
-      isRecurring: true,
-      dayOfWeek: "Wednesday",
-      startTime: "09:00",
-      endTime: "10:00",
-      department: "Computer Science",
-      semester: 5,
-      batch: "2023-2027",
-    });
-
-    await Timetable.create({
-      subjectId: osSubject._id,
-      facultyId: hopperProfile._id,
-      roomNumber: "LH-102",
-      type: "lecture",
-      isRecurring: true,
-      dayOfWeek: "Wednesday",
-      startTime: "10:15",
-      endTime: "11:15",
-      department: "Computer Science",
-      semester: 5,
-      batch: "2023-2027",
-    });
-
-    await Timetable.create({
-      subjectId: cnSubject._id,
-      facultyId: hopperProfile._id,
-      roomNumber: "LH-201",
-      type: "lecture",
-      isRecurring: true,
-      dayOfWeek: "Wednesday",
-      startTime: "11:30",
-      endTime: "12:30",
-      department: "Computer Science",
-      semester: 5,
-      batch: "2023-2027",
-    });
-
-    // Thursday
-    await Timetable.create({
-      subjectId: dbSubject._id,
-      facultyId: turingProfile._id,
-      roomNumber: "LH-202",
-      type: "lecture",
-      isRecurring: true,
-      dayOfWeek: "Thursday",
-      startTime: "09:00",
-      endTime: "10:00",
-      department: "Computer Science",
-      semester: 5,
-      batch: "2023-2027",
-    });
-
-    await Timetable.create({
-      subjectId: seSubject._id,
-      facultyId: turingProfile._id,
-      roomNumber: "LH-103",
-      type: "lecture",
-      isRecurring: true,
-      dayOfWeek: "Thursday",
-      startTime: "10:15",
-      endTime: "11:15",
-      department: "Computer Science",
-      semester: 5,
-      batch: "2023-2027",
-    });
-
-    await Timetable.create({
-      subjectId: osSubject._id,
-      facultyId: hopperProfile._id,
-      roomNumber: "LAB-1",
-      type: "lab",
-      isRecurring: true,
-      dayOfWeek: "Thursday",
-      startTime: "14:00",
-      endTime: "16:00",
-      department: "Computer Science",
-      semester: 5,
-      batch: "2023-2027",
-    });
-
-    // Friday
-    await Timetable.create({
-      subjectId: mlSubject._id,
-      facultyId: turingProfile._id,
-      roomNumber: "LH-101",
-      type: "lecture",
-      isRecurring: true,
-      dayOfWeek: "Friday",
-      startTime: "09:00",
-      endTime: "10:00",
-      department: "Computer Science",
-      semester: 5,
-      batch: "2023-2027",
-    });
-
-    await Timetable.create({
-      subjectId: osSubject._id,
-      facultyId: hopperProfile._id,
-      roomNumber: "LH-102",
-      type: "lecture",
-      isRecurring: true,
-      dayOfWeek: "Friday",
-      startTime: "10:15",
-      endTime: "11:15",
-      department: "Computer Science",
-      semester: 5,
-      batch: "2023-2027",
-    });
-
-    await Timetable.create({
-      subjectId: dbSubject._id,
-      facultyId: turingProfile._id,
-      roomNumber: "LH-202",
-      type: "lecture",
-      isRecurring: true,
-      dayOfWeek: "Friday",
-      startTime: "11:30",
-      endTime: "12:30",
-      department: "Computer Science",
-      semester: 5,
-      batch: "2023-2027",
-    });
-
-    console.log("Timetable schedule seeded.");
-
-    // 7. Create Bus Routes & Locations
-    console.log("Seeding Bus Routes and Live Location coordinates...");
+    // 8. Create Bus Routes & Live Locations
+    console.log("Seeding bus routes and live bus locations...");
 
     const createdRoutes = [];
     for (const r of busRoutesData) {
@@ -4643,50 +4461,31 @@ const seedDatabase = async () => {
       createdRoutes.push(route);
     }
 
-    // Seed Active Live Bus Location (Route BUS-1 is currently active)
-    const activeRoute = createdRoutes.find((r) => r.routeCode === "BUS-1");
-    if (activeRoute && activeRoute.stops.length > 0) {
-      const midIndex = Math.floor(activeRoute.stops.length / 2);
-      const activeStop = activeRoute.stops[midIndex];
-      await BusLocation.create({
-        routeId: activeRoute._id,
-        latitude: activeStop.latitude,
-        longitude: activeStop.longitude,
-        occupancy: 28,
-        speed: 38,
-      });
+    // Seed 3 active live bus locations (different routes) for a populated map tracking screen
+    const liveRouteCodes = ["BUS-1", "BUS-3", "BUS-6"];
+    const liveOccupancies = [28, 34, 19];
+    const liveSpeeds = [42, 35, 28];
+
+    for (let i = 0; i < liveRouteCodes.length; i++) {
+      const route = createdRoutes.find((r) => r.routeCode === liveRouteCodes[i]);
+      if (route && route.stops.length > 0) {
+        const midIndex = Math.floor(route.stops.length / 2);
+        const stop = route.stops[midIndex];
+        await BusLocation.create({
+          routeId: route._id,
+          latitude: parseFloat((stop.latitude + (Math.random() - 0.5) * 0.002).toFixed(6)),
+          longitude: parseFloat((stop.longitude + (Math.random() - 0.5) * 0.002).toFixed(6)),
+          occupancy: liveOccupancies[i],
+          speed: liveSpeeds[i],
+        });
+      }
     }
 
-    console.log("Bus routes and active locations seeded.");
+    console.log(`${createdRoutes.length} bus routes and 3 live bus locations seeded.`);
 
-    // 8. Create Leaderboard Entries
-    console.log("Seeding Leaderboard Entries for all students...");
+    // 9. Create Leaderboard Entries (all students from Excel data)
+    console.log("Seeding leaderboard entries...");
 
-    // Alex
-    await LeaderboardEntry.create({
-      studentId: alexProfile._id,
-      userId: studentUser1._id,
-      platform: {
-        leetcode: {
-          solved: 184,
-          ranking: 34102,
-          easyCount: 80,
-          mediumCount: 88,
-          hardCount: 16,
-        },
-        codeforces: {
-          rating: 1420,
-          maxRating: 1450,
-          rank: "specialist",
-          maxRank: "specialist",
-        },
-        github: { publicRepos: 24, totalStars: 12, followers: 8 },
-      },
-      totalScore: 2540,
-      lastSyncedAt: new Date(),
-    });
-
-    // Excel Students Leaderboard entries
     for (const item of createdStudentProfiles) {
       await LeaderboardEntry.create({
         studentId: item.profile._id,
@@ -4697,130 +4496,156 @@ const seedDatabase = async () => {
       });
     }
 
-    console.log("Leaderboard entries seeded.");
+    console.log(`${createdStudentProfiles.length} leaderboard entries seeded.`);
 
-    // 9. Create Complaint Entries
-    console.log("Seeding Complaint Entries for student@campusone.edu...");
+    // 10. Create Complaint Tickets
+    console.log("Seeding complaint tickets...");
 
     await Complaint.create([
       {
-        studentId: alexProfile._id,
-        title: "Hostel Wi-Fi intermittent connection issues",
+        studentId: primaryStudentProfile._id,
+        title: "Hostel Wi-Fi dropping every 15 minutes — Block B",
         description:
-          "The Wi-Fi in Hostel Block A is dropping connection every 15 minutes, making it impossible to work on coding assignments.",
+          "The Wi-Fi in Hostel Block B has been dropping intermittently every 10–15 minutes since the past week. This is severely affecting online coding contest participation, assignment submissions, and remote collaboration sessions during late-night study hours.",
         category: "infrastructure",
         status: "in_progress",
-        assignedTo: hopperProfile._id,
+        assignedTo: meenakshiProfile._id,
         updates: [
           {
             status: "pending",
-            comment: "Complaint filed successfully.",
-            updatedBy: studentUser1._id,
-            updatedAt: new Date(Date.now() - 3600 * 1000 * 24 * 2),
+            comment: "Complaint submitted. Awaiting IT team acknowledgement.",
+            updatedBy: primaryStudentUser._id,
+            updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3),
           },
           {
             status: "in_progress",
             comment:
-              "IT department has scheduled router inspection on Block A.",
+              "IT infrastructure team has inspected the router in Block B. A replacement access point has been ordered and will be installed by end of week.",
             updatedBy: adminUser._id,
-            updatedAt: new Date(Date.now() - 3600 * 1000 * 24),
+            updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 1),
           },
         ],
       },
       {
-        studentId: alexProfile._id,
-        title: "Incorrect mid-semester marks update in portal",
+        studentId: primaryStudentProfile._id,
+        title: "Mark discrepancy — Database Systems (19CS505) mid-semester",
         description:
-          "My Database Management System mid-semester marks are updated as 12 instead of 22 in the portal. I have already verified my paper with the HOD.",
+          "My Database Systems (19CS505) mid-semester marks are reflected as 12/30 in the student portal. However, the evaluated answer script handed back to me shows 22/30. I have already cross-verified with the subject faculty Dr. Meenakshi. Requesting urgent correction before grade freeze.",
         category: "academic",
         status: "pending",
         updates: [
           {
             status: "pending",
-            comment: "Complaint filed successfully.",
-            updatedBy: studentUser1._id,
-            updatedAt: new Date(Date.now() - 3600 * 1000 * 5),
+            comment: "Complaint submitted. Pending HOD review.",
+            updatedBy: primaryStudentUser._id,
+            updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 5),
           },
         ],
       },
       {
-        studentId: alexProfile._id,
-        title: "Broken window latch in Hostel Room 302",
+        studentId: primaryStudentProfile._id,
+        title: "Broken window latch — Block B, Room 214",
         description:
-          "The window latch in room 302 hostel is broken and won't lock, causing safety concerns.",
+          "The window latch in my hostel room (Block B, Room 214) is broken and cannot be securely locked. This is a safety and security concern, especially during nights and when the room is unoccupied. Requesting immediate maintenance.",
         category: "hostel",
         status: "resolved",
-        assignedTo: hopperProfile._id,
+        assignedTo: priyaProfile._id,
         updates: [
           {
             status: "pending",
-            comment: "Complaint filed successfully.",
-            updatedBy: studentUser1._id,
-            updatedAt: new Date(Date.now() - 3600 * 1000 * 24 * 4),
+            comment: "Complaint filed. Maintenance supervisor notified.",
+            updatedBy: primaryStudentUser._id,
+            updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 6),
+          },
+          {
+            status: "in_progress",
+            comment:
+              "Maintenance team has assessed the damage. A new latch with a reinforced metal plate has been ordered.",
+            updatedBy: adminUser._id,
+            updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4),
           },
           {
             status: "resolved",
-            comment: "Maintenance staff has replaced the latch.",
+            comment:
+              "Replacement latch installed and window inspected by the maintenance lead. Issue fully resolved.",
             updatedBy: facultyUser2._id,
-            updatedAt: new Date(Date.now() - 3600 * 1000 * 24 * 2),
+            updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2),
           },
         ],
       },
     ]);
 
-    console.log("Complaint tickets seeded.");
+    console.log("3 complaint tickets seeded.");
 
-    // 10. Create Placement Entries
-    console.log("Seeding Placement Companies & Job Postings...");
+    // 11. Create Placement Companies & Job Postings
+    console.log("Seeding placement companies and job postings...");
 
     const google = await Company.create({
-      name: "Google",
+      name: "Google India",
       industry: "Technology",
       description:
-        "Organize the world's information and make it universally accessible.",
-      website: "https://google.com",
+        "Google India's engineering teams in Bangalore and Hyderabad build products used by billions globally — Search, YouTube, Maps, Cloud, and more. A world-class engineering culture with unmatched scale.",
+      website: "https://careers.google.com",
     });
 
     const microsoft = await Company.create({
-      name: "Microsoft",
+      name: "Microsoft IDC",
       industry: "Software Engineering",
       description:
-        "Empower every person and organization on the planet to achieve more.",
-      website: "https://microsoft.com",
+        "Microsoft India Development Centre (IDC) in Hyderabad is one of Microsoft's largest R&D hubs globally. Engineers build Azure, Microsoft 365, GitHub, and developer tooling at scale.",
+      website: "https://careers.microsoft.com",
     });
 
-    const netflix = await Company.create({
-      name: "Netflix",
-      industry: "Entertainment",
-      description: "Global streaming entertainment service.",
-      website: "https://netflix.com",
+    const zoho = await Company.create({
+      name: "Zoho Corporation",
+      industry: "SaaS / B2B Software",
+      description:
+        "Zoho is a profitable, bootstrapped SaaS giant headquartered in Chennai with 100M+ users globally. Known for its unique engineering culture, Zoho trains fresh engineers into full-stack product builders.",
+      website: "https://www.zoho.com/careers",
+    });
+
+    const infosys = await Company.create({
+      name: "Infosys Ltd.",
+      industry: "IT Services",
+      description:
+        "Infosys is a global leader in IT consulting, BPO, and digital services with 300,000+ employees. Their campus recruitment drives are among the largest in India, hiring fresh engineers across all disciplines.",
+      website: "https://infosys.com/careers",
+    });
+
+    const tcs = await Company.create({
+      name: "Tata Consultancy Services",
+      industry: "IT Services",
+      description:
+        "TCS is India's largest IT services company and a Fortune 500 global employer. The National Qualifier Test (NQT) and Ninja/Digital hiring tracks recruit thousands of engineering graduates every year.",
+      website: "https://ibegin.tcs.com",
     });
 
     const job1 = await JobPosting.create({
       companyId: google._id,
-      title: "Software Development Engineer (SDE-1)",
+      title: "Software Development Engineer (SDE-I)",
       description:
-        "Design, develop and maintain core cloud services. Work on scalable architectures, APIs, and backend distributed systems.",
+        "Design, develop, and test Google's core cloud infrastructure and APIs. Work alongside world-class engineers building scalable distributed systems that serve billions of users daily. Responsibilities span backend services, API design, and code review.",
       requirements:
-        "Proficiency in Java, Go, or Python. Strong knowledge of data structures, algorithms, and SQL databases.",
-      location: "Bangalore (Hybrid)",
+        "Strong grasp of Data Structures, Algorithms, and System Design fundamentals. Proficiency in Java, Go, C++, or Python. Experience with SQL and NoSQL databases preferred.",
+      location: "Bangalore (Hybrid — 3 days/week in office)",
       salaryPackage: "24 LPA",
       minCgpa: 8.0,
       maxBacklogs: 0,
       eligibleDepartments: ["Computer Science", "Information Technology"],
       eligibleSemesters: [6, 7, 8],
-      deadline: new Date(Date.now() + 3600 * 1000 * 24 * 10), // 10 days in future
+      deadline: new Date(Date.now() + 1000 * 60 * 60 * 24 * 12),
+      status: "active",
     });
 
     const job2 = await JobPosting.create({
       companyId: microsoft._id,
-      title: "Frontend UI Developer Intern",
+      title: "Frontend Software Engineer Intern",
       description:
-        "Build user-facing web and mobile components using React, Redux, and React Native. Implement modern, responsive UI design systems.",
+        "Build high-fidelity UI components for Microsoft 365 and the Azure portal. Implement design systems using React and TypeScript. Collaborate with senior engineers on accessibility, responsiveness, and performance optimization.",
       requirements:
-        "Proficient in JavaScript/TypeScript, React, and CSS/flexbox. Experience with modern design layouts.",
+        "Proficient in JavaScript/TypeScript and React. Good understanding of RESTful API integration. Familiarity with Git and Agile workflows. Design sensibility and attention to pixel-perfect UI is a plus.",
       location: "Hyderabad",
-      salaryPackage: "14 LPA",
+      salaryPackage: "15 LPA",
       minCgpa: 7.0,
       maxBacklogs: 0,
       eligibleDepartments: [
@@ -4829,138 +4654,260 @@ const seedDatabase = async () => {
         "Electronics & Communication",
       ],
       eligibleSemesters: [5, 6, 7],
-      deadline: new Date(Date.now() + 3600 * 1000 * 24 * 5), // 5 days in future
+      deadline: new Date(Date.now() + 1000 * 60 * 60 * 24 * 6),
+      status: "active",
     });
 
     const job3 = await JobPosting.create({
-      companyId: netflix._id,
-      title: "Data Operations Associate",
+      companyId: zoho._id,
+      title: "Member Technical Staff (MTS) — Full Stack",
       description:
-        "Analyze, optimize, and build data streaming pipelines. Maintain data warehousing procedures and generate placement reports.",
+        "Build entire product features independently across Zoho's software suite — from database schemas and backend APIs to frontend UI. Zoho MTS engineers own their features end-to-end and ship fast.",
       requirements:
-        "Basic Python, scripting, Excel mastery, and power query. Good understanding of data metrics and graphs.",
-      location: "Mumbai",
+        "Solid understanding of Java or Python backend. Web development basics (HTML, CSS, JavaScript). Strong problem-solving mindset. No requirement for high CGPA — attitude and aptitude valued over marks.",
+      location: "Chennai / Tenkasi, Tamil Nadu",
+      salaryPackage: "9.5 LPA",
+      minCgpa: 6.5,
+      maxBacklogs: 1,
+      eligibleDepartments: [
+        "Computer Science",
+        "Information Technology",
+        "Electronics & Communication",
+        "Electrical Engineering",
+      ],
+      eligibleSemesters: [6, 7, 8],
+      deadline: new Date(Date.now() + 1000 * 60 * 60 * 24 * 18),
+      status: "active",
+    });
+
+    const job4 = await JobPosting.create({
+      companyId: infosys._id,
+      title: "Systems Engineer — Digital Specialist Track",
+      description:
+        "The Infosys Digital Specialist Track is a premium hiring cohort with accelerated growth paths. Work on client-facing digital transformation projects leveraging cloud platforms, AI APIs, and modern data engineering stacks.",
+      requirements:
+        "InfyTQ certification score above 60%. Proficiency in at least one programming language. Strong communication and analytical skills. Prior internship experience is a plus.",
+      location: "Multiple locations — Chennai, Pune, Bangalore, Hyderabad",
       salaryPackage: "9 LPA",
       minCgpa: 6.0,
-      maxBacklogs: 1,
+      maxBacklogs: 0,
       eligibleDepartments: [
         "Computer Science",
         "Information Technology",
         "Mechanical Engineering",
         "Civil Engineering",
+        "Electronics & Communication",
       ],
       eligibleSemesters: [6, 7, 8],
-      deadline: new Date(Date.now() + 3600 * 1000 * 24 * 3), // 3 days in future
+      deadline: new Date(Date.now() + 1000 * 60 * 60 * 24 * 25),
+      status: "active",
     });
 
-    // Seed a pre-applied application for Alex to demonstrate the "Applied" tab in UI
+    const job5 = await JobPosting.create({
+      companyId: tcs._id,
+      title: "TCS NQT — Ninja Hiring Track",
+      description:
+        "The TCS Ninja track places fresh engineering graduates into large-scale enterprise IT service delivery roles across banking, insurance, retail, and logistics domains. Strong growth path and global mobility.",
+      requirements:
+        "TCS NQT score ≥ 75th percentile. 60%+ throughout all academic years. Basic programming aptitude in C, Java, or Python. No live backlogs.",
+      location: "Pan-India (Chennai, Coimbatore, Pune, and Bangalore hubs)",
+      salaryPackage: "7 LPA",
+      minCgpa: 5.5,
+      maxBacklogs: 2,
+      eligibleDepartments: [
+        "Computer Science",
+        "Information Technology",
+        "Mechanical Engineering",
+        "Civil Engineering",
+        "Electronics & Communication",
+        "Electrical Engineering",
+      ],
+      eligibleSemesters: [6, 7, 8],
+      deadline: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2), // Already closed — for UI testing
+      status: "closed",
+    });
+
+    const job6 = await JobPosting.create({
+      companyId: zoho._id,
+      title: "Junior DevOps Engineer",
+      description:
+        "Manage CI/CD pipelines, container orchestration with Kubernetes, and multi-cloud infrastructure across Zoho's 100+ products. A hands-on infrastructure role for engineers passionate about reliability and automation.",
+      requirements:
+        "Linux administration, bash scripting, Docker and Kubernetes fundamentals. Familiarity with AWS or GCP. Python or Go scripting is preferred.",
+      location: "Chennai, Tamil Nadu",
+      salaryPackage: "10.5 LPA",
+      minCgpa: 6.5,
+      maxBacklogs: 0,
+      eligibleDepartments: ["Computer Science", "Information Technology"],
+      eligibleSemesters: [6, 7, 8],
+      deadline: new Date(Date.now() + 1000 * 60 * 60 * 24 * 9),
+      status: "active",
+    });
+
+    // Primary student has applied to Zoho MTS (job3) and is shortlisted for Microsoft (job2)
     await JobApplication.create({
       jobId: job3._id,
-      studentId: alexProfile._id,
-      resumeUrl: "https://drive.google.com/file/d/alex_rivera_resume/view",
+      studentId: primaryStudentProfile._id,
+      resumeUrl: "https://drive.google.com/file/d/dharanish_am_resume_v3/view",
       status: "applied",
     });
 
-    console.log(
-      "Placement companies, job postings, and mock application seeded.",
+    await JobApplication.create({
+      jobId: job2._id,
+      studentId: primaryStudentProfile._id,
+      resumeUrl: "https://drive.google.com/file/d/dharanish_am_resume_v3/view",
+      status: "shortlisted",
+    });
+
+    console.log("5 companies, 6 job postings, and 2 applications seeded.");
+
+    // 12. Create Hostel Allocations & Gate Passes
+    console.log("Seeding hostel allocations and gate pass requests...");
+
+    // FIX: Give each student a unique room to avoid unique-index violation on studentId
+    await HostelAllocation.create({
+      studentId: primaryStudentProfile._id,
+      block: "B",
+      roomNumber: "214",
+      wardenId: meenakshiProfile._id,
+    });
+
+    // Assign a classmate to a different block/room (no conflict)
+    const housmateEntry = createdStudentProfiles.find(
+      (s) => s.studentData.rollNumber !== PRIMARY_ROLL
     );
-
-    // 11. Create Hostel Entries
-    console.log("Seeding Hostel Allocations & Gate Passes...");
-    const wardenFaculty = await Faculty.findOne({ userId: facultyUser1._id });
-    if (wardenFaculty) {
+    if (housmateEntry) {
       await HostelAllocation.create({
-        studentId: alexProfile._id,
+        studentId: housmateEntry.profile._id,
         block: "A",
-        roomNumber: "302",
-        wardenId: wardenFaculty._id,
+        roomNumber: "108",
+        wardenId: priyaProfile._id,
       });
-
-      if (createdStudentProfiles.length > 0) {
-        await HostelAllocation.create({
-          studentId: createdStudentProfiles[0].profile._id,
-          block: "A",
-          roomNumber: "302",
-          wardenId: wardenFaculty._id,
-        });
-      }
-
-      await GatePassRequest.create({
-        studentId: alexProfile._id,
-        reason: "Going home for the weekend festival and family dinner",
-        leaveType: "home",
-        departureTime: new Date(Date.now() + 3600 * 1000 * 24 * 2), // 2 days in future
-        expectedReturnTime: new Date(Date.now() + 3600 * 1000 * 24 * 4), // 4 days in future
-        status: "pending",
-      });
-
-      console.log("Hostel room allocation and pending gate pass seeded.");
     }
 
-    // 12. Create Library Entries
-    console.log("Seeding Library Books & Checkout Logs...");
+    // Gate Pass 1: Approved past request (returned home for festival)
+    await GatePassRequest.create({
+      studentId: primaryStudentProfile._id,
+      reason:
+        "Travelling home for Karthigai Deepam festival and family gathering in Tirunelveli. Will return by Sunday evening.",
+      leaveType: "home",
+      departureTime: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5),
+      expectedReturnTime: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3),
+      status: "approved",
+      approvedBy: adminUser._id,
+      approvedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 6),
+    });
+
+    // Gate Pass 2: Pending upcoming request (technical workshop outing)
+    await GatePassRequest.create({
+      studentId: primaryStudentProfile._id,
+      reason:
+        "Attending a full-day AI and Robotics workshop at Amrita University, Coimbatore. Registration confirmation available on request.",
+      leaveType: "outing",
+      departureTime: new Date(Date.now() + 1000 * 60 * 60 * 24 * 2),
+      expectedReturnTime: new Date(
+        Date.now() + 1000 * 60 * 60 * 24 * 2 + 1000 * 60 * 60 * 9
+      ),
+      status: "pending",
+    });
+
+    console.log("2 hostel allocations, 2 gate passes (1 approved, 1 pending) seeded.");
+
+    // 13. Create Library Books & Borrow Logs
+    console.log("Seeding library books and borrow records...");
+
     const book1 = await Book.create({
-      title: "Introduction to Algorithms",
-      author: "Thomas H. Cormen",
-      isbn: "ISBN-ALGO101",
+      title: "Introduction to Algorithms, 4th Edition",
+      author: "Cormen, Leiserson, Rivest, Stein",
+      isbn: "ISBN-9780262046305",
       subject: "Computer Science",
-      totalCopies: 4,
-      availableCopies: 3, // 1 copy checked out by Alex
+      totalCopies: 5,
+      availableCopies: 4, // 1 checked out by primary student
     });
 
     const book2 = await Book.create({
-      title: "Design Patterns: Elements of Reusable Software",
-      author: "Erich Gamma",
-      isbn: "ISBN-DESPAT99",
+      title: "Design Patterns: Elements of Reusable Object-Oriented Software",
+      author: "Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides",
+      isbn: "ISBN-9780201633610",
       subject: "Software Engineering",
       totalCopies: 3,
       availableCopies: 3,
     });
 
     const book3 = await Book.create({
-      title: "Calculus and Analytical Geometry",
-      author: "George B. Thomas",
-      isbn: "ISBN-MATH555",
+      title: "Calculus and Analytical Geometry, 10th Edition",
+      author: "George B. Thomas Jr.",
+      isbn: "ISBN-9780201531749",
       subject: "Mathematics",
-      totalCopies: 1,
-      availableCopies: 0, // 1 copy checked out by Alex (overdue)
+      totalCopies: 2,
+      availableCopies: 1, // 1 copy overdue with primary student
     });
 
     const book4 = await Book.create({
-      title: "Database System Concepts",
-      author: "Abraham Silberschatz",
-      isbn: "ISBN-DBSYS88",
-      subject: "Information Technology",
+      title: "Database System Concepts, 7th Edition",
+      author: "Silberschatz, Korth, Sudarshan",
+      isbn: "ISBN-9780078022159",
+      subject: "Computer Science",
+      totalCopies: 4,
+      availableCopies: 4,
+    });
+
+    const book5 = await Book.create({
+      title: "Computer Networks, 6th Edition",
+      author: "Andrew S. Tanenbaum, David J. Wetherall",
+      isbn: "ISBN-9780132126953",
+      subject: "Computer Science",
+      totalCopies: 3,
+      availableCopies: 3,
+    });
+
+    const book6 = await Book.create({
+      title: "Automate the Boring Stuff with Python",
+      author: "Al Sweigart",
+      isbn: "ISBN-9781593275990",
+      subject: "Programming",
       totalCopies: 2,
       availableCopies: 2,
     });
 
-    // Checkout 1: Active borrowed book
+    // Active borrow: CLRS — due in 4 days, on time
     await BookBorrow.create({
-      studentId: alexProfile._id,
+      studentId: primaryStudentProfile._id,
       bookId: book1._id,
-      borrowedDate: new Date(Date.now() - 3600 * 1000 * 24 * 3), // 3 days ago
-      dueDate: new Date(Date.now() + 3600 * 1000 * 24 * 4), // 4 days future
+      borrowedDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3),
+      dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 4),
       status: "borrowed",
+      fineAmount: 0,
+      finePaid: false,
     });
 
-    // Checkout 2: Overdue book
+    // Overdue borrow: Calculus — 5 days past due, ₹25 fine
     await BookBorrow.create({
-      studentId: alexProfile._id,
+      studentId: primaryStudentProfile._id,
       bookId: book3._id,
-      borrowedDate: new Date(Date.now() - 3600 * 1000 * 24 * 15), // 15 days ago
-      dueDate: new Date(Date.now() - 3600 * 1000 * 24 * 5), // 5 days overdue (fine: 25)
+      borrowedDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 18),
+      dueDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5),
       status: "overdue",
       fineAmount: 25,
+      finePaid: false,
     });
 
-    // 13. Create Cafeteria Menu Items
-    console.log("Seeding Cafeteria Menu Items...");
-    await CanteenItem.create([
+    console.log("6 books and 2 borrow logs (1 active, 1 overdue) seeded.");
+
+    // 14. Create Cafeteria Menu Items & Orders
+    console.log("Seeding cafeteria menu items and order history...");
+
+    const [
+      idly, masalaDosa, poori,
+      southMeals, vegFriedRice,
+      samosa, pakoda, filterCoffee,
+      chapati, parotta,
+    ] = await CanteenItem.create([
       {
         name: "Idly with Sambar & Chutney",
         price: 35,
-        description: "Three steamed fluffy rice cakes served with hot sambar and coconut chutney.",
+        description:
+          "Three steamed fluffy rice cakes served with piping hot sambar and freshly ground coconut chutney. A classic morning staple.",
         category: "breakfast",
         isAvailable: true,
         preparationTime: 8,
@@ -4968,7 +4915,8 @@ const seedDatabase = async () => {
       {
         name: "Masala Dosa",
         price: 55,
-        description: "Crispy rice crepe filled with spiced potato masala and served with chutneys.",
+        description:
+          "Crispy golden rice crepe filled with spiced potato masala, served with coconut chutney, tomato thokku, and sambar.",
         category: "breakfast",
         isAvailable: true,
         preparationTime: 12,
@@ -4976,15 +4924,17 @@ const seedDatabase = async () => {
       {
         name: "Poori Masala",
         price: 45,
-        description: "Two deep-fried golden puffed breads served with potato curry.",
+        description:
+          "Two deep-fried puffed golden bread rounds served alongside a rich potato and caramelised onion masala curry.",
         category: "breakfast",
         isAvailable: true,
         preparationTime: 10,
       },
       {
-        name: "South Indian Meals",
+        name: "South Indian Full Meals",
         price: 90,
-        description: "Steamed rice served with sambar, rasam, kootu, poriyal, curd, appalam, and pickle.",
+        description:
+          "Unlimited steamed rice served with sambar, rasam, kootu, dry poriyal, curd, appalam, and lime pickle. A complete balanced thali.",
         category: "lunch",
         isAvailable: true,
         preparationTime: 15,
@@ -4992,7 +4942,8 @@ const seedDatabase = async () => {
       {
         name: "Veg Fried Rice",
         price: 75,
-        description: "Stir-fried rice loaded with fresh garden vegetables and soy seasoning.",
+        description:
+          "Stir-fried basmati rice with mixed garden vegetables, soy sauce, spring onion, and aromatic spices. Served with raita.",
         category: "lunch",
         isAvailable: true,
         preparationTime: 15,
@@ -5000,7 +4951,8 @@ const seedDatabase = async () => {
       {
         name: "Samosa (2 pcs)",
         price: 25,
-        description: "Crispy pastry pockets filled with potato pea masala.",
+        description:
+          "Two crispy golden pastry triangles stuffed with spiced potato and green pea filling. Best enjoyed hot with mint chutney.",
         category: "snacks",
         isAvailable: true,
         preparationTime: 5,
@@ -5008,15 +4960,17 @@ const seedDatabase = async () => {
       {
         name: "Onion Pakoda",
         price: 30,
-        description: "Crisp golden onion fritters seasoned with green chilies and curry leaves.",
+        description:
+          "Crispy battered onion fritters seasoned with green chilies, curry leaves, and cumin — a perfect evening snack.",
         category: "snacks",
         isAvailable: true,
         preparationTime: 8,
       },
       {
-        name: "Masaal Tea / Filter Coffee",
+        name: "Filter Coffee / Masala Tea",
         price: 15,
-        description: "Brewed milk tea infused with cardamom and ginger, or traditional filter coffee.",
+        description:
+          "Traditional South Indian filter coffee with a creamy froth, or spiced ginger-cardamom masala chai. Your pick.",
         category: "snacks",
         isAvailable: true,
         preparationTime: 3,
@@ -5024,7 +4978,8 @@ const seedDatabase = async () => {
       {
         name: "Chapati with Veg Kurma",
         price: 50,
-        description: "Two wheat flatbreads served with mixed vegetable coconut gravy.",
+        description:
+          "Two soft whole wheat flatbreads served with a rich coconut milk-based mixed vegetable kurma gravy.",
         category: "dinner",
         isAvailable: true,
         preparationTime: 10,
@@ -5032,242 +4987,425 @@ const seedDatabase = async () => {
       {
         name: "Parotta with Salna",
         price: 55,
-        description: "Two layered flaky flatbreads served with spicy aromatic vegetable salna.",
+        description:
+          "Two flaky, layered parottas served with a spicy, aromatic vegetable salna gravy. A favourite evening meal.",
         category: "dinner",
         isAvailable: true,
         preparationTime: 12,
-      }
+      },
     ]);
-    console.log("Cafeteria menu items seeded.");
 
-    // 14. Seed Marketplace Products
-    console.log("Seeding Marketplace Products...");
-    // Let's list a few items under other student profile references to allow Alex (primary student) to view them.
-    const seller1 = createdStudentProfiles[0]?.profile._id || alexProfile._id;
-    const seller2 = createdStudentProfiles[1]?.profile._id || alexProfile._id;
+    // CanteenOrder requires a unique pickupToken
+    await CanteenOrder.create({
+      studentId: primaryStudentProfile._id,
+      items: [
+        { itemId: masalaDosa._id, quantity: 1 },
+        { itemId: filterCoffee._id, quantity: 1 },
+      ],
+      totalAmount: masalaDosa.price + filterCoffee.price,
+      status: "completed",
+      paymentStatus: "paid",
+      pickupToken: "PKP-23CS041-001",
+    });
+
+    await CanteenOrder.create({
+      studentId: primaryStudentProfile._id,
+      items: [
+        { itemId: southMeals._id, quantity: 1 },
+      ],
+      totalAmount: southMeals.price,
+      status: "preparing",
+      paymentStatus: "paid",
+      pickupToken: "PKP-23CS041-002",
+    });
+
+    console.log("10 cafeteria items and 2 canteen orders seeded.");
+
+    // 15. Create Marketplace Product Listings
+    console.log("Seeding marketplace product listings...");
+
+    // Use real student profiles from the Excel dataset as sellers
+    const seller1Profile = createdStudentProfiles[0].profile;
+    const seller2Profile = createdStudentProfiles[1].profile;
+    const seller3Profile = createdStudentProfiles[2].profile;
 
     await MarketplaceProduct.create([
       {
-        studentId: seller1,
-        title: "Engineering Electromagnetics (8th Edition)",
-        description: "Hardcover textbook by William Hayt. Minimal highlights, great condition for EE/ECE courses.",
+        studentId: seller1Profile._id,
+        title: "Engineering Electromagnetics, 8th Ed. — William Hayt",
+        description:
+          "Hardcover textbook in very good condition. Minimal pencil highlights in chapters 1–4. Great for EE and ECE students. Original MRP ₹895.",
         price: 450,
         category: "textbooks",
-        images: ["https://placehold.co/150x150/1e2634/ffffff?text=Book"],
+        images: ["https://placehold.co/300x300/0f172a/e2e8f0?text=EM+Book"],
         status: "available",
       },
       {
-        studentId: seller2,
-        title: "Logitech Wireless Mouse M331",
-        description: "Silent clicking, wireless mouse. Comes with USB receiver and AA battery.",
-        price: 600,
+        studentId: seller2Profile._id,
+        title: "Logitech M331 Silent Wireless Mouse",
+        description:
+          "Lightly used wireless mouse with USB nano receiver. Silent-click mechanism, no dead zones. Comes with one AA battery. Like new.",
+        price: 650,
         category: "electronics",
-        images: ["https://placehold.co/150x150/1e2634/ffffff?text=Mouse"],
+        images: ["https://placehold.co/300x300/0f172a/e2e8f0?text=Mouse"],
         status: "available",
       },
       {
-        studentId: seller1,
-        title: "Hercules Geared Cycle (Dual Suspension)",
-        description: "18-speed gear bicycle. Perfect for commuting around campus hostels and departments. Brake pads recently replaced.",
-        price: 3200,
+        studentId: seller3Profile._id,
+        title: "Hercules Roadeo MTB Cycle — 21 Speed",
+        description:
+          "21-speed mountain bicycle in working condition. Front suspension fork. Ideal for campus commuting. Brake pads replaced last month. Minor frame scratches.",
+        price: 3500,
         category: "cycles",
-        images: ["https://placehold.co/150x150/1e2634/ffffff?text=Bicycle"],
+        images: ["https://placehold.co/300x300/0f172a/e2e8f0?text=MTB+Cycle"],
         status: "available",
       },
       {
-        studentId: seller2,
-        title: "Hostel Study Table Lamp",
-        description: "LED study desk lamp with adjustable arm and 3 brightness modes. USB powered.",
-        price: 250,
+        studentId: seller1Profile._id,
+        title: "LED Adjustable Desk Study Lamp (USB-C)",
+        description:
+          "Flexible arm study lamp with 3-level brightness control. Powered via USB-C — no adapter needed. Perfect for hostel desks.",
+        price: 280,
         category: "hostel_supplies",
-        images: ["https://placehold.co/150x150/1e2634/ffffff?text=Lamp"],
+        images: ["https://placehold.co/300x300/0f172a/e2e8f0?text=Desk+Lamp"],
         status: "available",
       },
       {
-        studentId: alexProfile._id, // Listed by the primary logged-in student to test "My Listings" tab
-        title: "Gate CSE Prep Books Set",
-        description: "Complete set of gate preparation books including theory materials and past solved papers.",
-        price: 1200,
+        studentId: primaryStudentProfile._id,
+        title: "GATE 2025 CSE Complete Preparation Bundle",
+        description:
+          "Full GATE Computer Science prep set: Made Easy theory books (all subjects), ACE Academy topic-wise previous papers, and 3 mock test series booklets. Lightly annotated in some chapters.",
+        price: 1400,
         category: "textbooks",
-        images: ["https://placehold.co/150x150/1e2634/ffffff?text=GATE+Books"],
+        images: ["https://placehold.co/300x300/0f172a/e2e8f0?text=GATE+Bundle"],
         status: "available",
-      }
+      },
     ]);
-    console.log("Marketplace products seeded.");
- 
-    // 15. Seed Clubs and Club Events
-    console.log("Seeding Clubs and Communities...");
-    const advisor1 = turingProfile._id;
-    const advisor2 = hopperProfile._id;
-    const studentCoord = alexProfile._id; // Alex coordinates Coding Club
+
+    console.log("5 marketplace listings seeded.");
+
+    // 16. Create Clubs & Club Events
+    console.log("Seeding clubs and upcoming events...");
 
     const codingClub = await Club.create({
-      name: "Campus Coding Club",
-      description: "A student-run community of computer enthusiasts, competitive programmers, and builders.",
-      facultyAdvisor: advisor1,
-      members: [alexProfile._id, seller1, seller2],
-      coordinators: [studentCoord],
-      logoUrl: "https://placehold.co/100x100/1e2634/ffffff?text=Code",
+      name: "Coders Arena — CS Programming Club",
+      description:
+        "A student-driven technical community focused on competitive programming, open-source contributions, hackathon preparation, and building real-world software products. Open to all branches.",
+      facultyAdvisor: meenakshiProfile._id,
+      members: [
+        primaryStudentProfile._id,
+        seller1Profile._id,
+        seller2Profile._id,
+        seller3Profile._id,
+      ],
+      coordinators: [primaryStudentProfile._id],
+      logoUrl: "https://placehold.co/160x160/0f172a/6366f1?text=%3C%2F%3E",
     });
 
     const roboticsClub = await Club.create({
-      name: "Robotics and IoT Society",
-      description: "Exploring mechanical designs, microcontrollers, embedded programming, and IoT automation.",
-      facultyAdvisor: advisor2,
-      members: [seller1, seller2],
-      coordinators: [seller1],
-      logoUrl: "https://placehold.co/100x100/1e2634/ffffff?text=Robot",
+      name: "Robotics & IoT Society — RIS",
+      description:
+        "Exploring the intersection of hardware design, embedded C, Arduino and Raspberry Pi automation, drone technology, and the Internet of Things. Hands-on workshops every alternate week.",
+      facultyAdvisor: priyaProfile._id,
+      members: [seller1Profile._id, seller2Profile._id, seller3Profile._id],
+      coordinators: [seller1Profile._id],
+      logoUrl: "https://placehold.co/160x160/0f172a/10b981?text=RIS",
     });
 
     const musicClub = await Club.create({
-      name: "Melody Makers Music Club",
-      description: "For the love of acoustics, bands, vocals, and musical events on campus.",
-      facultyAdvisor: advisor2,
-      members: [alexProfile._id, seller2],
-      coordinators: [seller2],
-      logoUrl: "https://placehold.co/100x100/1e2634/ffffff?text=Music",
+      name: "Melody Makers — Music & Performing Arts",
+      description:
+        "An open platform for music lovers — bands, vocalists, acoustic artists, and dancers. Monthly open-mic sessions, annual cultural fest coordination, and on-campus talent showcases.",
+      facultyAdvisor: priyaProfile._id,
+      members: [primaryStudentProfile._id, seller2Profile._id, seller3Profile._id],
+      coordinators: [seller2Profile._id],
+      logoUrl: "https://placehold.co/160x160/0f172a/f59e0b?text=%E2%99%AB",
     });
-
-    console.log("Clubs seeded. Seeding upcoming events...");
 
     await ClubEvent.create([
       {
         clubId: codingClub._id,
-        title: "Hackathon Prep Workshop",
-        description: "Learn how to brainstorm ideas, choose tech stacks, structure API designs, and build projects under 24 hours.",
-        dateTime: new Date(Date.now() + 3600 * 1000 * 24 * 3), // 3 days in future
-        venue: "Computer Science Lab 4",
-        rsvps: [alexProfile._id, seller2],
+        title: "Hackathon Prep — Idea to MVP in 24 Hours",
+        description:
+          "A full-day hands-on session covering ideation frameworks, tech stack selection, rapid API design with Express and MongoDB, and deployment on Railway. Teams will build and pitch a working prototype.",
+        dateTime: new Date(Date.now() + 1000 * 60 * 60 * 24 * 3),
+        venue: "CS Seminar Hall — Block C, Room 501",
+        rsvps: [primaryStudentProfile._id, seller2Profile._id, seller3Profile._id],
       },
       {
         clubId: codingClub._id,
-        title: "Competitive Programming Contest 3",
-        description: "Standard 3-hour code contest on algorithms and data structures. Top scores added to dashboard leaderboard.",
-        dateTime: new Date(Date.now() + 3600 * 1000 * 24 * 7), // 7 days in future
-        venue: "Online Coding Portal",
-        rsvps: [seller1],
+        title: "Internal Competitive Programming Contest #4",
+        description:
+          "A 3-hour timed contest with 6 algorithmic problems graded by difficulty (Easy × 2, Medium × 3, Hard × 1). Top 3 scorers earn department recognition and leaderboard badges.",
+        dateTime: new Date(Date.now() + 1000 * 60 * 60 * 24 * 8),
+        venue: "Online — HackerRank Internal Domain",
+        rsvps: [seller1Profile._id, seller3Profile._id],
       },
       {
         clubId: roboticsClub._id,
-        title: "Line Follower Robot Hands-on",
-        description: "Introduction to IR sensors, Arduino calibration, and chassis modeling. Kits will be provided to registered attendees.",
-        dateTime: new Date(Date.now() + 3600 * 1000 * 24 * 5), // 5 days in future
-        venue: "IoT & Embedded Labs Block A",
-        rsvps: [seller2, alexProfile._id],
+        title: "Line Follower Robot Workshop — Arduino Edition",
+        description:
+          "Hands-on session covering IR sensors, PID control logic, Arduino UNO calibration, and chassis assembly. Starter kits provided to registered participants. No prior hardware experience required.",
+        dateTime: new Date(Date.now() + 1000 * 60 * 60 * 24 * 5),
+        venue: "IoT & Embedded Systems Lab — Block A, Ground Floor",
+        rsvps: [seller2Profile._id, seller3Profile._id, primaryStudentProfile._id],
       },
       {
         clubId: musicClub._id,
-        title: "Acoustic Jam Night Session",
-        description: "An informal get-together to sing, jam, play instruments, and enjoy acoustic tracks under the central campus lawn.",
-        dateTime: new Date(Date.now() + 3600 * 1000 * 24 * 2), // 2 days in future
-        venue: "Central Lawns Amphitheater",
-        rsvps: [alexProfile._id, seller2, seller1],
-      }
+        title: "Acoustic Jam Night — Vol. 6",
+        description:
+          "An informal evening of live acoustic music under the open sky. All instruments welcome — guitars, flutes, djembe, and vocals. Refreshments will be arranged.",
+        dateTime: new Date(Date.now() + 1000 * 60 * 60 * 24 * 2),
+        venue: "Open Air Theatre — Central Campus Lawns",
+        rsvps: [primaryStudentProfile._id, seller2Profile._id, seller1Profile._id],
+      },
     ]);
-    console.log("Club events seeded.");
 
-    // 16. Seed Alumni Profiles & Mentorship Requests
-    console.log("Seeding Alumni Directory...");
-    
+    console.log("3 clubs and 4 events seeded.");
+
+    // 17. Create Alumni Profiles & Mentorship Requests
+    console.log("Seeding alumni directory and mentorship requests...");
+
     const alumProfile1 = await AlumniProfile.create({
       userId: alumUser1._id,
       graduationYear: 2022,
       department: "Computer Science",
-      company: "Amazon",
-      position: "Software Development Engineer (SDE-2)",
+      company: "Amazon India",
+      position: "Software Development Engineer II (SDE-2)",
       isMentor: true,
-      linkedInUrl: "https://linkedin.com/in/siddharth-verma-mock",
+      linkedInUrl: "https://linkedin.com/in/siddharth-venkataraman-sde",
     });
 
     const alumProfile2 = await AlumniProfile.create({
       userId: alumUser2._id,
       graduationYear: 2023,
       department: "Computer Science",
-      company: "Qualcomm",
-      position: "Hardware Design Engineer",
+      company: "Qualcomm Technologies",
+      position: "Senior Hardware Engineer — Silicon Validation",
       isMentor: true,
-      linkedInUrl: "https://linkedin.com/in/neha-sharma-mock",
+      linkedInUrl: "https://linkedin.com/in/neha-krishnaswamy-qcom",
     });
 
-    const alumProfile3 = await AlumniProfile.create({
+    await AlumniProfile.create({
       userId: alumUser3._id,
       graduationYear: 2021,
       department: "Information Technology",
-      company: "Microsoft",
-      position: "Associate Product Manager",
+      company: "Microsoft IDC Hyderabad",
+      position: "Associate Program Manager — Azure DevOps",
       isMentor: false,
-      linkedInUrl: "https://linkedin.com/in/rohan-das-mock",
+      linkedInUrl: "https://linkedin.com/in/rohan-balaji-pm-msft",
     });
 
-    console.log("Alumni Profiles seeded. Seeding active mentorship requests...");
-
+    // Pending mentorship request from primary student to Neha (Qualcomm)
     await MentorshipRequest.create({
-      studentId: alexProfile._id,
-      alumniId: alumProfile2._id, // Neha Sharma
+      studentId: primaryStudentProfile._id,
+      alumniId: alumProfile2._id,
       status: "pending",
-      notes: "Hi Neha, I am currently preparing for summer ECE/CSE placements and would love to receive guidance on system design and mock interviews.",
+      notes:
+        "Hi Neha! I am a 5th semester CS student preparing for hardware/embedded placement drives (Qualcomm, Intel, Texas Instruments). I would love guidance on how Qualcomm evaluates fresh engineers for silicon validation roles, what skills to prioritise, and how to navigate the interview process. I have a foundational understanding of digital logic design and C programming.",
     });
 
-    console.log("Mentorship requests seeded.");
+    console.log("3 alumni profiles and 1 mentorship request seeded.");
 
-    // 17. Seed Lost & Found Listings
-    console.log("Seeding Lost & Found Listings...");
-    
+    // 18. Create Lost & Found Listings
+    console.log("Seeding lost & found listings...");
+
+    // FIX: reporterId must reference User._id (not Student._id) — schema ref is "User"
+    const studentUser0 = createdStudentProfiles[0].user;
+    const studentUser1ref = createdStudentProfiles[1].user;
+
     await LostAndFoundItem.create([
       {
-        reporterId: seller1,
-        title: "Keys with Red Leather Strap",
-        description: "Found a set of keys with a red leather keychain near Block C cafeteria entrance.",
+        reporterId: studentUser0._id,
+        title: "Set of Keys with Red Leather Keychain",
+        description:
+          "Found a set of 3 keys attached to a red leather keychain near the Block C canteen entrance on Saturday morning around 10 AM. Appears to include a room key and a padlock key.",
         type: "found",
         category: "keys",
-        location: "Block C Cafeteria",
+        location: "Block C Canteen Entrance",
         status: "open",
+        imageUrl:
+          "https://placehold.co/200x200/0f172a/e2e8f0?text=Keys",
       },
       {
-        reporterId: seller2,
-        title: "Lost Black Leather Wallet",
-        description: "Contains campus library card, driving license, and some cash. Lost near central seminar hall.",
+        reporterId: studentUser1ref._id,
+        title: "Lost: Black Bi-fold Leather Wallet",
+        description:
+          "Lost my black bi-fold leather wallet somewhere near the Central Seminar Hall during Wednesday's guest lecture on AI. Contains campus library card, driving licence, Aadhar Xerox, and approximately ₹300 in cash.",
         type: "lost",
         category: "documents",
         location: "Central Seminar Hall",
         status: "open",
+        imageUrl:
+          "https://placehold.co/200x200/0f172a/e2e8f0?text=Wallet",
       },
       {
-        reporterId: alexProfile._id,
-        title: "Found Casio Calculator fx-991EX",
-        description: "Scientific calculator left in Room 302 after the math test. Contact me to retrieve it.",
+        reporterId: primaryStudentUser._id,
+        title: "Found: Casio fx-991EX ClassWiz Scientific Calculator",
+        description:
+          "Found a Casio Classwiz fx-991EX scientific calculator left on a desk in Room 302, Science Block, after the Friday mathematics test. Please DM to claim with proof of ownership.",
         type: "found",
         category: "electronics",
-        location: "Room 302 (Science Block)",
+        location: "Science Block — Room 302",
         status: "open",
+        imageUrl:
+          "https://placehold.co/200x200/0f172a/e2e8f0?text=Calculator",
       },
       {
-        reporterId: seller1,
-        title: "Blue Denim Jacket",
-        description: "Found blue denim jacket left hanging on the library chair on ground floor.",
+        reporterId: studentUser0._id,
+        title: "Found: Blue Levis Denim Jacket",
+        description:
+          "Found a blue Levis denim jacket (size M) left on a reading chair on the ground floor of the central library. No name tags inside. Already handed to the library counter for safekeeping.",
         type: "found",
         category: "clothing",
-        location: "Central Library Ground Floor",
+        location: "Central Library — Ground Floor",
         status: "resolved",
-      }
+        imageUrl:
+          "https://placehold.co/200x200/0f172a/e2e8f0?text=Jacket",
+      },
     ]);
 
-    console.log("Lost & Found listings seeded.");
+    console.log("4 lost & found listings seeded.");
 
-    console.log("Library books and checkout entries seeded.");
-    console.log("----------------------------------------------------");
-    console.log("DATABASE SEEDING COMPLETED SUCCESSFULLY!");
-    console.log("----------------------------------------------------");
-    console.log("Primary Test Credentials:");
-    console.log("  Email:    student@campusone.edu");
-    console.log("  Password: password123");
-    console.log("----------------------------------------------------");
+    // 19. Seed AI Chat History (demo conversation for primary student)
+    console.log("Seeding AI assistant chat history...");
+
+    const DEMO_CONV_ID = `conv-${primaryStudentUser._id}-demo-001`;
+    const chatMessages = [
+      {
+        userId: primaryStudentUser._id,
+        conversationId: DEMO_CONV_ID,
+        role: "user",
+        content: "What is my current attendance percentage in each subject?",
+      },
+      {
+        userId: primaryStudentUser._id,
+        conversationId: DEMO_CONV_ID,
+        role: "assistant",
+        content:
+          "Based on your attendance records for Semester 5 (last 21 working days), here is your current status:\n\n• Machine Learning (19CS501): **88.1%** — Safe ✅\n• Operating Systems (19CS502): **79.3%** — Borderline ⚠️\n• Computer Networks (19CS503): **61.9%** — SHORTAGE ALERT 🔴 (minimum 75% required)\n• Software Engineering (19CS504): **91.4%** — Safe ✅\n• Database Systems (19CS505): **74.2%** — Borderline ⚠️\n\nYou need to attend the next **8 consecutive Computer Networks classes** without absence to recover above the 75% threshold. Would you like a day-wise plan?",
+      },
+      {
+        userId: primaryStudentUser._id,
+        conversationId: DEMO_CONV_ID,
+        role: "user",
+        content: "What classes do I have tomorrow?",
+      },
+      {
+        userId: primaryStudentUser._id,
+        conversationId: DEMO_CONV_ID,
+        role: "assistant",
+        content:
+          "Here is your timetable for tomorrow (Wednesday):\n\n| Time | Subject | Room | Type |\n|---|---|---|---|\n| 09:00 – 10:00 | Machine Learning (19CS501) | LH-401 | Lecture |\n| 10:15 – 11:15 | Operating Systems (19CS502) | LH-402 | Lecture |\n| 11:30 – 12:30 | Computer Networks (19CS503) | LH-403 | Lecture |\n| 14:00 – 15:00 | Software Engineering (19CS504) | LH-401 | Lecture |\n\nAll four sessions are with Dr. Meenakshi Sundaram R and Dr. Priya Nair. I'd especially recommend not missing the Computer Networks lecture given your current attendance situation.",
+      },
+      {
+        userId: primaryStudentUser._id,
+        conversationId: DEMO_CONV_ID,
+        role: "user",
+        content: "Which placement companies have upcoming deadlines this week?",
+      },
+      {
+        userId: primaryStudentUser._id,
+        conversationId: DEMO_CONV_ID,
+        role: "assistant",
+        content:
+          "Here are the placement drives with deadlines in the next 7 days:\n\n1. **Microsoft IDC** — Frontend Software Engineer Intern\n   - Package: 15 LPA | Location: Hyderabad\n   - Deadline: **6 days from now** ⚠️\n   - Status: You are already **shortlisted** for this role!\n\n2. **Zoho Corporation** — Junior DevOps Engineer\n   - Package: 10.5 LPA | Location: Chennai\n   - Deadline: **9 days from now**\n   - Min CGPA: 6.5 — you are eligible\n\nYou have also already applied to Zoho MTS (18 days remaining). Shall I help you prepare for the Microsoft interview?",
+      },
+      {
+        userId: primaryStudentUser._id,
+        conversationId: DEMO_CONV_ID,
+        role: "user",
+        content: "Is Bus 1 running today? What is the ETA?",
+      },
+      {
+        userId: primaryStudentUser._id,
+        conversationId: DEMO_CONV_ID,
+        role: "assistant",
+        content:
+          "Yes, Bus 1 (Bharathiyar University – Kinathukadavu route) is currently active. 🚌\n\nLast known position: **Near Milk Company stop**, heading towards Gandhipark.\n- Current occupancy: **28 passengers**\n- Speed: ~42 km/h\n- Estimated arrival at campus: **12–15 minutes**\n\nBus 3 (Saravanampatti via Ramanathapuram) and Bus 6 (Sulur via Ramanathapuram) are also currently running. You can track their live positions on the Bus Tracking screen.",
+      },
+    ];
+
+    await ChatHistory.insertMany(chatMessages);
+    console.log(`${chatMessages.length} AI chat history messages seeded.`);
+
+    // 20. Seed Fee Structures and Invoices
+    console.log("Seeding fee structures and student invoices...");
+
+    const csFeeStructure = await FeeStructure.create({
+      department: "Computer Science",
+      semester: 5,
+      batch: "2023-2027",
+      tuitionFee: 45000,
+      hostelFee: 35000,
+      labFee: 5000,
+      examFee: 2500,
+      otherDues: 1000,
+    });
+
+    const feeInvoices = [];
+
+    // Create invoices for all seeded students
+    for (const item of createdStudentProfiles) {
+      // Current semester pending dues
+      feeInvoices.push({
+        studentId: item.profile._id,
+        feeStructureId: csFeeStructure._id,
+        title: "Semester 5 Academic & Hostel Fees",
+        amountDue: csFeeStructure.totalAmount,
+        amountPaid: 0,
+        status: "pending",
+        dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 15),
+      });
+
+      // Previous semester paid dues
+      feeInvoices.push({
+        studentId: item.profile._id,
+        feeStructureId: csFeeStructure._id,
+        title: "Semester 4 Academic & Hostel Fees",
+        amountDue: 85000,
+        amountPaid: 85000,
+        status: "paid",
+        dueDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 120),
+        paymentDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 125),
+      });
+    }
+
+    await FeeInvoice.insertMany(feeInvoices);
+    console.log(`Seeded ${feeInvoices.length} fee invoices across all students.`);
+
+    // ── Final Summary ──────────────────────────────────────────────────────
+    console.log("\n=====================================================");
+    console.log("  DATABASE SEEDING COMPLETED SUCCESSFULLY");
+    console.log("=====================================================");
+    console.log("\n  Primary Demo Account");
+    console.log("  ┌───────────────────────────────────────────────┐");
+    console.log("  │  Role     :  student                          │");
+    console.log(`  │  Name     :  ${(primaryStudentData.name + " ").padEnd(32)}│`);
+    console.log(`  │  Roll No  :  ${(PRIMARY_ROLL + " ").padEnd(32)}│`);
+    console.log("  │  Email    :  student@campusone.edu            │");
+    console.log("  │  Password :  password123                      │");
+    console.log("  └───────────────────────────────────────────────┘");
+    console.log("\n  Other Accounts (password: password123)");
+    console.log("  admin@campusone.edu        → Admin");
+    console.log("  meenakshi@campusone.edu    → Faculty (HOD, CS)");
+    console.log("  priya.nair@campusone.edu   → Faculty (Assoc. Prof, CS)");
+    console.log("  placement@campusone.edu    → Placement Officer");
+    console.log("  murugan.driver@campusone.edu → Transport Staff");
+    console.log("=====================================================\n");
   } catch (error) {
-    console.error("Seeding encountered an error:", error.message);
+    console.error("\n[ERROR] Seeding failed:", error.message);
+    if (error.code === 11000) {
+      console.error(
+        "  → Duplicate key violation on field:",
+        JSON.stringify(error.keyValue)
+      );
+    }
+    console.error(error);
   } finally {
     console.log("Closing database connection...");
     await mongoose.connection.close();
-    console.log("Database connection closed.");
+    console.log("Connection closed.");
   }
 };
 
