@@ -17,6 +17,7 @@ import clubReducer from "./slices/clubSlice";
 import alumniReducer from "./slices/alumniSlice";
 import studentIdReducer from "./slices/studentIdSlice";
 import lostFoundReducer from "./slices/lostFoundSlice";
+import healthReducer from "./slices/healthSlice";
 
 export const store = configureStore({
   reducer: {
@@ -38,6 +39,7 @@ export const store = configureStore({
     alumni: alumniReducer,
     studentId: studentIdReducer,
     lostFound: lostFoundReducer,
+    health: healthReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

@@ -14,6 +14,7 @@ import {
   Users,
   GraduationCap,
   Archive,
+  Heart,
 } from "lucide-react-native";
 
 import { createStackNavigator } from "@react-navigation/stack";
@@ -35,6 +36,7 @@ import ClubsScreen from "../screens/app/ClubsScreen";
 import AlumniScreen from "../screens/app/AlumniScreen";
 import StudentIdScreen from "../screens/app/StudentIdScreen";
 import LostFoundScreen from "../screens/app/LostFoundScreen";
+import HealthScreen from "../screens/app/HealthScreen";
 
 const Tab = createBottomTabNavigator();
 const DashboardStack = createStackNavigator();
@@ -198,6 +200,16 @@ export default function AppNavigator() {
           tabBarLabel: "Lost & Found",
           tabBarIcon: ({ color, size }) => (
             <Archive size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Health"
+        component={HealthScreen}
+        options={{
+          tabBarLabel: "Health",
+          tabBarIcon: ({ color, size }) => (
+            <Heart size={size} color={color} />
           ),
         }}
       />

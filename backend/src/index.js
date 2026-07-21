@@ -28,6 +28,7 @@ const clubRoutes = require("./routes/clubRoutes");
 const alumniRoutes = require("./routes/alumniRoutes");
 const studentIdRoutes = require("./routes/studentIdRoutes");
 const lostFoundRoutes = require("./routes/lostFoundRoutes");
+const healthRoutes = require("./routes/healthRoutes");
 const { initLeaderboardJob } = require("./jobs/leaderboardJob");
 const { initQdrantSeed } = require("./jobs/qdrantSeedJob");
 const errorHandler = require("./middleware/errorMiddleware");
@@ -114,6 +115,7 @@ app.use("/api/clubs", clubRoutes);
 app.use("/api/alumni", alumniRoutes);
 app.use("/api/student-id", studentIdRoutes);
 app.use("/api/lost-found", lostFoundRoutes);
+app.use("/api/health", healthRoutes);
 
 // API health endpoint
 app.get("/api/health", (req, res) => {

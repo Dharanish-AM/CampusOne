@@ -25,6 +25,8 @@ require("../src/models/HostelAllocation");
 require("../src/models/GatePassRequest");
 require("../src/models/Book");
 require("../src/models/BookBorrow");
+require("../src/models/HealthAppointment");
+
 
 const { connectRedis } = require("../src/config/redis");
 const server = require("../src/index");

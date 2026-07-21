@@ -72,10 +72,12 @@ api.interceptors.response.use(
     const requestUrl = originalRequest?.url || "";
     if (
       requestUrl.includes("/auth/logout") ||
-      requestUrl.includes("/auth/refresh")
+      requestUrl.includes("/auth/refresh") ||
+      requestUrl.includes("/auth/login")
     ) {
       return Promise.reject(error);
     }
+
 
     // Intercept 401 Unauthorized (Expired Access Token)
     if (error.response.status === 401 && !originalRequest._retry) {

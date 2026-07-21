@@ -32,6 +32,7 @@ const MentorshipRequest = require("../models/MentorshipRequest");
 const LostAndFoundItem = require("../models/LostAndFoundItem");
 const FeeStructure = require("../models/FeeStructure");
 const FeeInvoice = require("../models/FeeInvoice");
+const HealthAppointment = require("../models/HealthAppointment");
 
 // Database Connection URI
 const MONGO_URI =
@@ -4162,6 +4163,7 @@ const seedDatabase = async () => {
     await LostAndFoundItem.deleteMany({});
     await FeeStructure.deleteMany({});
     await FeeInvoice.deleteMany({});
+    await HealthAppointment.deleteMany({});
     console.log("All collections cleared successfully.");
 
     // 2. Create System Users (one per role)
@@ -5373,6 +5375,40 @@ const seedDatabase = async () => {
 
     await FeeInvoice.insertMany(feeInvoices);
     console.log(`Seeded ${feeInvoices.length} fee invoices across all students.`);
+
+    // 21. Seed Health Center Appointments
+    console.log("Seeding health center appointments...");
+
+    await HealthAppointment.create([
+      {
+        studentId: primaryStudentProfile._id,
+        doctorName: "Dr. Lakshmi Prasad (MD)",
+        reason: "Severe cough, seasonal cold, and running fever.",
+        dateTime: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4), // 4 days ago
+        status: "completed",
+        prescription: "Paracetamol 650mg (1-0-1) post food for 3 days, Cetirizine 10mg (0-0-1) for allergy.",
+        medicalLeaveApproved: true,
+        medicalLeaveDays: 2,
+      },
+      {
+        studentId: primaryStudentProfile._id,
+        doctorName: "Dr. Lakshmi Prasad (MD)",
+        reason: "Regular post-viral checkup and health certificate.",
+        dateTime: new Date(Date.now() + 1000 * 60 * 60 * 24 * 2), // 2 days in future
+        status: "scheduled",
+      },
+      {
+        studentId: primaryStudentProfile._id,
+        doctorName: "Dr. Anand Sharma (Ortho)",
+        reason: "Sprained ankle during inter-college basketball match.",
+        dateTime: new Date(Date.now() - 1000 * 60 * 60 * 24 * 18), // 18 days ago
+        status: "completed",
+        prescription: "Apply Volini gel twice daily. Rest from sports activities for 1 week. Painkiller as needed.",
+        medicalLeaveApproved: false,
+        medicalLeaveDays: 0,
+      },
+    ]);
+    console.log("3 health appointments seeded.");
 
     // ── Final Summary ──────────────────────────────────────────────────────
     console.log("\n=====================================================");
