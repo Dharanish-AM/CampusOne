@@ -115,9 +115,8 @@ app.use("/api/clubs", clubRoutes);
 app.use("/api/alumni", alumniRoutes);
 app.use("/api/student-id", studentIdRoutes);
 app.use("/api/lost-found", lostFoundRoutes);
-app.use("/api/health", healthRoutes);
 
-// API health endpoint
+// API health endpoint (Public status check)
 app.get("/api/health", (req, res) => {
   res.status(200).json({
     status: "UP",
@@ -125,6 +124,8 @@ app.get("/api/health", (req, res) => {
     timestamp: new Date(),
   });
 });
+
+app.use("/api/health", healthRoutes);
 
 // Root API info
 app.get("/", (req, res) => {

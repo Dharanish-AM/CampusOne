@@ -1,0 +1,841 @@
+CampusOne
+
+AI-Powered Smart Campus Super App
+
+“One App for Every Student, Faculty &amp; Campus Service.”
+
+Final Year Project Documentation
+
+Submitted in partial fulfilment of the requirements for the award of the degree of
+
+Bachelor of Engineering — Computer Science Engineering
+
+Department of Computer Science Engineering
+
+Sri Eshwar College of Engineering
+
+Batch 2023 – 2027
+
+Abstract
+
+Campus operations across most engineering colleges remain fragmented across disconnected systems — a separate attendance register, a manual bus-tracking WhatsApp group, a paper-based complaint log, and email threads for placement updates. CampusOne proposes a single, unified, AI-powered mobile and web platform that consolidates twenty core campus services — academics, transport, placements, hostel life, library, health, and community — into one role-based super app for students, faculty, administrators, transport staff, placement officers and club coordinators.
+
+The system is built on the MERN-adjacent stack (React Native for mobile, React for the admin web portal, Node.js/Express for the backend, and MongoDB for persistence), augmented with Redis for caching, Socket.IO for real-time features such as live bus tracking and instant notifications, and a Retrieval-Augmented Generation (RAG) based AI assistant that allows natural-language queries about timetables, attendance, and campus logistics. The platform demonstrates practical application of full-stack engineering, real-time systems, role-based access control, cloud storage integration, and applied AI — while remaining extensible enough to evolve from an academic prototype into a production-grade deployment for actual institutional use.
+
+This document details the problem statement, requirement analysis, system design, module-level specification, technology justification, implementation plan, and testing strategy for the CampusOne platform, along with a phased roadmap for scaling the system beyond the initial academic submission.
+
+Table of Contents
+
+1. Introduction
+
+2. Literature Survey
+
+3. System Analysis
+
+4. System Requirements
+
+5. System Design
+
+6. Module Description
+
+7. Technology Stack &amp; Justification
+
+8. Database Design
+
+9. Implementation Plan
+
+10. Testing Strategy
+
+11. Advantages and Limitations
+
+12. Future Enhancements
+
+13. Conclusion
+
+14. References
+
+1. Introduction
+
+1.1 Overview
+
+CampusOne is an AI-powered smart campus super app designed to replace the patchwork of disconnected tools (paper registers, WhatsApp groups, spreadsheets, and multiple portals) that most colleges rely on today. It brings attendance, timetables, transport, placements, hostel management, library services, fee payments, and community features into a single mobile-first application accessible to every stakeholder on campus.
+
+1.2 Problem Statement
+
+Students and staff at most engineering colleges must navigate 5–10 separate systems to accomplish routine tasks: checking attendance on one portal, tracking the college bus over a phone call or informal group chat, applying for placements over email, and raising hostel or infrastructure complaints via paper forms. This fragmentation causes information delays, poor visibility for administrators, and a disjointed experience for students. There is no single, extensible, role-aware platform that unifies these campus services while remaining feasible to build and demonstrate as an academic project.
+
+1.3 Objectives
+
+To design and develop a unified role-based platform serving students, faculty, admin, transport staff, placement officers, and club coordinators.
+
+To provide real-time visibility into attendance, timetables, and bus location.
+
+To digitize placement, library, fee, hostel and complaint workflows currently handled manually.
+
+To integrate an AI-based conversational assistant that answers campus-related queries using Retrieval-Augmented Generation (RAG).
+
+To design the system with a modular architecture that allows incremental scaling from an academic prototype to a production-ready deployment.
+
+1.4 Scope of the Project
+
+The complete CampusOne vision spans twenty modules described in Section 6. For the purposes of academic submission within a two-semester final-year project timeline, development effort is organised into a Core Phase (modules essential for a working, demonstrable system) and a Roadmap Phase (modules documented in full but implemented as extensions beyond the initial submission). This phased scope is detailed in Section 9 (Implementation Plan) and ensures the delivered system is fully functional end-to-end rather than partially built across all twenty modules.
+
+2. Literature Survey
+
+Existing campus/college management solutions were reviewed to identify gaps that CampusOne addresses:
+
+System Type
+
+Typical Capability
+
+Limitation
+
+Traditional College ERP
+
+Attendance, marks, fee records
+
+No real-time features, poor mobile UX, siloed modules
+
+Bus tracking apps (generic)
+
+GPS-based vehicle tracking
+
+Not integrated with academic or notification systems
+
+Placement portals (generic)
+
+Company listings, resume upload
+
+Standalone; no linkage to coding profile or academic eligibility
+
+Campus chatbots (research prototypes)
+
+FAQ-style responses
+
+Static/rule-based, not grounded in live student-specific data
+
+WhatsApp/Telegram groups
+
+Ad-hoc notices and bus updates
+
+Unstructured, not searchable, no access control, no audit trail
+
+The survey confirms that while individual point-solutions exist for attendance, transport, or placements, no widely-adopted system unifies them under one role-based, AI-augmented platform — which forms the core motivation for CampusOne.
+
+3. System Analysis
+
+3.1 Existing System
+
+Most institutions currently rely on a combination of a legacy ERP for attendance and fees, manual or semi-digital processes for hostel and complaint management, and informal communication channels (calls, messaging apps) for transport and notices. Placement coordination is typically handled through spreadsheets and email.
+
+3.2 Proposed System
+
+CampusOne replaces this fragmented landscape with a single mobile and web platform offering real-time data, role-based dashboards, and an AI assistant layer that lets users retrieve information conversationally instead of navigating multiple menus. All twenty modules share a common authentication, notification, and data layer, eliminating duplicate data entry and inconsistent records.
+
+3.3 Feasibility Study
+
+3.3.1 Technical Feasibility
+
+The proposed stack (React Native, React, Node.js/Express, MongoDB, Redis, Socket.IO) is mature, well-documented, and directly aligned with skills already demonstrated in prior full-stack projects, making technical execution feasible within an academic timeline for the Core Phase modules.
+
+3.3.2 Economic Feasibility
+
+All core components (MongoDB Community, Redis, Node.js, React Native/Expo, Docker, GitHub Actions) are open-source or available on free tiers. Paid dependencies are limited to optional cloud storage, maps, and LLM API usage, which can be developed and demonstrated using free-tier quotas.
+
+3.3.3 Operational Feasibility
+
+The system is designed for non-technical end users (students, faculty, hostel/transport staff) through a simple, mobile-first interface, minimising training overhead for real-world adoption.
+
+4. System Requirements
+
+4.1 Hardware Requirements (Development Environment)
+
+Component
+
+Minimum Specification
+
+Development Machine
+
+8 GB RAM, Quad-core CPU, 256 GB SSD
+
+Mobile Test Device
+
+Android 10+ / iOS 13+ smartphone
+
+Server (Deployment)
+
+2 vCPU, 4 GB RAM cloud instance (e.g., AWS EC2 t3.medium or equivalent)
+
+4.2 Software Requirements
+
+Category
+
+Tools / Technology
+
+IDE
+
+Visual Studio Code
+
+Runtime
+
+Node.js (LTS)
+
+Mobile Framework
+
+React Native with Expo CLI
+
+Database
+
+MongoDB (local/Atlas), Redis
+
+Version Control
+
+Git, GitHub
+
+Containerization
+
+Docker, Docker Compose
+
+API Testing
+
+Postman
+
+Design
+
+Figma (UI/UX prototyping)
+
+4.3 Functional Requirements
+
+The system shall allow students to view real-time attendance percentage and subject-wise breakdown.
+
+The system shall allow faculty to mark and edit attendance for assigned sections.
+
+The system shall display live bus location and estimated arrival time on a map view.
+
+The system shall allow students to apply to eligible placement drives and upload resumes.
+
+The system shall aggregate competitive-programming statistics from external platforms via APIs/scrapers.
+
+The system shall allow raising, tracking and rating of complaints across defined categories.
+
+The system shall provide a conversational AI assistant capable of answering campus-related queries using retrieval-augmented generation.
+
+The system shall issue push notifications for notices, bus alerts and complaint status changes.
+
+The system shall support role-based dashboards for Student, Faculty, Admin, Transport Staff, Placement Officer and Club Coordinator.
+
+The system shall allow online fee payment and generate downloadable receipts.
+
+4.4 Non-Functional Requirements
+
+Category
+
+Requirement
+
+Performance
+
+API responses under 500 ms for 95% of requests under normal load; real-time bus updates refreshed every 5–10 seconds.
+
+Scalability
+
+Backend services should scale horizontally behind Nginx; MongoDB sharding/replica sets for growth.
+
+Security
+
+Passwords hashed (bcrypt), JWT with short-lived access tokens + refresh tokens, RBAC enforced at API layer, HTTPS enforced.
+
+Availability
+
+Target uptime of 99% for core modules (Attendance, Timetable, Notices) during active semester.
+
+Usability
+
+Mobile-first responsive design; maximum 3 taps to reach any core feature from the dashboard.
+
+Maintainability
+
+Modular service structure, documented REST API (OpenAPI/Swagger), containerized deployment for consistent environments.
+
+Data Privacy
+
+Health records and personal data access restricted by RBAC and audit-logged.
+
+5. System Design
+
+5.1 System Architecture
+
+CampusOne follows a layered client-server architecture: mobile and web clients communicate with a Node.js/Express API gateway over REST and WebSocket protocols. The gateway delegates requests to core backend services, a dedicated real-time service for live features, and an AI service layer that performs Retrieval-Augmented Generation over a vector database. Data is persisted in MongoDB, cached in Redis, and media is stored in AWS S3 / Cloudinary. The architecture is containerized with Docker and fronted by Nginx, with GitHub Actions handling CI/CD.
+
+5.2 Data Flow Overview
+
+Client apps authenticate via the Auth Service and receive a short-lived JWT access token plus a refresh token.
+
+Role-based middleware on the API gateway restricts each endpoint to permitted roles (Student, Faculty, Admin, Transport Staff, Placement Officer, Club Coordinator).
+
+Real-time events (bus location updates, new notices, complaint status changes) are pushed via Socket.IO channels scoped per user/role.
+
+AI Assistant queries are routed to the AI Service, which retrieves relevant context from the vector database (e.g., the student&apos;s own timetable/attendance records) before generating a grounded response.
+
+Scheduled jobs (attendance shortage calculation, fee due reminders, library due-date reminders) run as background workers and trigger FCM push notifications.
+
+5.3 UML — Use Case Summary
+
+Actor
+
+Key Use Cases
+
+Student
+
+View attendance, view timetable, track bus, apply for placement, raise complaint, ask AI assistant, pay fees
+
+Faculty
+
+Mark attendance, view timetable, post notices
+
+Admin
+
+Manage users, view reports, manage notices, manage fee records
+
+Transport Staff
+
+Update bus location, view assigned route
+
+Placement Officer
+
+Add companies, shortlist students, schedule interviews, view statistics
+
+Club Coordinator
+
+Create events, manage club membership, issue certificates
+
+6. Module Description
+
+All twenty modules of the CampusOne platform are specified below. Modules marked “Core” form the primary academic deliverable; modules marked “Roadmap” are fully designed here and planned for post-submission extension (see Section 9).
+
+1. Dashboard  [Core]
+
+Unified home screen aggregating timetable, attendance %, upcoming exams/events, placement status, bus ETA and notifications for the logged-in user.
+
+User roles: Student, Faculty
+
+2. Attendance  [Core]
+
+Daily &amp; subject-wise attendance capture (faculty), attendance % reports, shortage prediction, leave application (student).
+
+User roles: Student, Faculty
+
+3. Timetable  [Core]
+
+Daily/weekly class &amp; lab schedules, classroom and faculty allocation, exam timetable.
+
+User roles: Student, Faculty, Admin
+
+4. Smart Bus Tracking  [Core]
+
+Live GPS location of college buses, ETA calculation, route maps, occupancy display, driver contact, boarding alerts.
+
+User roles: Student, Transport Staff
+
+5. Placement Portal  [Roadmap]
+
+Eligible company listings, resume upload, interview scheduling, shortlisting workflow, placement statistics dashboard.
+
+User roles: Student, Placement Officer
+
+6. Coding Leaderboard  [Core]
+
+Aggregates LeetCode/Codeforces/CodeChef/HackerRank/GitHub activity; department &amp; class rankings; weak-topic analysis.
+
+User roles: Student
+
+7. Clubs &amp; Communities  [Roadmap]
+
+Club membership, event registration, announcements, photo gallery, certificate issuance.
+
+User roles: Student, Club Coordinator
+
+8. Campus Events  [Roadmap]
+
+Event calendar, QR-based check-in, e-certificates, post-event feedback collection.
+
+User roles: Student, Admin
+
+9. Lost &amp; Found  [Roadmap]
+
+Report/search lost items with images; AI-based image-similarity matching to suggest probable matches; in-app chat with finder.
+
+User roles: Student, Admin
+
+10. Digital Student ID  [Roadmap]
+
+QR/NFC based digital ID used for library access, hostel entry, attendance verification and event check-in.
+
+User roles: Student
+
+11. Notice Board  [Roadmap]
+
+Circulars, department notices, holiday announcements pushed via FCM notifications.
+
+User roles: All roles
+
+12. Library  [Roadmap]
+
+Book search/catalogue, issue history, due-date reminders, fine calculation, online reservation.
+
+User roles: Student, Admin
+
+13. Fee Management  [Roadmap]
+
+Fee history, online payment gateway integration, receipt generation, admin-side dues &amp; payment reports.
+
+User roles: Student, Admin
+
+14. Hostel Module  [Roadmap]
+
+Room allocation, complaint logging, visitor log register, mess menu display, laundry tracking.
+
+User roles: Student, Admin
+
+15. Complaint Portal  [Roadmap]
+
+Category-wise complaint raising (WiFi, hostel, transport, electricity), status tracking, resolution rating.
+
+User roles: Student, Admin
+
+16. AI Assistant  [Core]
+
+RAG-based campus chatbot answering natural-language queries on timetable, attendance, location, exams and eligibility.
+
+User roles: Student, Faculty
+
+17. Campus Marketplace  [Roadmap]
+
+Peer-to-peer listing for used books, calculators, lab coats and notes exchange within the campus.
+
+User roles: Student
+
+18. Cafeteria  [Roadmap]
+
+Digital menu, online food ordering, live queue status, wallet-based payment.
+
+User roles: Student, Admin
+
+19. Health Center  [Roadmap]
+
+Appointment booking, medical history records, emergency contacts, medicine reminders.
+
+User roles: Student, Admin
+
+20. Alumni Network  [Roadmap]
+
+Alumni directory, mentorship matching, referral postings, alumni job board.
+
+User roles: Alumni, Student
+
+7. Technology Stack &amp; Justification
+
+Layer
+
+Technology
+
+Mobile App
+
+React Native (Expo)
+
+Web Admin Portal
+
+React.js + Vite
+
+Backend Runtime / Framework
+
+Node.js + Express.js
+
+Primary Database
+
+MongoDB
+
+Cache / Session Store
+
+Redis
+
+Authentication
+
+JWT, Refresh Tokens, Role-Based Access Control (RBAC)
+
+File / Media Storage
+
+AWS S3 or Cloudinary
+
+Maps &amp; Location
+
+Google Maps API
+
+Push Notifications
+
+Firebase Cloud Messaging (FCM)
+
+Real-time Communication
+
+Socket.IO
+
+AI / LLM Layer
+
+Ollama or OpenAI API via LangChain
+
+Vector Database
+
+Qdrant or Pinecone
+
+Containerization
+
+Docker
+
+Reverse Proxy / Web Server
+
+Nginx
+
+CI/CD
+
+GitHub Actions
+
+The stack was selected for three reasons: (1) a single JavaScript/TypeScript codebase spans mobile, web and backend, reducing context-switching for a small student team; (2) MongoDB&apos;s flexible schema suits the wide variety of entities (23 collections spanning academics, transport, and commerce) without heavy upfront migration overhead; and (3) Socket.IO and Redis are lightweight enough to demonstrate real-time features (bus tracking, live notifications) without needing a dedicated message broker such as Kafka at the academic-prototype stage.
+
+8. Database Design
+
+8.1 Collections Overview
+
+CampusOne uses MongoDB as its primary data store. The following 23 collections model the system&apos;s core entities:
+
+Collection
+
+Collection
+
+Collection
+
+Users
+
+Students
+
+Faculty
+
+Attendance
+
+Timetables
+
+Subjects
+
+Placements
+
+Companies
+
+CodingProfiles
+
+CodingStats
+
+Events
+
+Clubs
+
+LostItems
+
+BusRoutes
+
+BusLocations
+
+Notifications
+
+Complaints
+
+LibraryBooks
+
+IssuedBooks
+
+Fees
+
+Hostels
+
+MarketplaceItems
+
+HealthRecords
+
+8.2 Sample Schema — Attendance Collection
+
+Field
+
+Type
+
+Description
+
+_id
+
+ObjectId
+
+Unique record identifier
+
+studentId
+
+ObjectId (ref: Students)
+
+Reference to the student
+
+subjectId
+
+ObjectId (ref: Subjects)
+
+Reference to the subject
+
+date
+
+Date
+
+Date of the class session
+
+status
+
+String (enum)
+
+‘present’ | ‘absent’ | ‘leave’
+
+markedBy
+
+ObjectId (ref: Faculty)
+
+Faculty member who marked attendance
+
+createdAt
+
+Date
+
+Record creation timestamp
+
+8.3 Sample Schema — BusLocations Collection
+
+Field
+
+Type
+
+Description
+
+_id
+
+ObjectId
+
+Unique record identifier
+
+routeId
+
+ObjectId (ref: BusRoutes)
+
+Reference to the assigned route
+
+latitude
+
+Number
+
+Current GPS latitude
+
+longitude
+
+Number
+
+Current GPS longitude
+
+occupancy
+
+Number
+
+Approximate current occupancy count
+
+updatedAt
+
+Date
+
+Timestamp of last GPS ping
+
+9. Implementation Plan
+
+Given the scale of the full CampusOne vision (20 modules), implementation is organised into two phases to ensure a fully working, demonstrable system is delivered within the academic timeline, while the complete platform remains documented for future extension.
+
+9.1 Phase 1 — Core Academic Deliverable (Semesters 7–8)
+
+Dashboard
+
+Attendance (student + faculty flows)
+
+Timetable
+
+Smart Bus Tracking (live GPS simulation/integration)
+
+Coding Leaderboard (GitHub + one competitive platform integration)
+
+AI Assistant (RAG over timetable, attendance and FAQ data)
+
+9.2 Phase 2 — Roadmap Extension (Post-Submission)
+
+Placement Portal, Clubs &amp; Communities, Campus Events, Lost &amp; Found
+
+Digital Student ID, Notice Board, Library, Fee Management
+
+Hostel Module, Complaint Portal, Campus Marketplace, Cafeteria
+
+Health Center, Alumni Network
+
+9.3 Development Timeline (Phase 1)
+
+Sprint
+
+Duration
+
+Deliverable
+
+Sprint 1
+
+2 weeks
+
+Requirement finalisation, ER diagram, API contract design, UI wireframes
+
+Sprint 2
+
+3 weeks
+
+Auth service (JWT/RBAC), Dashboard, Timetable module
+
+Sprint 3
+
+3 weeks
+
+Attendance module (student + faculty), notification pipeline
+
+Sprint 4
+
+3 weeks
+
+Smart Bus Tracking with Socket.IO + Google Maps integration
+
+Sprint 5
+
+2 weeks
+
+Coding Leaderboard integration (GitHub API + one platform)
+
+Sprint 6
+
+3 weeks
+
+AI Assistant — vector DB setup, RAG pipeline, chatbot UI
+
+Sprint 7
+
+2 weeks
+
+Integration testing, bug fixing, deployment, documentation
+
+10. Testing Strategy
+
+Test Type
+
+Approach
+
+Tools
+
+Unit Testing
+
+Backend service functions and utility logic tested in isolation
+
+Jest
+
+Integration Testing
+
+API endpoints tested end-to-end against a test MongoDB instance
+
+Postman / Supertest
+
+UI Testing
+
+Manual and scripted testing of mobile screens across roles
+
+Expo Go, manual test cases
+
+Load Testing
+
+Simulated concurrent requests on Attendance and Bus Tracking endpoints
+
+Apache JMeter
+
+Security Testing
+
+JWT expiry handling, RBAC boundary checks, input validation/sanitisation
+
+Manual + OWASP ZAP baseline scan
+
+User Acceptance Testing
+
+Pilot testing with a sample group of students and faculty for Phase 1 modules
+
+Structured feedback forms
+
+11. Advantages and Limitations
+
+11.1 Advantages
+
+Consolidates fragmented campus services into a single, role-aware platform.
+
+Improves transparency via real-time attendance, bus tracking and notifications.
+
+Reduces manual/paper-based processes for complaints, leave applications and placements.
+
+AI assistant reduces time spent navigating menus for common queries.
+
+Modular architecture allows incremental rollout without redesigning the core system.
+
+11.2 Limitations
+
+Phase 1 academic delivery covers six of the twenty designed modules; remaining modules require further development effort beyond the project timeline.
+
+Live bus GPS tracking requires physical hardware (GPS-enabled devices on buses) for real-world deployment, which may be simulated during academic demonstration.
+
+AI assistant accuracy depends on the quality and completeness of the retrieval data set; it is not a substitute for authoritative administrative decisions.
+
+External platform integrations (LeetCode, Codeforces, etc.) depend on third-party API/scraping stability.
+
+12. Future Enhancements
+
+Migrate to a microservices architecture with an API Gateway (e.g., Kong or AWS API Gateway) as module count and traffic grow.
+
+Introduce Kafka for event-driven notification and analytics pipelines across modules.
+
+Add Kubernetes-based orchestration for horizontal scaling of backend services.
+
+Extend the AI assistant with voice input and multilingual support (Tamil/English).
+
+Add predictive analytics for placement readiness scoring and attendance-risk early warning.
+
+Integrate biometric/NFC hardware for the Digital Student ID module for physical access control.
+
+Build an alumni-funded scholarship/referral marketplace on top of the Alumni Network module.
+
+13. Conclusion
+
+CampusOne addresses a genuine, widely-experienced problem — the fragmentation of everyday campus services across disconnected tools — with a unified, role-based, AI-augmented platform. By phasing delivery into a focused Core set of six modules for academic submission and a fully documented Roadmap for the remaining fourteen, the project balances technical ambition with realistic execution within a final-year timeline. The chosen technology stack builds directly on established full-stack and cloud skills, while the AI assistant and real-time features demonstrate applied competency in modern software engineering practices — positioning CampusOne as both a credible academic deliverable and a foundation for a genuinely deployable campus platform.
+
+14. References
+
+MongoDB Inc., “MongoDB Documentation,” https://www.mongodb.com/docs/
+
+Express.js, “Express — Node.js Web Application Framework,” https://expressjs.com/
+
+Meta Platforms, “React Native Documentation,” https://reactnative.dev/
+
+Expo, “Expo Documentation,” https://docs.expo.dev/
+
+Socket.IO, “Socket.IO Documentation,” https://socket.io/docs/
+
+LangChain, “LangChain Documentation,” https://python.langchain.com/
+
+Google, “Google Maps Platform Documentation,” https://developers.google.com/maps
+
+Firebase, “Firebase Cloud Messaging,” https://firebase.google.com/docs/cloud-messaging
+
+Docker Inc., “Docker Documentation,” https://docs.docker.com/
+
+OWASP Foundation, “OWASP Top Ten,” https://owasp.org/www-project-top-ten/
