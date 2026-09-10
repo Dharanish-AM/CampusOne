@@ -1,0 +1,103 @@
+{
+  "databaseStatus": "online",
+  "endpointInventory": {
+    "totalDiscovered": 10,
+    "mounted": 5,
+    "unmounted": 5,
+    "missing": 15
+  },
+  "endpoints": [
+    {
+      "path": "/api/auth/login",
+      "method": "POST",
+      "status": "MOUNTED",
+      "classification": "PUBLIC",
+      "tested": true,
+      "passed": true
+    },
+    {
+      "path": "/api/auth/register/student",
+      "method": "POST",
+      "status": "MOUNTED",
+      "classification": "PUBLIC",
+      "tested": true,
+      "passed": true
+    },
+    {
+      "path": "/api/auth/logout",
+      "method": "POST",
+      "status": "MOUNTED",
+      "classification": "AUTHENTICATED",
+      "tested": true,
+      "passed": true
+    },
+    {
+      "path": "/api/auth/me",
+      "method": "GET",
+      "status": "MOUNTED",
+      "classification": "AUTHENTICATED",
+      "tested": true,
+      "passed": true
+    },
+    {
+      "path": "/api/auth/change-password",
+      "method": "POST",
+      "status": "MOUNTED",
+      "classification": "AUTHENTICATED",
+      "tested": true,
+      "passed": true
+    },
+    {
+      "path": "/api/students/me",
+      "method": "GET",
+      "status": "UNMOUNTED",
+      "classification": "STUDENT",
+      "tested": false,
+      "passed": false,
+      "notes": "Route file exists but is not mounted in routes/index.js"
+    },
+    {
+      "path": "/api/students/me",
+      "method": "PATCH",
+      "status": "UNMOUNTED",
+      "classification": "STUDENT",
+      "tested": false,
+      "passed": false,
+      "notes": "Route file exists but is not mounted in routes/index.js"
+    },
+    {
+      "path": "/api/students/me/timetable",
+      "method": "GET",
+      "status": "UNMOUNTED",
+      "classification": "STUDENT",
+      "tested": false,
+      "passed": false,
+      "notes": "Route file exists but is not mounted in routes/index.js"
+    },
+    {
+      "path": "/api/students/me/results",
+      "method": "GET",
+      "status": "UNMOUNTED",
+      "classification": "STUDENT",
+      "tested": false,
+      "passed": false,
+      "notes": "Route file exists but is not mounted in routes/index.js"
+    },
+    {
+      "path": "/api/students/me/subjects",
+      "method": "GET",
+      "status": "UNMOUNTED",
+      "classification": "STUDENT",
+      "tested": false,
+      "passed": false,
+      "notes": "Route file exists but is not mounted in routes/index.js"
+    }
+  ],
+  "securityValidation": {
+    "plaintextPasswords": 0,
+    "passwordHashesExposed": 0,
+    "unauthorizedAccessBlocked": true,
+    "privilegeEscalationPrevented": true
+  },
+  "finalStatus": "PASS WITH WARNINGS"
+}

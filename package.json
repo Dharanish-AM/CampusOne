@@ -6,7 +6,8 @@
   "workspaces": [
     "backend",
     "frontend-web",
-    "frontend-mobile"
+    "frontend-mobile",
+    "data-server"
   ],
   "scripts": {
     "lint": "npm run lint --workspaces --if-present",

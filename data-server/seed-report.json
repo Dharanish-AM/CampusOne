@@ -1,0 +1,154 @@
+{
+  "startedAt": "2026-08-11T06:11:36.553Z",
+  "completedAt": "2026-08-11T06:11:37.628Z",
+  "durationMs": 1074,
+  "success": true,
+  "files": {
+    "roles.csv": {
+      "rows": 6,
+      "processed": 6
+    },
+    "academic_years.csv": {
+      "rows": 2,
+      "processed": 2
+    },
+    "terms.csv": {
+      "rows": 2,
+      "processed": 2
+    },
+    "departments.csv": {
+      "rows": 2,
+      "processed": 2
+    },
+    "courses.csv": {
+      "rows": 2,
+      "processed": 2
+    },
+    "batches.csv": {
+      "rows": 3,
+      "processed": 3
+    },
+    "academic_semesters.csv": {
+      "rows": 3,
+      "processed": 3
+    },
+    "subjects.csv": {
+      "rows": 7,
+      "processed": 7
+    },
+    "users.csv": {
+      "rows": 15,
+      "processed": 15
+    },
+    "students.csv": {
+      "rows": 10,
+      "processed": 10
+    },
+    "faculty.csv": {
+      "rows": 1,
+      "processed": 1
+    },
+    "admins.csv": {
+      "rows": 1,
+      "processed": 1
+    },
+    "transport_staff.csv": {
+      "rows": 1,
+      "processed": 1
+    },
+    "placement_officers.csv": {
+      "rows": 1,
+      "processed": 1
+    },
+    "club_coordinators.csv": {
+      "rows": 1,
+      "processed": 1
+    },
+    "user_roles.csv": {
+      "rows": 15,
+      "processed": 15
+    },
+    "faculty_subjects.csv": {
+      "rows": 5,
+      "processed": 5
+    },
+    "examination_sessions.csv": {
+      "rows": 3,
+      "processed": 3
+    },
+    "examinations.csv": {
+      "rows": 15,
+      "processed": 15
+    },
+    "results.csv": {
+      "rows": 50,
+      "processed": 50
+    },
+    "timeslots.csv": {
+      "rows": 5,
+      "processed": 5
+    },
+    "rooms.csv": {
+      "rows": 3,
+      "processed": 3
+    },
+    "timetable_entries.csv": {
+      "rows": 35,
+      "processed": 35
+    },
+    "skills.csv": {
+      "rows": 3,
+      "processed": 3
+    },
+    "topics.csv": {
+      "rows": 2,
+      "processed": 2
+    },
+    "assessments.csv": {
+      "rows": 2,
+      "processed": 2
+    },
+    "questions.csv": {
+      "rows": 3,
+      "processed": 3
+    },
+    "submissions.csv": {
+      "rows": 2,
+      "processed": 2
+    },
+    "relationships.csv": {
+      "rows": 665,
+      "existed": 651,
+      "created": 14
+    }
+  },
+  "nodeCounts": {
+    "User": 15,
+    "Role": 6,
+    "Student": 10,
+    "Faculty": 1,
+    "Admin": 1,
+    "Department": 2,
+    "Course": 2,
+    "Batch": 3,
+    "AcademicSemester": 3,
+    "Subject": 7,
+    "Examination": 15,
+    "Result": 50,
+    "TimetableEntry": 35
+  },
+  "csvWarnings": [
+    "[CSV DATA WARNING] File: faculty_subjects.csv (Row 5): Faculty ID \"fac2\" in field \"facultyId\" is missing from faculty.csv",
+    "[CSV DATA WARNING] File: faculty_subjects.csv (Row 6): Faculty ID \"fac2\" in field \"facultyId\" is missing from faculty.csv",
+    "[CSV DATA WARNING] File: timetable_entries.csv (Row 3): Faculty ID \"fac2\" in field \"facultyId\" is missing from faculty.csv",
+    "[CSV DATA WARNING] File: timetable_entries.csv (Row 6): Faculty ID \"fac2\" in field \"facultyId\" is missing from faculty.csv",
+    "[CSV DATA WARNING] File: timetable_entries.csv (Row 9): Faculty ID \"fac2\" in field \"facultyId\" is missing from faculty.csv",
+    "[CSV DATA WARNING] File: timetable_entries.csv (Row 12): Faculty ID \"fac2\" in field \"facultyId\" is missing from faculty.csv",
+    "[CSV DATA WARNING] File: timetable_entries.csv (Row 15): Faculty ID \"fac2\" in field \"facultyId\" is missing from faculty.csv",
+    "[CSV DATA WARNING] File: timetable_entries.csv (Row 18): Faculty ID \"fac2\" in field \"facultyId\" is missing from faculty.csv",
+    "[CSV DATA WARNING] File: timetable_entries.csv (Row 21): Faculty ID \"fac2\" in field \"facultyId\" is missing from faculty.csv",
+    "[CSV DATA WARNING] File: timetable_entries.csv (Row 24): Faculty ID \"fac2\" in field \"facultyId\" is missing from faculty.csv",
+    "[CSV DATA WARNING] File: timetable_entries.csv (Row 27): Faculty ID \"fac2\" in field \"facultyId\" is missing from faculty.csv",
+    "[CSV DATA WARNING] File: timetable_entries.csv (Row 30): Faculty ID \"fac2\" in field \"facultyId\" is missing from faculty.csv"
+  ]
+}
